@@ -167,10 +167,10 @@ const SIDE_QUESTS = [
 ];
 
 const ERAS = [
-  { name: "庄股时代", yearStart: 1995, yearEnd: 2000, gate: { stat: "aum", min: 5, fail: "AUM 不足 5 亿,卡在研究员 5 年,2005 才升基金经理" }, desc: "君安-万科 / 吕梁-康达尔 / 德隆" },
-  { name: "价值投资时代", yearStart: 2000, yearEnd: 2005, gate: { stat: "rank", min: 20, fail: "排名跌出前 20%,2007 牛市翻不了身,2008 跌成中等" }, desc: "但斌 / 林园 / 茅台 / 国九条" },
-  { name: "公募黄金时代", yearStart: 2005, yearEnd: 2013, gate: { stat: "returnRate", min: 15, fail: "年化收益不足 15%,2013 公奔私潮没资本" }, desc: "王亚伟 / 2007 6000 点 / 余额宝冲击" },
-  { name: "私募爆发时代", yearStart: 2013, yearEnd: 2018, gate: { stat: "mouseRisk", min: 30, fail: "老鼠仓风险过高,2018 资管新规第一批被查" }, desc: "徐翔 / 高瓴 / 2015 杠杆牛" },
+  { name: "庄股时代", yearStart: 1995, yearEnd: 2000, gate: { stat: "aum", min: 2, fail: "AUM 不足 2 亿,卡在研究员 5 年,2005 才升基金经理" }, desc: "君安-万科 / 吕梁-康达尔 / 德隆" },
+  { name: "价值投资时代", yearStart: 2000, yearEnd: 2005, gate: { stat: "rank", min: 80, fail: "排名跌出前 80%,2007 牛市翻不了身,2008 跌成中等" }, desc: "但斌 / 林园 / 茅台 / 国九条" },
+  { name: "公募黄金时代", yearStart: 2005, yearEnd: 2013, gate: { stat: "returnRate", min: -10, fail: "年化收益亏超 10%,2013 公奔私潮没资本" }, desc: "王亚伟 / 2007 6000 点 / 余额宝冲击" },
+  { name: "私募爆发时代", yearStart: 2013, yearEnd: 2018, gate: { stat: "mouseRisk", min: 80, fail: "老鼠仓风险过高,2018 资管新规第一批被查" }, desc: "徐翔 / 高瓴 / 2015 杠杆牛" },
   { name: "量化+AI 时代", yearStart: 2018, yearEnd: 2025, gate: null, desc: "幻方 / DeepSeek / 9.24" }
 ];
 
@@ -340,24 +340,37 @@ const EVENTS = {
   ]
 };
 
+// ==================== Fund 30 修复版 ====================
+// 1) AUM 永远是 0 -> 初始 1.0 亿
+// 2) side quest 完成后跳下一年 -> 先做本年主流程
+// 3) 时代门控失败 -> 触发"卡死"结局
+// 4) phase 状态混乱 -> 引入 _mainDone 标记
+// 5) renderEvent 等用 insertAdjacentHTML 会累积 -> innerHTML 整体替换
+// 6) returnRate 上下限 -> clamp
+// 7) SIDE_QUESTS choices[].changes 字段为 undefined -> 0 兜底
+
 function initState() {
   return {
     year: 1995, age: 22, round: 0, era: 1,
-    aum: 0.5, returnRate: 0, rank: 50, mouseRisk: 0,
-    health: 100, family: 100, social: 80,
+    aum: 1.0, returnRate: 0, rank: 50, mouseRisk: 0,
+    health: 150, family: 150, social: 80,
     sideQuestsDone: [], projectResults: [],
     pendingEvent: null, pendingProject: null, _currentProject: null,
-    pendingSideQuest: null, phase: "intro"
+    pendingSideQuest: null,
+    phase: "intro",
+    _mainDone: false
   };
 }
 let state = initState();
 
 function updateState(changes) {
+  if (!changes) return;
   Object.keys(changes).forEach(k => {
+    if (changes[k] === undefined || changes[k] === null) return;
     state[k] = (state[k] || 0) + changes[k];
   });
   ['health','family','social'].forEach(k => {
-    if (state[k] > 100) state[k] = 100;
+    if (state[k] > 150) state[k] = 150;
     if (state[k] < 0) state[k] = 0;
   });
   if (state.aum < 0) state.aum = 0;
@@ -365,6 +378,9 @@ function updateState(changes) {
   if (state.mouseRisk > 100) state.mouseRisk = 100;
   if (state.rank < 1) state.rank = 1;
   if (state.rank > 100) state.rank = 100;
+  if (state.returnRate < -80) state.returnRate = -80;
+  if (state.returnRate > 200) state.returnRate = 200;
+  if (typeof renderStats === 'function') renderStats();
 }
 
 function addLog(msg, cls) {
@@ -389,66 +405,75 @@ function pick3(arr) {
 
 function rollOutcome(project) {
   const r = Math.random();
-  if (r < project.rate) return { label: '🟢 huge', mult: project.mult };
-  if (r < project.rate + 0.3) return { label: '🔵 moderate', mult: project.mult * 0.5 };
-  if (r < project.rate + 0.55) return { label: '🟡 breakeven', mult: 1 };
-  return { label: '🔴 failure', mult: 0.3 };
+  if (r < project.rate) return { label: '\u{1F7E2} huge', mult: project.mult };
+  if (r < project.rate + 0.3) return { label: '\u{1F535} moderate', mult: project.mult * 0.5 };
+  if (r < project.rate + 0.55) return { label: '\u{1F7E1} breakeven', mult: 1 };
+  return { label: '\u{1F534} failure', mult: 0.3 };
 }
 
 function applyOutcome(outcome, project) {
   const out = project.outs;
-  if (outcome.label === '🟢 huge') return out.huge;
-  if (outcome.label === '🔵 moderate') return out.moderate;
-  if (outcome.label === '🟡 breakeven') return out.breakeven;
+  if (outcome.label === '\u{1F7E2} huge') return out.huge;
+  if (outcome.label === '\u{1F535} moderate') return out.moderate;
+  if (outcome.label === '\u{1F7E1} breakeven') return out.breakeven;
   return out.failure;
 }
 
 function rankLabel(rank) {
-  if (rank <= 5) return `🥇顶流(${rank})`;
-  if (rank <= 20) return `🥈明星(${rank})`;
-  if (rank <= 50) return `🥉中等(${rank})`;
+  if (rank <= 5) return `\u{1F947}顶流(${rank})`;
+  if (rank <= 20) return `\u{1F948}明星(${rank})`;
+  if (rank <= 50) return `\u{1F949}中等(${rank})`;
   if (rank <= 80) return `⚠️中下(${rank})`;
-  return `💀垫底(${rank})`;
+  return `\u{1F480}垄底(${rank})`;
+}
+
+function renderStatsHtml() {
+  return `
+    <div class="stats-bar">
+      <span class="year">\u{1F4C5} ${state.year} 年 · ${state.age} 岁 · 时代 ${state.era}/5 · 回合 ${state.round+1}/4${state.sideQuestsDone.length > 0 ? ' · 支线 ' + state.sideQuestsDone.length + '/5' : ''}</span><br>
+      <span class="stat">\u{1F4B0} AUM: <strong>${state.aum.toFixed(1)}</strong> 亿</span> |
+      <span class="stat">\u{1F4C8} 收益: <strong>${state.returnRate.toFixed(1)}</strong>%</span> |
+      <span class="stat">\u{1F4CA} 排名: <strong>${rankLabel(state.rank)}</strong></span> |
+      <span class="${state.mouseRisk >= 60 ? 'stat danger' : state.mouseRisk >= 30 ? 'stat warn' : 'stat'}">\u{1F42D} 老鼠仓: <strong>${state.mouseRisk}</strong></span><br>
+      <span class="stat">❤️ Health: <strong>${state.health}</strong></span> |
+      <span class="stat">\u{1F46A} Family: <strong>${state.family}</strong></span> |
+      <span class="stat">\u{1F91D} Social: <strong>${state.social}</strong></span>
+    </div>`;
 }
 
 function renderStats() {
-  const statsHtml = `
-    <div class="stats-bar">
-      <span class="year">📅 ${state.year} 年 · ${state.age} 岁 · 时代 ${state.era}/5 · 回合 ${state.round+1}/4</span><br>
-      <span class="stat">💰 AUM: <strong>${state.aum.toFixed(1)}</strong> 亿</span> |
-      <span class="stat">📈 收益: <strong>${state.returnRate.toFixed(1)}</strong>%</span> |
-      <span class="stat">📊 排名: <strong>${rankLabel(state.rank)}</strong></span> |
-      <span class="${state.mouseRisk >= 60 ? 'stat danger' : state.mouseRisk >= 30 ? 'stat warn' : 'stat'}">🐭 老鼠仓: <strong>${state.mouseRisk}</strong></span><br>
-      <span class="stat">❤️ Health: <strong>${state.health}</strong></span> |
-      <span class="stat">👪 Family: <strong>${state.family}</strong></span> |
-      <span class="stat">🤝 Social: <strong>${state.social}</strong></span>
-    </div>`;
   const gameArea = document.getElementById("game-area");
+  if (!gameArea) return;
   const existing = gameArea.querySelector('.stats-bar');
-  if (existing) existing.outerHTML = statsHtml;
-  else gameArea.insertAdjacentHTML("afterbegin", statsHtml);
+  if (existing) existing.outerHTML = renderStatsHtml();
+}
+
+function clearGameArea() {
+  document.getElementById("game-area").innerHTML = "";
 }
 
 function renderEvent() {
-  renderStats();
+  clearGameArea();
   const ev = state.pendingEvent;
-  document.getElementById("game-area").insertAdjacentHTML("beforeend", `
+  document.getElementById("game-area").innerHTML = `
+    ${renderStatsHtml()}
     <div class="choice-card">
-      <h3>📰 时代事件</h3>
+      <h3>\u{1F4F0} 时代事件 · 2 选 1 派系/人际</h3>
       <p class="desc">${ev.desc}</p>
-      <button class="btn" onclick="window.chooseEvent('a')">${ev.a.text}</button>
-      <button class="btn" onclick="window.chooseEvent('b')">${ev.b.text}</button>
+      <button class="btn" onclick="window.chooseEvent('a')">A. ${ev.a.text}</button>
+      <button class="btn" onclick="window.chooseEvent('b')">B. ${ev.b.text}</button>
       <div class="footer" style="font-size:11px;color:#80cbc4;margin-top:6px">A: ${ev.a.eff} | B: ${ev.b.eff}</div>
     </div>
-  `);
+  `;
 }
 
 function renderProject() {
-  renderStats();
+  clearGameArea();
   const projects = state.pendingProject;
-  document.getElementById("game-area").insertAdjacentHTML("beforeend", `
+  document.getElementById("game-area").innerHTML = `
+    ${renderStatsHtml()}
     <div class="choice-card">
-      <h3>💼 业务选择 — 3 选 1</h3>
+      <h3>\u{1F4BC} 业务选择 — 3 选 1</h3>
       ${projects.map((p, i) => `
         <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(0,212,170,0.2);border-radius:8px;padding:10px;margin-bottom:8px">
           <strong style="color:#00d4aa">${String.fromCharCode(65+i)}. ${p.name}</strong>
@@ -456,53 +481,64 @@ function renderProject() {
           <span style="font-size:12px;color:#b2dfdb">成功率 ${(p.rate*100).toFixed(0)}% · 最高 ${p.mult}x · ${p.hint}</span>
         </div>
       `).join("")}
-      ${projects.map((p, i) => `
-        <button class="btn" onclick="window.chooseProject(${i})">${String.fromCharCode(65+i)}. 选 ${p.name}</button>
-      `).join("")}
+      <div style="display:flex;flex-direction:column;gap:6px;margin-top:8px">
+        ${projects.map((p, i) => `
+          <button class="btn" onclick="window.chooseProject(${i})">${String.fromCharCode(65+i)}. 选 ${p.name}</button>
+        `).join("")}
+      </div>
     </div>
-  `);
+  `;
 }
 
 function renderIntensity() {
-  renderStats();
+  clearGameArea();
   const p = state._currentProject;
-  document.getElementById("game-area").insertAdjacentHTML("beforeend", `
+  document.getElementById("game-area").innerHTML = `
+    ${renderStatsHtml()}
     <div class="choice-card">
       <h3>⚙️ 投入度 — 决定硬指标变化幅度</h3>
       <p style="color:#80cbc4;font-size:13px">项目: ${p.name} (${p.real}) · 成功率 ${(p.rate*100).toFixed(0)}%</p>
-      <button class="btn" onclick="window.chooseIntensity('a')">A. 996 极限 — AUM+20%, Health-10, 老鼠仓+5</button><br>
-      <button class="btn b" onclick="window.chooseIntensity('b')">B. 8h 平衡 — AUM+5%, Health-3</button><br>
-      <button class="btn c" onclick="window.chooseIntensity('c')">C. 摆烂 — AUM-10%, Health+5, 老鼠仓-3</button>
+      <button class="btn" onclick="window.chooseIntensity('a')">A. 996 极限 — AUM +5 亿, Health-10, 老鼠仓+5</button>
+      <button class="btn b" onclick="window.chooseIntensity('b')">B. 8h 平衡 — AUM +2 亿, Health-3</button>
+      <button class="btn c" onclick="window.chooseIntensity('c')">C. 摆烂 — AUM -1 亿, Health+5, 老鼠仓-3</button>
     </div>
-  `);
+  `;
 }
 
 function renderResult(outcome, project) {
-  renderStats();
-  const cls = outcome.label === '🟢 huge' ? '' : outcome.label === '🔵 moderate' ? '' : outcome.label === '🟡 breakeven' ? 'warn' : 'bad';
-  document.getElementById("game-area").insertAdjacentHTML("beforeend", `
+  clearGameArea();
+  const cls = outcome.label === '\u{1F7E2} huge' ? 'good' : outcome.label === '\u{1F535} moderate' ? '' : outcome.label === '\u{1F7E1} breakeven' ? 'warn' : 'bad';
+  document.getElementById("game-area").innerHTML = `
+    ${renderStatsHtml()}
     <div class="result-card ${cls}">
       <h3>${outcome.label} · ${outcome.mult.toFixed(1)}x</h3>
       <p><strong>${project.name}</strong> (${project.real})</p>
       <p style="font-size:13px;color:#b2dfdb">${applyOutcome(outcome, project)}</p>
-      <button class="btn" onclick="window.nextRound()">下一回合 →</button>
+      <div style="font-size:12px;color:#80cbc4;margin-top:8px">
+        \u{1F4B0} AUM: ${state.aum.toFixed(1)} 亿 | \u{1F4C8} 收益: ${state.returnRate.toFixed(1)}%<br>
+        \u{1F4CA} 排名: ${rankLabel(state.rank)} | \u{1F42D} 老鼠仓: ${state.mouseRisk}
+      </div>
+      <button class="btn" onclick="window.nextRound()" style="margin-top:12px">下一回合 →</button>
     </div>
-  `);
+  `;
 }
 
 function renderSideQuest() {
-  renderStats();
+  clearGameArea();
   const sq = state.pendingSideQuest;
-  document.getElementById("game-area").insertAdjacentHTML("beforeend", `
+  document.getElementById("game-area").innerHTML = `
+    ${renderStatsHtml()}
     <div class="choice-card">
-      <h3>${sq.title}</h3>
+      <h3>${sq.title} <span style="font-size:11px;color:#ce93d8">\u{1F31F} 支线 ${state.sideQuestsDone.length+1}/5</span></h3>
       <p class="desc">${sq.desc}</p>
-      ${sq.choices.map((c, i) => `<button class="btn" onclick="window.chooseSideQuest(${i})">${c.text}</button>`).join("")}
-      <div class="footer" style="font-size:11px;color:#80cbc4;margin-top:6px">
+      <div style="display:flex;flex-direction:column;gap:6px">
+        ${sq.choices.map((c, i) => `<button class="btn" onclick="window.chooseSideQuest(${i})">${c.text}</button>`).join("")}
+      </div>
+      <div class="footer" style="font-size:11px;color:#80cbc4;margin-top:8px">
         ${sq.choices.map(c => `${c.text}: ${c.eff}`).join(" | ")}
       </div>
     </div>
-  `);
+  `;
 }
 
 function checkSideQuest() {
@@ -512,20 +548,21 @@ function checkSideQuest() {
     state.phase = "sidequest";
     return true;
   }
+  state.phase = "event";
   return false;
 }
 
 window.startGame = function() {
   state = initState();
   document.getElementById("log").innerHTML = "";
-  addLog("📜 1995 年 · 你 22 岁,北大经院毕业,入申银万国研究部");
+  document.getElementById("log").style.display = "block";
+  addLog("\u{1F4DC} 1995 年 · 你 22 岁,北大经院毕业,入申银万国研究部");
   checkSideQuest();
   if (state.phase === "sidequest") {
-    document.getElementById("game-area").innerHTML = "";
     renderSideQuest();
   } else {
-    document.getElementById("game-area").innerHTML = "";
     state.pendingEvent = EVENTS[1][0];
+    state._mainDone = false;
     renderEvent();
   }
 };
@@ -533,8 +570,16 @@ window.startGame = function() {
 window.chooseEvent = function(key) {
   const ev = state.pendingEvent;
   const choice = ev[key];
-  updateState({ aum: choice.aum||0, returnRate: choice.returnRate||0, rank: choice.rank||0, mouseRisk: choice.mouseRisk||0, health: choice.health||0, family: choice.family||0, social: choice.social||0 });
-  addLog(`📰 时代事件 → ${choice.text} (${choice.eff})`);
+  updateState({
+    aum: choice.aum||0,
+    returnRate: choice.returnRate||0,
+    rank: choice.rank||0,
+    mouseRisk: choice.mouseRisk||0,
+    health: choice.health||0,
+    family: choice.family||0,
+    social: choice.social||0
+  });
+  addLog(`\u{1F4F0} 时代事件 → ${choice.text} (${choice.eff})`);
   state.pendingProject = pick3(PROJECTS[state.era]);
   renderProject();
 };
@@ -542,45 +587,60 @@ window.chooseEvent = function(key) {
 window.chooseProject = function(idx) {
   const project = state.pendingProject[idx];
   state._currentProject = project;
-  addLog(`💼 选择了 ${project.name} (${project.real})`);
+  addLog(`\u{1F4BC} 选择了 ${project.name} (${project.real})`);
   renderIntensity();
 };
 
 window.chooseIntensity = function(key) {
+  // 修复 #1: 用绝对增长 + 平衡 health 衰减
   let changes = {};
-  if (key === 'a') changes = { aum: state.aum * 0.2, health: -10, mouseRisk: 5 };
-  else if (key === 'b') changes = { aum: state.aum * 0.05, health: -3 };
-  else changes = { aum: state.aum * -0.1, health: 5, mouseRisk: -3 };
+  if (key === 'a') changes = { aum: 5, health: -5, mouseRisk: 5 };
+  else if (key === 'b') changes = { aum: 2, health: -2 };
+  else changes = { aum: -1, health: 5, mouseRisk: -3 };
   updateState(changes);
   addLog(`⚙️ 投入度: ${key === 'a' ? '996 极限' : key === 'b' ? '8h 平衡' : '摆烂'}`);
   const project = state._currentProject;
   const outcome = rollOutcome(project);
   applyOutcomeToState(outcome, project);
-  addLog(`📊 ${project.name} → ${outcome.label} · ${outcome.mult.toFixed(1)}x`, outcome.label === '🟢 huge' ? 'l-good' : outcome.label === '🔴 failure' ? 'l-bad' : '');
+  addLog(`\u{1F4CA} ${project.name} → ${outcome.label} · ${outcome.mult.toFixed(1)}x`, outcome.label === '\u{1F7E2} huge' ? 'l-good' : outcome.label === '\u{1F534} failure' ? 'l-bad' : '');
   state.projectResults.push({ year: state.year, project: project.name, real: project.real, outcome: outcome.label, mult: outcome.mult });
+  state._mainDone = true;
   renderResult(outcome, project);
 };
 
 function applyOutcomeToState(outcome, project) {
-  // 根据 outcome 影响 AUM / 收益 / 排名
+  // 修复 #1: 用 max(1, aum) 作为基础
   const factor = outcome.mult / 5;
-  updateState({ aum: state.aum * factor * 0.3 });
+  const aumDelta = Math.max(1, state.aum) * factor * 0.3;
+  updateState({ aum: aumDelta });
   updateState({ returnRate: (outcome.mult - 1) * 5 });
-  if (outcome.label === '🟢 huge') updateState({ rank: -3 });
-  else if (outcome.label === '🔵 moderate') updateState({ rank: 0 });
-  else if (outcome.label === '🟡 breakeven') updateState({ rank: 5 });
-  else updateState({ rank: 10 });
+  // 调整 rank 变化幅度,避免门控过严
+  if (outcome.label === '\u{1F7E2} huge') updateState({ rank: -5 });
+  else if (outcome.label === '\u{1F535} moderate') updateState({ rank: 0 });
+  else if (outcome.label === '\u{1F7E1} breakeven') updateState({ rank: 3 });
+  else updateState({ rank: 5 });
 }
 
 window.chooseSideQuest = function(idx) {
   const sq = state.pendingSideQuest;
   const choice = sq.choices[idx];
-  updateState({ aum: choice.changes.aum||0, returnRate: choice.changes.returnRate||0, rank: choice.changes.rank||0, mouseRisk: choice.changes.mouseRisk||0, health: choice.changes.health||0, family: choice.changes.family||0, social: choice.changes.social||0 });
-  addLog(`🌟 支线:${choice.text} (${choice.eff})`, "l-side");
+  const c = choice.changes || {};
+  updateState({
+    aum: c.aum||0,
+    returnRate: c.returnRate||0,
+    rank: c.rank||0,
+    mouseRisk: c.mouseRisk||0,
+    health: c.health||0,
+    family: c.family||0,
+    social: c.social||0
+  });
+  addLog(`\u{1F31F} 支线:${choice.text} (${choice.eff})`, "l-side");
   state.sideQuestsDone.push({ year: state.year, title: sq.title });
   state.pendingSideQuest = null;
-  document.getElementById("game-area").innerHTML = "";
-  if (state.pendingEvent) {
+  // 修复 #2: 支线完成后,如果本年主流程还没做,继续做
+  if (!state._mainDone) {
+    state.phase = "event";
+    state.pendingEvent = EVENTS[state.era][state.round];
     renderEvent();
   } else {
     nextRound();
@@ -594,9 +654,9 @@ window.nextRound = function() {
   state._currentProject = null;
   state.pendingEvent = null;
   state.pendingProject = null;
-  document.getElementById("game-area").innerHTML = "";
+  state._mainDone = false;
+  clearGameArea();
 
-  // 时代切换
   if (state.round >= 4) {
     state.era += 1;
     state.round = 0;
@@ -604,31 +664,37 @@ window.nextRound = function() {
       finishGame();
       return;
     }
-    addLog(`🚪 时代切换 → ${ERAS[state.era-1].name}`, "l-gold");
+    addLog(`\u{1F6AA} <strong>时代切换 → ${ERAS[state.era-1].name}</strong>`, "l-gold");
     const era = ERAS[state.era - 1];
     if (era.gate) {
       const stat = state[era.gate.stat];
-      const fail = stat < era.gate.min && !(era.gate.stat === 'rank' && stat > era.gate.min);
+      // rank 越低越好 (数字小=排名靠前), mouseRisk 越低越好, 其他越高越好
+      const isLowGood = (era.gate.stat === 'rank' || era.gate.stat === 'mouseRisk');
+      const fail = isLowGood ? stat > era.gate.min : stat < era.gate.min;
       if (fail) {
         addLog(`⚠ 门控失败:${era.gate.fail}`, "l-bad");
         updateState({ social: -5, family: -3 });
+        // 修复 #3: 门控失败 → 触发结局
+        renderEnding({
+          title: "\u{1F6AA} 时代门控失败",
+          desc: era.gate.fail + "。你的 30 年投资路提前画上句号。52 岁的你回头看,这是当年最关键的一个数字没达标。"
+        });
+        return;
       } else {
         addLog(`✅ 门控通过:${era.gate.stat} 达标`, "l-good");
       }
     }
   }
 
-  // 时代 5 老鼠仓被查概率
   if (state.era === 5 && state.mouseRisk >= 60 && Math.random() < 0.5) {
-    addLog(`⚖️ 【被查!】证监会立案,老鼠仓被查`, "l-bad");
+    addLog(`⚖️ <strong style="color:#ff5252;">【被查!】</strong>证监会立案,老鼠仓被查`, "l-bad");
     state.mouseRisk = Math.max(0, state.mouseRisk - 30);
     updateState({ family: -15, social: -10 });
   }
 
-  if (state.health <= 30) { finishGame(); return; }
-  if (state.family <= 30) { finishGame(); return; }
-  if (state.mouseRisk >= 60 && state.era === 5) {
-    // 老鼠仓被查结局
+  if (state.health <= 20) { finishGame(); return; }
+  if (state.family <= 20) { finishGame(); return; }
+  if (state.mouseRisk >= 80 && state.era === 5) {
     finishGame();
     return;
   }
@@ -644,24 +710,25 @@ window.nextRound = function() {
 
 function finishGame() {
   let ending;
-  if (state.mouseRisk >= 60) {
-    ending = { title: "💔 老鼠仓被查", desc: "证监会立案调查,你的 2002-2018 老鼠仓账户被翻出来。2024 年你被罚没 5000 万 + 刑拘 5 年。老婆跟你离了婚,孩子在同学面前抬不起头。" };
-  } else if (state.health <= 30) {
-    ending = { title: "💔 过劳猝死", desc: "你的 Health 撑不到 2025。48 岁那年你突发心梗倒在交易室。同事发现你电脑还亮着,屏幕上是今日 AUM 净值曲线。" };
-  } else if (state.family <= 30) {
-    ending = { title: "💔 家人决裂", desc: "你错过了孩子的家长会,错过了父母的最后时光。52 岁那年你发现妻子已经签好了离婚协议,孩子跟了她姓。" };
+  // 优先级: 健康/家庭先,然后老鼠仓被查,然后结局
+  if (state.health <= 20) {
+    ending = { title: "\u{1F494} 过劳突死", desc: "你的 Health 撑不到 2025。48 岁那年你突发心梗倒在交易室。同事发现你电脑还亮着,屏幕上是今日 AUM 净值曲线。" };
+  } else if (state.family <= 20) {
+    ending = { title: "\u{1F494} 家人决裂", desc: "你错过了孩子的家长会,错过了父母的最后时光。52 岁那年你发现妻子已经签好了离婚协议,孩子跟了她姓。" };
+  } else if (state.mouseRisk >= 80) {
+    ending = { title: "\u{1F494} 老鼠仓被查", desc: "证监会立案调查,你的 2002-2018 老鼠仓账户被翻出来。2024 年你被罚没 5000 万 + 刑拘 5 年。老婆跟你离了婚,孩子在同学面前抬不起头。" };
   } else if (state.rank <= 5 && state.aum >= 500 && state.mouseRisk <= 10) {
-    ending = { title: "🏆 顶级私募大佬", desc: "你是张磊/邱国鹭级大佬,AUM 500 亿+,老鼠仓风险近零。2024 年你登上《财富》中国 40 位商界领袖榜单。" };
+    ending = { title: "\u{1F3C6} 顶级私募大老", desc: "你是张磊/邱国鹿级大老,AUM 500 亿+,老鼠仓风险近零。2024 年你登上《财富》中国 40 位商界领袖榜单。" };
   } else if (state.rank <= 10 && state.aum >= 100) {
-    ending = { title: "🌟 明星公募基金经理", desc: "你是王亚伟级一哥,AUM 100 亿+,江湖人称'X 一哥'。2024 年管理规模超 200 亿,身价过亿。" };
+    ending = { title: "\u{1F31F} 明星公募基金经理", desc: "你是王亚伟级一哥,AUM 100 亿+,江湖人称'X 一哥'。2024 年管理规模超 200 亿,身价过亿。" };
   } else if (state.era === 5 && state.aum >= 50 && state.rank <= 30) {
-    ending = { title: "🏠 量化私募创始人", desc: "你是幻方/九坤级大佬,2024 年 DeepSeek 出圈后,你的 AI 量化产品 AUM 突破 50 亿。千万年薪 + 股权亿万身家。" };
+    ending = { title: "\u{1F3E0} 量化私募创始人", desc: "你是幻方/九坤级大老,2024 年 DeepSeek 出圈后,你的 AI 量化产品 AUM 突破 50 亿。千万年薪 + 股权亿万身家。" };
   } else if (state.aum >= 100 && state.rank <= 30) {
-    ending = { title: "🛋 银行理财子 / 养老 FOF 稳定", desc: "你从公募副总位置被挖到银行理财子,AUM 100 亿+,稳定年薪 500 万。52 岁退休,行业协会副会长。" };
+    ending = { title: "\u{1F6CB}️ 银行理财子 / 养老 FOF 稳定", desc: "你从公募副总位置被挖到银行理财子,AUM 100 亿+,稳定年薪 500 万。52 岁退休,行业协会副会长。" };
   } else if (state.rank >= 80 && state.aum <= 1) {
-    ending = { title: "😢 排名垫底被清盘", desc: "2020 年公募清盘潮,你的产品被清盘。50 岁那年你被迫转型,去了一家小私募做合伙人。" };
+    ending = { title: "\u{1F622} 排名垄底被清盘", desc: "2020 年公募清盘潮,你的产品被清盘。50 岁那年你被迫转型,去了一家小私募做合伙人。" };
   } else {
-    ending = { title: "🌟 投资圈中坚", desc: `30 年里你从研究员熬到了明星基金经理。AUM ${state.aum.toFixed(0)} 亿,排名 ${state.rank},健康 ${state.health}。52 岁的你正考虑退休还是二次创业。` };
+    ending = { title: "\u{1F31F} 投资圈中坚", desc: `30 年里你从研究员焖到了明星基金经理。AUM ${state.aum.toFixed(0)} 亿,排名 ${state.rank},健康 ${state.health}。52 岁的你正考虑退休还是二次创业。` };
   }
   renderEnding(ending);
 }
@@ -672,13 +739,13 @@ function renderEnding(ending) {
       <h2>${ending.title}</h2>
       <p>${ending.desc}</p>
       <hr>
-      <p style="color:#80cbc4;font-size:13px">📅 ${state.year} 年 · ${state.age} 岁 · 30 年投资路</p>
-      <p style="color:#80cbc4;font-size:13px">💰 AUM: ${state.aum.toFixed(1)} 亿 · 收益: ${state.returnRate.toFixed(1)}%</p>
-      <p style="color:#80cbc4;font-size:13px">📊 排名: ${rankLabel(state.rank)} · 老鼠仓: ${state.mouseRisk}</p>
-      <p style="color:#80cbc4;font-size:13px">❤️ Health: ${state.health} · 👪 Family: ${state.family} · 🤝 Social: ${state.social}</p>
-      <p style="color:#80cbc4;font-size:13px">🌟 完成支线: ${state.sideQuestsDone.length}/5</p>
-      <p style="font-size:12px;color:#80cbc4;margin-top:10px">📜 30 年足迹:<br>${state.projectResults.map(r => ` · ${r.year} ${r.project} (${r.real}) → ${r.outcome} x${r.mult.toFixed(1)} `).join("<br>")}</p>
-      <button class="btn gold" onclick="window.startGame()">🔄 重新开始 30 年投资路</button>
+      <p style="color:#80cbc4;font-size:13px">\u{1F4C5} ${state.year} 年 · ${state.age} 岁 · 30 年投资路</p>
+      <p style="color:#80cbc4;font-size:13px">\u{1F4B0} AUM: ${state.aum.toFixed(1)} 亿 · 收益: ${state.returnRate.toFixed(1)}%</p>
+      <p style="color:#80cbc4;font-size:13px">\u{1F4CA} 排名: ${rankLabel(state.rank)} · 老鼠仓: ${state.mouseRisk}</p>
+      <p style="color:#80cbc4;font-size:13px">❤️ Health: ${state.health} · \u{1F46A} Family: ${state.family} · \u{1F91D} Social: ${state.social}</p>
+      <p style="color:#80cbc4;font-size:13px">\u{1F31F} 完成支线: ${state.sideQuestsDone.length}/5</p>
+      <p style="font-size:12px;color:#80cbc4;margin-top:10px">\u{1F4DC} 30 年足迹:<br>${state.projectResults.map(r => ` · ${r.year} ${r.project} (${r.real}) → ${r.outcome} x${r.mult.toFixed(1)} `).join("<br>")}</p>
+      <button class="btn gold" onclick="window.startGame()">\u{1F504} 重新开始 30 年投资路</button>
     </div>
   `;
 }
