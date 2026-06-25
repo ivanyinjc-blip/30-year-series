@@ -1,0 +1,124 @@
+{
+  "name": "healing_comic_workflow",
+  "description": "输入主题,生成 4 张治愈系漫画。参考原文教程结构。",
+  "version": "1.0.0",
+  "nodes": [
+    {
+      "id": "start_1",
+      "type": "start",
+      "name": "开始",
+      "inputs": [
+        { "name": "title", "type": "string", "required": true, "description": "漫画主题,如'下班后'" },
+        { "name": "key", "type": "string", "required": false, "description": "image2 API key(可留空用默认)" }
+      ],
+      "outputs": [
+        { "name": "title", "type": "string" },
+        { "name": "key", "type": "string" }
+      ]
+    },
+    {
+      "id": "llm_copy_1",
+      "type": "llm",
+      "name": "生成治愈文案",
+      "model": "doubao-pro-1.5",
+      "system_prompt_file": "prompts.md#prompt-1",
+      "user_prompt": "主题:{{start_1.title}}\n请围绕这个主题,创作一组 4 段治愈系短文案,严格按 JSON 数组输出。",
+      "input_vars": ["start_1.title"],
+      "outputs": [
+        { "name": "texts", "type": "string", "description": "JSON 数组字符串" }
+      ]
+    },
+    {
+      "id": "plugin_str_to_list_1",
+      "type": "plugin",
+      "name": "格式转化",
+      "plugin": "剪映小助手/str_to_list",
+      "input_str": "{{llm_copy_1.texts}}",
+      "params": {
+        "delimiter": "\n",
+        "output_format": "array"
+      },
+      "input_vars": ["llm_copy_1.texts"],
+      "outputs": [
+        { "name": "text_list", "type": "array<string>" }
+      ]
+    },
+    {
+      "id": "plugin_image2_ref_1",
+      "type": "plugin",
+      "name": "生成参考图",
+      "plugin": "GT2_图片生成/image2",
+      "prompt": "warm healing illustration, watercolor style, pastel colors, chibi character, soft lighting, simple background, no text, 4:3 aspect ratio, high quality, artistic",
+      "negative_prompt": "text, signature, watermark, blurry, dark, complex background",
+      "size": "1024x768",
+      "num": 1,
+      "guidance_scale": 7,
+      "seed": -1,
+      "input_vars": ["start_1.key"],
+      "outputs": [
+        { "name": "ref_image", "type": "string", "description": "参考图 URL" }
+      ]
+    },
+    {
+      "id": "batch_1",
+      "type": "batch",
+      "name": "批量生成治愈漫画",
+      "input_array": "{{plugin_str_to_list_1.text_list}}",
+      "input_ref_image": "{{plugin_image2_ref_1.ref_image}}",
+      "batch_body": {
+        "nodes": [
+          {
+            "id": "llm_image_prompt_1",
+            "type": "llm",
+            "name": "生成漫画图片提示词",
+            "model": "doubao-pro-1.5",
+            "system_prompt_file": "prompts.md#prompt-2",
+            "user_prompt": "请将以下文案转化为英文图片 prompt:\n{{item}}",
+            "input_vars": ["item"],
+            "outputs": [
+              { "name": "image_prompt", "type": "string" }
+            ]
+          },
+          {
+            "id": "plugin_image2_comic_1",
+            "type": "plugin",
+            "name": "生成漫画图片",
+            "plugin": "GT2_图片生成/image2",
+            "prompt": "{{llm_image_prompt_1.image_prompt}}",
+            "reference_image": "{{ref_image}}",
+            "reference_strength": 0.6,
+            "size": "1024x1024",
+            "num": 1,
+            "guidance_scale": 7,
+            "seed": -1,
+            "input_vars": ["llm_image_prompt_1.image_prompt", "ref_image"],
+            "outputs": [
+              { "name": "image_url", "type": "string" }
+            ]
+          }
+        ]
+      },
+      "outputs": [
+        { "name": "image_urls", "type": "array<string>", "description": "漫画图片 URL 列表" }
+      ]
+    },
+    {
+      "id": "end_1",
+      "type": "end",
+      "name": "结束",
+      "outputs": [
+        { "name": "images", "type": "array<string>", "value": "{{batch_1.image_urls}}" },
+        { "name": "count", "type": "number", "value": "{{batch_1.image_urls.length}}" }
+      ]
+    }
+  ],
+  "edges": [
+    { "from": "start_1.title", "to": "llm_copy_1.input.title" },
+    { "from": "llm_copy_1.texts", "to": "plugin_str_to_list_1.input.input_str" },
+    { "from": "start_1.key", "to": "plugin_image2_ref_1.input.key" },
+    { "from": "plugin_str_to_list_1.text_list", "to": "batch_1.input.input_array" },
+    { "from": "plugin_image2_ref_1.ref_image", "to": "batch_1.input.input_ref_image" },
+    { "from": "batch_1.image_urls", "to": "end_1.images" }
+  ],
+  "schema_version": "coze-workflow-v1"
+}
