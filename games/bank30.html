@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>银行行长 30 年 · 支行长穿越</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: linear-gradient(135deg, #1a0e27 0%, #2a1f3a 100%);
+  color: #e8eaf6;
+  min-height: 100vh;
+  padding: 20px;
+}
+.container { max-width: 900px; margin: 0 auto; }
+h1 {
+  text-align: center;
+  font-size: 30px;
+  margin: 20px 0 8px;
+  background: linear-gradient(90deg, #ffd54f, #ff8a65, #ffd54f);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.subtitle { text-align: center; color: #9fa8da; margin-bottom: 30px; font-size: 14px; }
+.intro-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,213,79,0.2);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 16px;
+}
+.intro-card h2 {
+  color: #ffd54f;
+  font-size: 18px;
+  margin-bottom: 12px;
+  border-bottom: 1px dashed rgba(255,213,79,0.3);
+  padding-bottom: 6px;
+}
+.intro-card p { line-height: 1.7; font-size: 14px; margin-bottom: 8px; }
+.intro-card ul { padding-left: 22px; line-height: 1.8; font-size: 14px; }
+.intro-card li { margin-bottom: 4px; }
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-top: 12px;
+}
+.stat-block {
+  background: rgba(0,0,0,0.3);
+  padding: 10px 12px;
+  border-radius: 6px;
+  border-left: 3px solid #ffd54f;
+}
+.stat-block.soft { border-left-color: #ff8a65; }
+.stat-block strong { color: #ffd54f; display: block; margin-bottom: 4px; font-size: 13px; }
+.stat-block.soft strong { color: #ff8a65; }
+.stat-block span { font-size: 12px; color: #9fa8da; }
+.ending-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin-top: 12px;
+}
+.ending-item {
+  background: rgba(0,0,0,0.3);
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  border-left: 3px solid #ffd54f;
+}
+.ending-item.hidden { border-left-color: #ce93d8; }
+.ending-item.bad { border-left-color: #ff5252; }
+.start-btn {
+  display: block;
+  width: 100%;
+  margin: 24px 0 12px;
+  padding: 16px;
+  background: linear-gradient(90deg, #ffd54f, #ff8a65);
+  color: #1a0e27;
+  border: none;
+  border-radius: 8px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  letter-spacing: 2px;
+  transition: all 0.2s;
+}
+.start-btn:hover { transform: scale(1.02); box-shadow: 0 4px 20px rgba(255,213,79,0.4); }
+.stats-bar {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  background: rgba(255,255,255,0.05);
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+.stat { text-align: center; }
+.stat-label { font-size: 11px; color: #9fa8da; }
+.stat-value { font-size: 18px; font-weight: bold; margin-top: 2px; }
+.stat-value.warn { color: #ffd54f; }
+.stat-value.bad { color: #ff5252; }
+.soft-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  background: rgba(255,255,255,0.03);
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 12px;
+}
+.soft-stat { text-align: center; }
+.soft-bar { height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; margin-top: 4px; overflow: hidden; }
+.soft-fill { height: 100%; transition: width 0.3s; }
+.era-banner {
+  background: linear-gradient(90deg, #b71c1c, #4a148c);
+  padding: 14px 20px;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 16px;
+}
+.year-text { font-size: 13px; color: #ffcdd2; margin-top: 4px; }
+.event-card, .project-card, .intensity-card, .sidequest-card {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,213,79,0.2);
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+.sidequest-card { border-color: rgba(206,147,216,0.4); background: rgba(206,147,216,0.05); }
+.card-title { font-size: 13px; color: #ffd54f; margin-bottom: 8px; letter-spacing: 1px; }
+.sidequest-card .card-title { color: #ce93d8; }
+.card-desc { font-size: 15px; line-height: 1.5; margin-bottom: 12px; }
+.choices { display: flex; flex-direction: column; gap: 8px; }
+.choice {
+  background: rgba(255,213,79,0.05);
+  border: 1px solid rgba(255,213,79,0.3);
+  border-radius: 6px;
+  padding: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+  color: #e8eaf6;
+  font-size: 14px;
+  font-family: inherit;
+  line-height: 1.4;
+}
+.choice:hover:not(:disabled) {
+  background: rgba(255,213,79,0.15);
+  border-color: #ffd54f;
+  transform: translateX(4px);
+}
+.sidequest-card .choice { border-color: rgba(206,147,216,0.4); background: rgba(206,147,216,0.05); }
+.sidequest-card .choice:hover { background: rgba(206,147,216,0.15); border-color: #ce93d8; }
+.choice:disabled { opacity: 0.4; cursor: not-allowed; }
+.choice-tag {
+  display: inline-block;
+  font-size: 11px;
+  background: rgba(206,147,216,0.2);
+  color: #ce93d8;
+  padding: 2px 8px;
+  border-radius: 10px;
+  margin-right: 8px;
+}
+.choice-eff { display: block; font-size: 12px; color: #9fa8da; margin-top: 4px; }
+.log {
+  background: rgba(0,0,0,0.3);
+  border-radius: 8px;
+  padding: 12px;
+  max-height: 200px;
+  overflow-y: auto;
+  margin-top: 20px;
+  font-family: monospace;
+  font-size: 12px;
+}
+.log-entry { padding: 4px 0; border-bottom: 1px dashed rgba(255,255,255,0.1); }
+.log-year { color: #ffd54f; font-weight: bold; }
+.log-sidequest { color: #ce93d8; }
+.ending-screen {
+  background: linear-gradient(135deg, #b71c1c, #4a148c);
+  padding: 40px;
+  border-radius: 12px;
+  text-align: center;
+}
+.ending-title { font-size: 32px; color: #ffd54f; margin-bottom: 16px; }
+.ending-desc { font-size: 16px; line-height: 1.8; color: #e8eaf6; }
+.ending-stats { margin-top: 20px; font-size: 14px; color: #ffcdd2; }
+.restart-btn {
+  margin-top: 24px;
+  padding: 12px 24px;
+  background: #ffd54f;
+  color: #1a0e27;
+  border: none;
+  border-radius: 6px;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+}
+.restart-btn:hover { background: #ff8a65; }
+.side-quest-badge {
+  display: inline-block;
+  background: rgba(206,147,216,0.3);
+  color: #ce93d8;
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  margin-left: 8px;
+  letter-spacing: 1px;
+}
+@media (max-width: 600px) {
+  .stats-bar { grid-template-columns: repeat(2, 1fr); }
+  .ending-list { grid-template-columns: 1fr; }
+  .stat-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>银行行长 30 年</h1>
+  <div class="subtitle">— 一位支行长的 30 年 (1995-2025)—</div>
+  <div id="game-area"></div>
+  <div class="log" id="log" style="display:none;"></div>
+</div>
+<script>
+const INTRO_HTML = `
+  <div class="intro-card">
+    <h2>📖 故事背景</h2>
+    <p>1995 年,你 22 岁,刚大学毕业,被分配到<strong style="color:#ffd54f;">工商银行</strong>某支行做柜员。你爸是县农信社主任,你妈是小学老师,家里给你铺好了路——但要往上爬,还得靠你自己。</p>
+    <p>接下来 <strong style="color:#ffd54f;">30 年</strong>(1995-2025),你要经历 5 个时代:利率管制 → 股份制崛起 → 黄金十年 → 互联网金融 → 监管周期。每一年都可能决定你升副行长还是被分流,甚至决定你 2024 年是不是被中纪委带走。</p>
+    <p>30 年后 52 岁的你,会变成国有大行总行行长、股份制分行长,还是《忏悔录》里的落马官员?一切,取决于你接下来 20 个回合的每一个选择。</p>
+  </div>
+  <div class="intro-card">
+    <h2>📊 你有 7 项数值(双轴)</h2>
+    <div class="stat-grid">
+      <div class="stat-block">
+        <strong>硬指标(累积型)</strong>
+        <span>· 存款规模(亿)— 决定升职速度</span><br>
+        <span>· 不良率(%)— 越低越好,决定监管评级</span><br>
+        <span>· 监管评级(3A-3C)— 决定能否升分行行长</span><br>
+        <span>· 政治资本(0-100)— 决定站队/派系生存</span>
+      </div>
+      <div class="stat-block soft">
+        <strong>软指标(衰减型)</strong>
+        <span>· Health 健康(0-100)— 低于 30 触发过劳病退</span><br>
+        <span>· Family 家庭(0-100)— 低于 30 触发家人决裂</span><br>
+        <span>· Social 社交(0-100)— 决定圈内人脉/跳槽</span>
+      </div>
+    </div>
+  </div>
+  <div class="intro-card">
+    <h2>🎯 每回合 3 步决策</h2>
+    <p><strong style="color:#ffd54f;">① 时代事件(2 选 1)</strong> — 派系/人际选择,影响软指标 + 政治资本</p>
+    <p style="padding-left:20px;">例:2001 时代事件 = "国有大行 vs 股份制,跳吗?"</p>
+    <p><strong style="color:#ffd54f;">② 业务选择(3 选 1)</strong> — 化身银行/产品,影响硬指标</p>
+    <p style="padding-left:20px;">例:2003 业务 = "信用卡大战 / 代销基金 / 银保通"</p>
+    <p><strong style="color:#ffd54f;">③ 投入度(3 选 1)</strong> — 工作方式,影响双轴</p>
+    <p style="padding-left:20px;">A 996 极限 / B 8h 平衡 / C 摆烂</p>
+  </div>
+  <div class="intro-card">
+    <h2>🎁 5 个支线任务</h2>
+    <p>主线之外,30 年里会有 <strong style="color:#ce93d8;">5 个支线任务</strong>穿插出现:</p>
+    <ul>
+      <li>💍 1997 婚恋线 — 局长千金 vs 同行,选择改变仕途</li>
+      <li>🏠 2003 房产/资产 — 银行内 100 万贷款额,买不买房?</li>
+      <li>💼 2008 派系站队 — 总行派 vs 地方派,生死抉择</li>
+      <li>🎓 2014 镀金/转行 — 长江商学院读 MBA 还是坚守支行?</li>
+      <li>⚖️ 2019 金融反腐 — 同事被查,站队还是切割?</li>
+    </ul>
+  </div>
+  <div class="intro-card">
+    <h2>🚪 4 个时代门控</h2>
+    <p>时代切换时会检查你的硬指标和政治资本:</p>
+    <ul>
+      <li>进入 <strong>股份制时代</strong>(2000):需存款规模 ≥ 5 亿</li>
+      <li>进入 <strong>黄金十年</strong>(2005):需监管评级 ≥ 2A</li>
+      <li>进入 <strong>互联网金融</strong>(2013):需政治资本 ≥ 50</li>
+      <li>进入 <strong>监管周期</strong>(2018):需存款规模 ≥ 100 亿</li>
+    </ul>
+    <p style="margin-top:8px;">⚠ 时代 5 反腐高压,所有决策都有 30% 概率触发"被查"事件</p>
+  </div>
+  <div class="intro-card">
+    <h2>🏆 9 种结局</h2>
+    <div class="ending-list">
+      <div class="ending-item">🏆 国有大行总行行长:3A + 1000亿 + 80</div>
+      <div class="ending-item">🌟 股份制分行行长:2A + 500亿+</div>
+      <div class="ending-item">🏠 城商行总行行长:2A + 100亿+</div>
+      <div class="ending-item">🛋 稳定支行长:1A + 50亿+</div>
+      <div class="ending-item">😢 35岁被裁:3C + 政治<40</div>
+      <div class="ending-item bad">💔 金融反腐被查:政治≤30 任意时代</div>
+      <div class="ending-item bad">💔 家人决裂:Family≤30</div>
+      <div class="ending-item hidden">🔒 隐藏·民营银行 VP:时代4跳民营+100亿</div>
+      <div class="ending-item hidden">🔒 隐藏·跳楼:5个失败业务</div>
+    </div>
+  </div>
+  <button class="start-btn" onclick="startGame()">🚀 开始 30 年银行路</button>
+`;
+
+const SIDE_QUESTS = [
+  { year: 1997, title: "💍 支线:婚恋抉择", desc: "1997 年你 24 岁,有两段姻缘摆在面前:① 局长千金(政治资本暴涨,但你得放弃初恋);② 同行柜员小芳(感情深,但晋升慢)。家里催你定下来。",
+    choices: [
+      { text: "A. 娶局长千金", eff: "政治资本+20, Social+10, Family-10(初恋分手), Health-5(陪酒多)", changes: { political: 20, social: 10, family: -10, health: -5 } },
+      { text: "B. 娶同行小芳", eff: "Family+20, Health+5, 政治资本-5, 但 2005 后岳父帮忙升职", changes: { family: 20, health: 5, political: -5 } }
+    ] },
+  { year: 2003, title: "🏠 支线:房产/资产", desc: "2003 年银行内部 100 万授信额度,你有两个选择:① 北京买 2 套房(均价 5000/平米,首付 30 万);② 投资股票(2005-2007 大牛市,4x);③ 给小芳买 LV 包(让她高兴,但零回报)。",
+    choices: [
+      { text: "A. 北京买 2 套房", eff: "Net Worth-30万首付, 2025 房产 ≈ 800万", changes: { deposits: 30, health: 5 } },
+      { text: "B. 投入股票(2005-2007 大牛市)", eff: "Net Worth-50万本金, 4x 概率 60%, 血亏 40%", changes: { deposits: 30 }, gamble: true },
+      { text: "C. 给小芳买 LV 包", eff: "Family+15, 0 投资回报", changes: { family: 15, health: 3 } }
+    ] },
+  { year: 2008, title: "💼 支线:派系站队", desc: "2008 年你 35 岁,正逢金融危机,总行派和地方派在抢支行行长位置。① 总行派许诺你 2010 升支行行长(但要站队);② 地方派拉你(独立但升职慢);③ 谁都不站(中立危险)。",
+    choices: [
+      { text: "A. 站总行派", eff: "政治资本+15, 2010 升支行长, Family-5(陪酒多)", changes: { political: 15, family: -5 } },
+      { text: "B. 站地方派", eff: "Social+10, 政治资本+5, 2015 才升支行长", changes: { social: 10, political: 5 } },
+      { text: "C. 中立", eff: "Family+5, 但 2012 被分流到郊区支行", changes: { family: 5, political: -10 } }
+    ] },
+  { year: 2014, title: "🎓 支线:镀金/转行", desc: "2014 年你 41 岁,P6(支行副行长)升 P7(支行行长)卡了 3 年。长江商学院 EMBA 招生,2 年脱产 + 60 万学费,毕业后校友圈 + 视野 + 跳槽机会。",
+    choices: [
+      { text: "A. 读 EMBA", eff: "Social+20, 政治资本+10, Net Worth-60万(学费), 2 年后升 P7 概率 80%", changes: { social: 20, political: 10, deposits: -30 } },
+      { text: "B. 继续搬砖等升 P7", eff: "Net Worth+30万(2年), 政治资本+5", changes: { deposits: 30, political: 5 } },
+      { text: "C. 跳槽民营银行", eff: "Net Worth+50万, 政治资本-20, 跳到微众/网商,2018 升 VP 概率 50%", changes: { deposits: 50, political: -20 } }
+    ] },
+  { year: 2019, title: "⚖️ 支线:金融反腐", desc: "2019 年你 46 岁,老同事(前支行行长)被中纪委带走调查。他临走前托付你照顾他家人,并暗示把你经手的一笔违规贷款'处理一下'。你面临关键抉择:① 站队切割;② 帮忙处理;③ 主动举报。",
+    choices: [
+      { text: "A. 切割", eff: "Family-5(良心不安), 政治资本+5, 2018-2024 安全过关", changes: { family: -5, political: 5 } },
+      { text: "B. 帮忙处理", eff: "Family+5(义气), 政治资本-15, 2024 被查概率 40%", changes: { family: 5, political: -15 } },
+      { text: "C. 主动举报", eff: "政治资本+20, Social-10(被孤立), Family-3(对方家属恨你)", changes: { political: 20, social: -10, family: -3 } }
+    ] }
+];
+
+const ERAS = [
+  { name: "利率管制时代", yearStart: 1995, yearEnd: 2000, gate: { stat: "deposits", min: 5, fail: "存款规模不足 5 亿,卡在客户经理 5 年,2005 才升副行长" }, desc: "四大行垄断 + 央行管制" },
+  { name: "股份制崛起时代", yearStart: 2000, yearEnd: 2005, gate: { stat: "rating", min: 2, fail: "监管评级低于 2A,被分流到郊区支行" }, desc: "招商/民生/兴业 + WTO 入世" },
+  { name: "黄金十年时代", yearStart: 2005, yearEnd: 2013, gate: { stat: "political", min: 50, fail: "政治资本不足 50,2018 监管严打第一批被查" }, desc: "房地产 + 城投 + 表外" },
+  { name: "互联网金融时代", yearStart: 2013, yearEnd: 2018, gate: { stat: "deposits", min: 100, fail: "存款不足 100 亿,没资格接分行行长" }, desc: "余额宝/P2P/移动支付" },
+  { name: "监管周期时代", yearStart: 2018, yearEnd: 2025, gate: null, desc: "资管新规/金融反腐/数字人民币" }
+];
+
+const PROJECTS = {
+  1: [  // 时代1·利率管制 (1995-2000)
+    { name: "工商银行", real: "工商银行 ICBC", sector: "国有大行", rate: 0.35, mult: 8.0, hint: "宇宙行,2006 A+H 上市,稳健上涨", outs: { huge: "1995 入工行,2010 升分行长,8x", moderate: "工行支行行长", breakeven: "工行客户经理", failure: "工行内卷严重" } },
+    { name: "农业银行", real: "农业银行 ABC", sector: "国有大行", rate: 0.3, mult: 6.0, hint: "三农金融,2010 上市", outs: { huge: "1995 入农行,2012 升分行长,6x", moderate: "农行支行行长", breakeven: "农行客户经理", failure: "农行降薪" } },
+    { name: "中国银行", real: "中国银行 BOC", sector: "国有大行", rate: 0.3, mult: 7.0, hint: "外汇专业,2006 上市", outs: { huge: "1995 入中行,2010 升国际部,7x", moderate: "中行支行行长", breakeven: "中行外汇岗", failure: "外汇监管严" } },
+    { name: "建设银行", real: "建设银行 CCB", sector: "国有大行", rate: 0.35, mult: 9.0, hint: "建委血统,房贷龙头,2007 上市", outs: { huge: "1995 入建行,2012 升分行长,9x", moderate: "建行支行行长", breakeven: "建行客户经理", failure: "房贷风险" } },
+    { name: "招商银行", real: "招商银行 CMB", sector: "股份制", rate: 0.25, mult: 25.0, hint: "零售之王,2002 上市,马云都夸", outs: { huge: "1995 入招行,2010 升分行长,25x", moderate: "招行支行行长", breakeven: "招行客户经理", failure: "招行内卷" } },
+    { name: "民生银行", real: "民生银行 CMBC", sector: "股份制", rate: 0.2, mult: 12.0, hint: "民企血统,2000 上市", outs: { huge: "1995 入民生,2010 升分行长,12x", moderate: "民生支行行长", breakeven: "民生客户经理", failure: "民生被处罚" } },
+    { name: "交通银行", real: "交通银行 BCM", sector: "股份制", rate: 0.25, mult: 8.0, hint: "百年老店,2005 上市", outs: { huge: "1995 入交行,2010 升分行长,8x", moderate: "交行支行行长", breakeven: "交行客户经理", failure: "交行式微" } },
+    { name: "光大银行", real: "光大银行 CEB", sector: "股份制", rate: 0.2, mult: 5.0, hint: "光大集团,2010 上市", outs: { huge: "1995 入光大,2015 升分行长,5x", moderate: "光大支行行长", breakeven: "光大客户经理", failure: "光大被罚" } },
+    { name: "揽存大战", real: "高息揽存", sector: "负债业务", rate: 0.3, mult: 3.0, hint: "1995 央行管制,地方行高息揽存", outs: { huge: "1995-2000 揽存 5 亿,升支行长", moderate: "揽存 2 亿", breakeven: "揽存达标", failure: "违规揽存被罚" } },
+    { name: "政策性贷款", real: "政策性贷款", sector: "资产业务", rate: 0.4, mult: 2.0, hint: "1995 国企贷款,坏账隐现", outs: { huge: "1995-2000 投放 10 亿,无坏账", moderate: "投放 5 亿,小坏账", breakeven: "投放达标", failure: "巨额坏账" } },
+    { name: "国债分销", real: "国债承销", sector: "中间业务", rate: 0.5, mult: 1.5, hint: "1995 国债分销,无风险", outs: { huge: "1995-2000 国债分销王", moderate: "国债分销达标", breakeven: "完成任务", failure: "分销失败" } },
+    { name: "外汇业务", real: "结售汇", sector: "中间业务", rate: 0.3, mult: 4.0, hint: "1995 外汇管制,汇率双轨制", outs: { huge: "1995 入外管局合作,2000 升值", moderate: "外汇结算稳健", breakeven: "外汇业务达标", failure: "外汇违规" } },
+    { name: "信用卡萌芽", real: "信用卡试点", sector: "零售业务", rate: 0.2, mult: 8.0, hint: "1995 招行首发信用卡", outs: { huge: "1995 推信用卡,2005 升零售总监", moderate: "信用卡业务稳步", breakeven: "信用卡持卡人少", failure: "信用卡坏账" } },
+    { name: "助学贷款", real: "国家助学贷款", sector: "政策性", rate: 0.4, mult: 1.5, hint: "1999 起,政策性强", outs: { huge: "1999 推助学贷,获政府关系", moderate: "助学贷达标", breakeven: "小额业务", failure: "坏账率高" } },
+    { name: "房贷试点", real: "个人住房贷款", sector: "零售业务", rate: 0.3, mult: 6.0, hint: "1998 房改启动,房贷起步", outs: { huge: "1998 推房贷,2010 升房贷总监", moderate: "房贷业务稳", breakeven: "房贷达标", failure: "房贷风险 2008" } },
+    { name: "乡镇网点", real: "农信社并入", sector: "渠道", rate: 0.3, mult: 3.0, hint: "1995 农信社改制", outs: { huge: "1995 接手农信社,2010 升县域行长", moderate: "乡镇网点扩张", breakeven: "渠道达标", failure: "农信社不良" } },
+  ],
+  2: [  // 时代2·股份制崛起 (2000-2005)
+    { name: "浦发银行", real: "浦发银行 SPDB", sector: "股份制", rate: 0.25, mult: 10.0, hint: "上海滩,1999 上市", outs: { huge: "2000 入浦发,2010 升分行长,10x", moderate: "浦发支行行长", breakeven: "浦发客户经理", failure: "浦发风险高" } },
+    { name: "兴业银行", real: "兴业银行 CIB", sector: "股份制", rate: 0.25, mult: 15.0, hint: "同业之王,2007 上市", outs: { huge: "2000 入兴业,2012 升分行长,15x", moderate: "兴业支行行长", breakeven: "兴业同业岗", failure: "兴业同业暴雷" } },
+    { name: "中信银行", real: "中信银行 CITIC", sector: "股份制", rate: 0.2, mult: 8.0, hint: "红筹血统,2007 上市", outs: { huge: "2000 入中信,2012 升分行长,8x", moderate: "中信支行行长", breakeven: "中信客户经理", failure: "中信被罚" } },
+    { name: "华夏银行", real: "华夏银行 HXB", sector: "股份制", rate: 0.15, mult: 4.0, hint: "首钢血统,2003 上市", outs: { huge: "2000 入华夏,2010 升分行长,4x", moderate: "华夏支行行长", breakeven: "华夏客户经理", failure: "华夏式微" } },
+    { name: "平安银行", real: "平安银行 PAB", sector: "股份制", rate: 0.2, mult: 12.0, hint: "平安血统,2012 整合深发展", outs: { huge: "2003 入平安,2015 升分行长,12x", moderate: "平安支行行长", breakeven: "平安客户经理", failure: "平安内卷" } },
+    { name: "信用卡大战", real: "信用卡扩张", sector: "零售业务", rate: 0.25, mult: 8.0, hint: "2003 招行/工行大战", outs: { huge: "2003 推信用卡,2010 持卡人 1000万", moderate: "信用卡 200万", breakeven: "信用卡达标", failure: "信用卡坏账" } },
+    { name: "代销基金", real: "基金代销", sector: "中间业务", rate: 0.3, mult: 4.0, hint: "2001 开放式基金起步", outs: { huge: "2001 推基金代销,2007 大牛市赚翻", moderate: "代销达标", breakeven: "代销一般", failure: "基金亏损被骂" } },
+    { name: "银保通", real: "银保合作", sector: "中间业务", rate: 0.4, mult: 3.0, hint: "2001 银保通上线", outs: { huge: "2001 推银保,2005 保险销售王", moderate: "银保达标", breakeven: "银保一般", failure: "银保纠纷" } },
+    { name: "WTO 入世", real: "外资银行准入", sector: "监管", rate: 0.3, mult: 5.0, hint: "2001 中国入世,2006 全面开放", outs: { huge: "2001 提前布局,2006 抢跑外资", moderate: "外资合作稳", breakeven: "应对外资", failure: "被外资抢市场" } },
+    { name: "坏账剥离", real: "四大资产管理公司", sector: "不良处置", rate: 0.5, mult: 2.0, hint: "1999 信达/华融等四大 AMC 成立", outs: { huge: "1999 配合剥离,无历史包袱", moderate: "剥离达标", breakeven: "部分剥离", failure: "遗留坏账" } },
+    { name: "政府融资平台", real: "城投公司贷款", sector: "政信业务", rate: 0.2, mult: 10.0, hint: "2000 城投起步,2008 后爆发", outs: { huge: "2000 投城投,2014 升政府金融部", moderate: "城投贷款稳", breakeven: "城投达标", failure: "城投违约 2014" } },
+    { name: "中小企业贷款", real: "中小企贷款", sector: "小微金融", rate: 0.25, mult: 4.0, hint: "2003 起,破解融资难", outs: { huge: "2003 推中小贷,2010 升小微部", moderate: "中小贷达标", breakeven: "中小贷一般", failure: "中小贷坏账" } },
+    { name: "汽车金融", real: "汽车消费贷款", sector: "零售业务", rate: 0.2, mult: 5.0, hint: "2003 汽车贷款起步", outs: { huge: "2003 推车贷,2008 升零售总监", moderate: "车贷达标", breakeven: "车贷一般", failure: "车贷坏账" } },
+    { name: "出国留学金融", real: "出国金融", sector: "中间业务", rate: 0.3, mult: 3.0, hint: "2000 留学潮", outs: { huge: "2000 推留学金融,2008 升国际部", moderate: "留学金融稳", breakeven: "留学达标", failure: "外汇管制" } },
+    { name: "网银起步", real: "网上银行", sector: "渠道", rate: 0.25, mult: 4.0, hint: "2000 招行网银首发", outs: { huge: "2000 推网银,2005 升电子银行部", moderate: "网银达标", breakeven: "网银起步", failure: "网银安全事件" } },
+    { name: "自助银行", real: "ATM 布放", sector: "渠道", rate: 0.4, mult: 2.0, hint: "2000 ATM 大战", outs: { huge: "2000 推 ATM,2005 升渠道总监", moderate: "ATM 覆盖广", breakeven: "ATM 达标", failure: "ATM 亏损" } },
+  ],
+  3: [  // 时代3·黄金十年 (2005-2013)
+    { name: "宁波银行", real: "宁波银行 BONB", sector: "城商行", rate: 0.2, mult: 20.0, hint: "城商行之王,2007 上市", outs: { huge: "2007 入宁波,2015 升分行长,20x", moderate: "宁波支行行长", breakeven: "宁波客户经理", failure: "宁波被罚" } },
+    { name: "南京银行", real: "南京银行 BONJ", sector: "城商行", rate: 0.2, mult: 12.0, hint: "债券之王,2007 上市", outs: { huge: "2007 入南京,2015 升分行长,12x", moderate: "南京支行行长", breakeven: "南京客户经理", failure: "南京内卷" } },
+    { name: "北京银行", real: "北京银行 BOBJ", sector: "城商行", rate: 0.2, mult: 10.0, hint: "首都血统,2007 上市", outs: { huge: "2007 入北京,2015 升分行长,10x", moderate: "北京支行行长", breakeven: "北京客户经理", failure: "北京被罚" } },
+    { name: "上海银行", real: "上海银行 BOS", sector: "城商行", rate: 0.2, mult: 8.0, hint: "上海滩,2016 上市", outs: { huge: "2007 入上海,2015 升分行长,8x", moderate: "上海支行行长", breakeven: "上海客户经理", failure: "上海式微" } },
+    { name: "表外业务", real: "理财业务", sector: "中间业务", rate: 0.2, mult: 8.0, hint: "2005 银监会发理财牌照", outs: { huge: "2005 推理财,2013 升理财总监", moderate: "理财达标", breakeven: "理财起步", failure: "理财亏损" } },
+    { name: "同业业务", real: "同业拆借", sector: "同业业务", rate: 0.15, mult: 6.0, hint: "2008 后同业扩张,2014 暴雷", outs: { huge: "2008 推同业,2012 升同业部", moderate: "同业达标", breakeven: "同业一般", failure: "2014 同业暴雷" } },
+    { name: "房地产贷款", real: "开发贷+按揭", sector: "资产业务", rate: 0.2, mult: 8.0, hint: "黄金十年,2008 4 万亿后爆发", outs: { huge: "2005 推房贷,2010 升房贷总监,8x", moderate: "房贷达标", breakeven: "房贷一般", failure: "2014 房地产风险" } },
+    { name: "政信合作", real: "政府融资平台", sector: "政信业务", rate: 0.15, mult: 10.0, hint: "2009 起,2014 财政部清理", outs: { huge: "2009 投政信,2014 升政信部", moderate: "政信达标", breakeven: "政信一般", failure: "2014 政信违约" } },
+    { name: "银信合作", real: "信托通道", sector: "影子银行", rate: 0.2, mult: 6.0, hint: "2008 起,银信合作绕监管", outs: { huge: "2008 推银信,2012 升同业部", moderate: "银信达标", breakeven: "银信一般", failure: "2014 银信被禁" } },
+    { name: "票据业务", real: "票据贴现", sector: "中间业务", rate: 0.3, mult: 4.0, hint: "2005-2013 黄金期", outs: { huge: "2005 推票据,2012 升票据部", moderate: "票据达标", breakeven: "票据一般", failure: "票据案件" } },
+    { name: "黄金交易", real: "黄金延期/积存", sector: "贵金属", rate: 0.2, mult: 5.0, hint: "2005 黄金牛市,工行建行领跑", outs: { huge: "2005 推黄金,2010 升贵金属部", moderate: "黄金达标", breakeven: "黄金一般", failure: "黄金亏损事件" } },
+    { name: "贸易融资", real: "进出口贸易融资", sector: "国际业务", rate: 0.2, mult: 4.0, hint: "2005-2013 出口黄金期", outs: { huge: "2005 推贸易融资,2012 升国际部", moderate: "贸易融资稳", breakeven: "贸易融资一般", failure: "2012 出口下滑" } },
+    { name: "中小企业集合债", real: "中小企业债", sector: "投行", rate: 0.2, mult: 3.0, hint: "2007 试点", outs: { huge: "2007 推中小债,2012 升投行部", moderate: "中小债达标", breakeven: "中小债一般", failure: "中小债违约" } },
+    { name: "金融租赁", real: "金融租赁公司", sector: "非银", rate: 0.15, mult: 4.0, hint: "2007 银监会发牌照", outs: { huge: "2007 筹金租,2012 升非银部", moderate: "金租达标", breakeven: "金租起步", failure: "金租坏账" } },
+    { name: "私人银行", real: "私行业务", sector: "财富管理", rate: 0.2, mult: 6.0, hint: "2007 起,2008 招行领跑", outs: { huge: "2007 推私行,2012 升私行部", moderate: "私行达标", breakeven: "私行起步", failure: "私行被抢" } },
+    { name: "信用卡爆发", real: "信用卡发卡", sector: "零售业务", rate: 0.3, mult: 4.0, hint: "2005-2013 黄金期", outs: { huge: "2005 推信用卡,2010 持卡人 500万", moderate: "信用卡达标", breakeven: "信用卡一般", failure: "信用卡坏账" } },
+  ],
+  4: [  // 时代4·互联网金融 (2013-2018)
+    { name: "微众银行", real: "微众银行 WeBank", sector: "民营银行", rate: 0.2, mult: 25.0, hint: "腾讯系,2014 首批民营银行", outs: { huge: "2014 入微众,2018 升 VP,25x", moderate: "微众部门总监", breakeven: "微众骨干", failure: "微众被监管" } },
+    { name: "网商银行", real: "网商银行 MYBank", sector: "民营银行", rate: 0.2, mult: 20.0, hint: "阿里系,2015 开业", outs: { huge: "2015 入网商,2018 升 VP,20x", moderate: "网商部门总监", breakeven: "网商骨干", failure: "网商被监管" } },
+    { name: "众安保险", real: "众安在线", sector: "互联网保险", rate: 0.15, mult: 10.0, hint: "三马同槽,2013 开业,2017 上市", outs: { huge: "2013 入众安,2017 上市,10x", moderate: "众安部门总监", breakeven: "众安骨干", failure: "众安亏损" } },
+    { name: "余额宝", real: "余额宝对接", sector: "理财", rate: 0.4, mult: 2.0, hint: "2013 余额宝冲击银行存款", outs: { huge: "2013 应对余额宝,推活期理财", moderate: "理财分流达标", breakeven: "存款流失", failure: "存款大搬家" } },
+    { name: "P2P 资金存管", real: "P2P 存管", sector: "中间业务", rate: 0.15, mult: 4.0, hint: "2014-2018 兴衰,2018 暴雷", outs: { huge: "2014 接 P2P 存管,2018 全身而退", moderate: "存管一般", breakeven: "存管亏损", failure: "2018 P2P 暴雷被罚" } },
+    { name: "微信支付合作", real: "移动支付", sector: "渠道", rate: 0.3, mult: 4.0, hint: "2014 微信支付崛起", outs: { huge: "2014 接入微信支付,2018 升渠道总监", moderate: "移动支付达标", breakeven: "移动支付起步", failure: "被微信抢市场" } },
+    { name: "支付宝合作", real: "支付宝收单", sector: "渠道", rate: 0.3, mult: 4.0, hint: "2014 支付宝挑战", outs: { huge: "2014 接入支付宝,2018 升渠道部", moderate: "支付宝合作达标", breakeven: "支付宝合作一般", failure: "被支付宝抢" } },
+    { name: "直销银行", real: "直销银行", sector: "渠道", rate: 0.2, mult: 5.0, hint: "2014 起,民生/平安领跑", outs: { huge: "2014 上直销银行,2017 升网络部", moderate: "直销银行达标", breakeven: "直销银行起步", failure: "直销银行亏损" } },
+    { name: "百信银行", real: "百信银行", sector: "独立法人直销", rate: 0.2, mult: 8.0, hint: "中信+百度,2017 开业", outs: { huge: "2017 入百信,2020 升 VP,8x", moderate: "百信部门总监", breakeven: "百信骨干", failure: "百信被监管" } },
+    { name: "供应链金融", real: "供应链金融", sector: "对公业务", rate: 0.2, mult: 6.0, hint: "2014 起,电商供应链爆发", outs: { huge: "2014 推供应链,2018 升对公部", moderate: "供应链达标", breakeven: "供应链一般", failure: "供应链坏账" } },
+    { name: "消费金融公司", real: "消费金融", sector: "非银", rate: 0.15, mult: 8.0, hint: "2010 试点,2014 爆发", outs: { huge: "2014 筹消金,2018 升非银部", moderate: "消金达标", breakeven: "消金起步", failure: "消金坏账" } },
+    { name: "理财净值化", real: "净值型理财", sector: "资管", rate: 0.3, mult: 3.0, hint: "2014 起,2018 资管新规", outs: { huge: "2014 推净值理财,2018 转型成功", moderate: "理财转型达标", breakeven: "理财转型一般", failure: "2018 转型失败" } },
+    { name: "同业存单", real: "同业存单", sector: "同业", rate: 0.2, mult: 4.0, hint: "2013 起,2017 纳入 MPA", outs: { huge: "2014 发同业存单,2017 全身而退", moderate: "同业存单达标", breakeven: "同业存单一般", failure: "2017 MPA 处罚" } },
+    { name: "投联贷", real: "投贷联动", sector: "投行", rate: 0.15, mult: 5.0, hint: "2016 试点,科创金融", outs: { huge: "2016 推投贷联动,2018 升投行部", moderate: "投贷达标", breakeven: "投贷起步", failure: "投贷坏账" } },
+    { name: "理财子公司", real: "理财子公司", sector: "资管", rate: 0.2, mult: 4.0, hint: "2018 资管新规催生", outs: { huge: "2018 筹理财子公司,2020 开业", moderate: "理财子筹备达标", breakeven: "理财子一般", failure: "理财子未获批" } },
+    { name: "金融科技投资", real: "金融科技", sector: "战略", rate: 0.25, mult: 6.0, hint: "2015 起,各行投 FinTech", outs: { huge: "2015 投 FinTech,2018 升科技部", moderate: "FinTech 投资达标", breakeven: "FinTech 投资一般", failure: "FinTech 投资亏" } },
+  ],
+  5: [  // 时代5·监管周期 (2018-2025)
+    { name: "数字人民币", real: "e-CNY", sector: "央行数字货币", rate: 0.3, mult: 5.0, hint: "2019 试点,2024 全面推广", outs: { huge: "2019 参与数字人民币,2024 升总行 VP,5x", moderate: "数币推广达标", breakeven: "数币推广一般", failure: "数币推广失败" } },
+    { name: "AI 风控", real: "智能风控", sector: "金融科技", rate: 0.25, mult: 4.0, hint: "2018 起,大模型风控", outs: { huge: "2018 推 AI 风控,2022 升风控 VP,4x", moderate: "AI 风控达标", breakeven: "AI 风控起步", failure: "AI 风控失效" } },
+    { name: "金融大模型", real: "金融大模型", sector: "AI", rate: 0.2, mult: 8.0, hint: "2023 起,工行/招行领跑", outs: { huge: "2023 推金融大模型,2025 升 CTO,8x", moderate: "大模型达标", breakeven: "大模型一般", failure: "大模型失败" } },
+    { name: "ESG 金融", real: "绿色金融", sector: "战略", rate: 0.25, mult: 4.0, hint: "2020 双碳目标", outs: { huge: "2020 推 ESG,2024 升战略部,4x", moderate: "绿色金融达标", breakeven: "绿色金融一般", failure: "绿色金融违约" } },
+    { name: "普惠金融", real: "普惠小微", sector: "战略", rate: 0.3, mult: 3.0, hint: "2018 国务院定调,2025 考核", outs: { huge: "2018 推普惠,2023 升 VP,3x", moderate: "普惠达标", breakeven: "普惠一般", failure: "普惠坏账" } },
+    { name: "科创金融", real: "科创企业贷款", sector: "战略", rate: 0.25, mult: 4.0, hint: "2021 北交所,2024 科技强国", outs: { huge: "2021 推科创金融,2024 升 VP,4x", moderate: "科创金融达标", breakeven: "科创金融一般", failure: "科创金融坏账" } },
+    { name: "养老金融", real: "个人养老金", sector: "战略", rate: 0.3, mult: 3.0, hint: "2022 试点,2024 全面", outs: { huge: "2022 推养老金融,2024 升 VP,3x", moderate: "养老达标", breakeven: "养老一般", failure: "养老账户没起来" } },
+    { name: "理财净值化整改", real: "净值理财", sector: "资管", rate: 0.25, mult: 3.0, hint: "2018 资管新规,2025 整改结束", outs: { huge: "2018 净值化,2025 整改完成", moderate: "净值化达标", breakeven: "净值化一般", failure: "净值化转型失败" } },
+    { name: "房地产纾困", real: "房企白名单", sector: "政策", rate: 0.2, mult: 2.0, hint: "2022 央行 3500 亿,2024 扩围", outs: { huge: "2022 推纾困,2024 升 VP", moderate: "纾困达标", breakeven: "纾困一般", failure: "房企违约" } },
+    { name: "金融反腐", real: "监管处罚", sector: "监管", rate: 0.3, mult: 1.0, hint: "2018-2024 金融反腐,200+ 行长被查", outs: { huge: "2018 严守底线,2024 安全退休", moderate: "平稳过关", breakeven: "被诫勉", failure: "2023 被双规" } },
+    { name: "消费金融重启", real: "消费金融", sector: "非银", rate: 0.2, mult: 3.0, hint: "2018-2025 监管后重启", outs: { huge: "2018 接手消金,2024 升 VP,3x", moderate: "消金达标", breakeven: "消金一般", failure: "消金坏账" } },
+    { name: "跨境金融", real: "跨境支付", sector: "国际业务", rate: 0.25, mult: 3.0, hint: "2020 起,CIPS 系统", outs: { huge: "2020 推跨境,2024 升国际部,3x", moderate: "跨境达标", breakeven: "跨境一般", failure: "跨境被监管" } },
+    { name: "智能投顾", real: "智能投顾", sector: "财富", rate: 0.2, mult: 4.0, hint: "2018 起,招行领跑", outs: { huge: "2018 推智能投顾,2024 升私行 VP,4x", moderate: "智能投顾达标", breakeven: "智能投顾一般", failure: "智能投顾亏损" } },
+    { name: "区块链金融", real: "区块链应用", sector: "金融科技", rate: 0.15, mult: 3.0, hint: "2018 起,贸易金融区块链", outs: { huge: "2018 推区块链,2024 升科技部,3x", moderate: "区块链达标", breakeven: "区块链一般", failure: "区块链项目失败" } },
+    { name: "开放银行", real: "开放银行", sector: "API", rate: 0.2, mult: 4.0, hint: "2018 起,浦发/招行领跑", outs: { huge: "2018 推开放银行,2024 升 VP,4x", moderate: "开放银行达标", breakeven: "开放银行一般", failure: "开放银行不达标" } },
+    { name: "乡村振兴金融", real: "县域金融", sector: "战略", rate: 0.3, mult: 2.0, hint: "2021 起,乡村振兴战略", outs: { huge: "2021 推乡村金融,2024 升 VP,2x", moderate: "乡村金融达标", breakeven: "乡村金融一般", failure: "乡村金融坏账" } },
+  ],
+};
+
+const EVENTS = {
+  1: [
+    { desc: "1995 入行:工行柜员 vs 农信社(你爸)?",
+      a: { text: "留工行(宇宙行,稳健)", eff: "政治资本+3, Health-2", political: 3, health: -2 },
+      b: { text: "回农信社(你爸铺路)", eff: "Family+10, Health+5, 政治资本-5", family: 10, health: 5, political: -5 } },
+    { desc: "1996 央行的朋友要你帮揽存 1000 万,返点 3%?",
+      a: { text: "帮(违规,灰色收入)", eff: "Net Worth+30万, 政治资本-5, Health-2", deposits: 30, political: -5, health: -2 },
+      b: { text: "不帮(守规矩)", eff: "政治资本+5, Family+3, 存款-10万", political: 5, family: 3, deposits: -10 } },
+    { desc: "1997 央行查处违规揽存,你行里有人被查,你要不要通风报信?",
+      a: { text: "通风报信(讲义气)", eff: "Social+10, 政治资本-10, 2018 之后被翻出来", social: 10, political: -10 },
+      b: { text: "不报信(自保)", eff: "政治资本+5, Social-5", political: 5, social: -5 } },
+    { desc: "1998 房改启动,工行房贷部挖你,去不去?",
+      a: { text: "去房贷部(房地产起步)", eff: "Insight+10, Coding=0, 但 2010 后升支行长", rating: 0 },
+      b: { text: "留支行(求稳)", eff: "存款规模+5亿, 政治资本+3", deposits: 5, political: 3 } }
+  ],
+  2: [
+    { desc: "2001 WTO 入世,招行挖你,给你 3 倍工资,去不去?",
+      a: { text: "跳招行(收入+政治资本↓)", eff: "Net Worth+30万, 政治资本-10, Coding 0", deposits: 30, political: -10 },
+      b: { text: "留工行(熬资历)", eff: "政治资本+5, Health-5(加班)", political: 5, health: -5 } },
+    { desc: "2003 信用卡大战,工行 vs 招行,你要不要主导信用卡业务?",
+      a: { text: "All-in 信用卡(赌一把)", eff: "Insight+10, Coding+5, Health-10", rating: 0, health: -10 },
+      b: { text: "传统揽存(求稳)", eff: "存款+10亿, Reputation+3", deposits: 10, social: 3 } },
+    { desc: "2004 国务院查处违规房贷,你的一个客户涉嫌假按揭,要你签字放行?",
+      a: { text: "签字(讲义气)", eff: "Net Worth+50万, 政治资本-10, 不良率+1%", deposits: 50, political: -10 },
+      b: { text: "不签(守规矩)", eff: "政治资本+5, 不良率+0%(避雷)", political: 5 } },
+    { desc: "2005 银监会成立,200+ 行长被查,你要不要主动响应号召?",
+      a: { text: "主动配合(政治正确)", eff: "政治资本+10, Social+5", political: 10, social: 5 },
+      b: { text: "低调", eff: "Family+5, 但错过升职", family: 5 } }
+  ],
+  3: [
+    { desc: "2006 4 万亿前夕,总理喊话:银行业要支持经济,你要不要 All-in 政信?",
+      a: { text: "All-in 政信(响应号召)", eff: "存款+50亿, 政治资本+10, 不良率+1%", deposits: 50, political: 10 },
+      b: { text: "谨慎(怕坏账)", eff: "存款+10亿, 政治资本-3, 不良率+0.1%", deposits: 10, political: -3 } },
+    { desc: "2007 大牛市,客户求你帮配资 1 个亿,违规?",
+      a: { text: "帮(灰色)", eff: "Net Worth+100万, 政治资本-15, 不良率+2%", deposits: 100, political: -15 },
+      b: { text: "不帮(怕 2008 雷)", eff: "政治资本+5, Family+3", political: 5, family: 3 } },
+    { desc: "2009 创业板开闸,你行里要设投行部,要不要申请?",
+      a: { text: "申请(转型)", eff: "Insight+15, Coding+5, Health-5", rating: 0, health: -5 },
+      b: { text: "不申请(留支行)", eff: "政治资本+5, 存款+10亿", political: 5, deposits: 10 } },
+    { desc: "2011 表外扩张,你行里要发理财,合规?",
+      a: { text: "推理财(赚钱)", eff: "Net Worth+30万, 政治资本-5, 2018 资管新规被罚", deposits: 30, political: -5 },
+      b: { text: "不推(怕 2014 暴雷)", eff: "政治资本+5, Family+3", political: 5, family: 3 } }
+  ],
+  4: [
+    { desc: "2013 余额宝冲击,行里存款流失 10%,你要不要反击?",
+      a: { text: "推活期理财反击", eff: "Coding+5, Coding=0, 存款止跌", rating: 0 },
+      b: { text: "投诉监管(找监管帮忙)", eff: "Social+5, 政治资本+5", social: 5, political: 5 } },
+    { desc: "2015 P2P 火热,你要不要合作存管?",
+      a: { text: "接 P2P 存管(赚中间业务)", eff: "Net Worth+30万, 2018 P2P 暴雷被罚", deposits: 30, political: -10 },
+      b: { text: "不接(避雷)", eff: "政治资本+5, Family+3", political: 5, family: 3 } },
+    { desc: "2016 金融工作会议,严监管,你行要自查,要不要主动暴露问题?",
+      a: { text: "主动暴露(政治正确)", eff: "政治资本+15, 不良率+0.5%(自己报)", political: 15 },
+      b: { text: "藏着(赌不被查)", eff: "Coding-5, 但 2018 查到时被加倍罚", rating: -1 } },
+    { desc: "2017 资管新规征求意见,你的理财业务要被砍,怎么办?",
+      a: { text: "主动转型净值化", eff: "政治资本+10, 2018 转型成功", political: 10 },
+      b: { text: "打擦边球", eff: "Net Worth+30万, 2018 被查概率 30%", deposits: 30 } }
+  ],
+  5: [
+    { desc: "2019 金融反腐,你前同事被查,你要不要配合?",
+      a: { text: "配合(讲政治)", eff: "政治资本+10, Social-5(被孤立)", political: 10, social: -5 },
+      b: { text: "保护自己(中立)", eff: "Family+3, Coding 0", family: 3 } },
+    { desc: "2020 疫情,行里要放贷支持小微,放不放?",
+      a: { text: "All-in 普惠小微(响应号召)", eff: "政治资本+10, 存款+20亿, 不良率+1%", deposits: 20, political: 10 },
+      b: { text: "谨慎(怕坏账)", eff: "政治资本-5, 存款+5亿", political: -5, deposits: 5 } },
+    { desc: "2022 房地产纾困,你的大客户爆雷,要不要进白名单?",
+      a: { text: "进白名单(救房企)", eff: "Net Worth+10亿(保住), 政治资本-5", deposits: 10, political: -5 },
+      b: { text: "不进(自保)", eff: "Net Worth-30亿(损失), 政治资本+5", deposits: -30, political: 5 } },
+    { desc: "2024 60 岁退休前,纪委找你谈话,你要不要主动交代历史问题?",
+      a: { text: "主动交代(平安落地)", eff: "政治资本+20, Net Worth-50%(罚款), 但 2025 退休", political: 20, deposits: -50 },
+      b: { text: "不交代(赌)", eff: "Net Worth 保住, 但 30% 概率 2025 被带走", deposits: 0 } }
+  ]
+};
+
+let state = {
+  era: 1, round: 0, year: 1995, age: 22,
+  deposits: 0.5, npl: 0, rating: 3, political: 20,
+  health: 100, family: 100, social: 80,
+  log: [], projectResults: [], sideQuestsDone: [],
+  phase: "intro", pendingEvent: null, pendingProject: null, pendingSideQuest: null
+};
+
+function pick3(arr) {
+  const shuffled = [...arr].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, 3);
+}
+
+function updateState(changes) {
+  if (!changes) return;
+  if (changes.deposits) state.deposits = Math.max(0, state.deposits + changes.deposits);
+  if (changes.npl) state.npl = Math.max(0, Math.min(5, state.npl + changes.npl));
+  if (changes.political) state.political = Math.max(0, Math.min(100, state.political + changes.political));
+  if (changes.health) state.health = Math.max(0, Math.min(100, state.health + changes.health));
+  if (changes.family) state.family = Math.max(0, Math.min(100, state.family + changes.family));
+  if (changes.social) state.social = Math.max(0, Math.min(100, state.social + changes.social));
+  if (state.deposits >= 100 && state.npl < 1) state.rating = 3;
+  else if (state.deposits >= 50 && state.npl < 2) state.rating = 2;
+  else if (state.deposits >= 10) state.rating = 1;
+  else state.rating = 3;
+  renderStats();
+}
+
+function ratingLabel(r) {
+  return ['3C', '3B', '2C', '2B', '2A', '1A', '3A'][r] || '3A';
+}
+
+function renderStats() {
+  document.getElementById("deposits").textContent = state.deposits.toFixed(0) + " 亿";
+  document.getElementById("npl").textContent = state.npl.toFixed(1) + "%";
+  document.getElementById("rating").textContent = ratingLabel(state.rating);
+  document.getElementById("political").textContent = state.political;
+  document.getElementById("health-val").textContent = state.health;
+  document.getElementById("family-val").textContent = state.family;
+  document.getElementById("social-val").textContent = state.social;
+  const setBar = (id, v) => {
+    const el = document.getElementById(id);
+    el.style.width = v + "%";
+    el.style.background = v > 60 ? "#ffd54f" : v > 30 ? "#ff8a65" : "#ff5252";
+  };
+  setBar("health-bar", state.health);
+  setBar("family-bar", state.family);
+  setBar("social-bar", state.social);
+  const pol = document.getElementById("political");
+  pol.className = "stat-value " + (state.political < 30 ? "bad" : state.political < 60 ? "warn" : "");
+}
+
+function addLog(html, type) {
+  state.log.push({ year: state.year, html, type: type || "" });
+  const logEl = document.getElementById("log");
+  logEl.innerHTML = state.log.map(e => `<div class="log-entry"><span class="log-year">${e.year}</span> · ${e.type === 'sidequest' ? '<span class="log-sidequest">🌟</span> ' : ''}${e.html}</div>`).join("");
+  logEl.scrollTop = logEl.scrollHeight;
+}
+
+function rollOutcome(project) {
+  const r = Math.random();
+  if (r < project.rate * 0.4) return { key: "huge", label: "🟢 hugeSuccess", text: project.outs.huge };
+  if (r < project.rate) return { key: "moderate", label: "🔵 moderateSuccess", text: project.outs.moderate };
+  if (r < project.rate + 0.3) return { key: "breakeven", label: "🟡 breakeven", text: project.outs.breakeven };
+  return { key: "failure", label: "🔴 failure", text: project.outs.failure };
+}
+
+function applyOutcome(outcome, project) {
+  let mult, effStr = "";
+  if (outcome.key === "huge") { mult = project.mult; effStr = "💰 存款 x" + mult; state.deposits *= mult; }
+  else if (outcome.key === "moderate") { mult = project.mult * 0.5; effStr = "💰 存款 x" + mult.toFixed(1); state.deposits *= mult; }
+  else if (outcome.key === "breakeven") { mult = 1; effStr = "💰 存款 持平"; }
+  else { mult = 0.5; effStr = "💰 存款 x0.5 (损失)"; state.deposits *= 0.5; state.npl += 0.5; }
+  state.projectResults.push({ year: state.year, project: project.name, real: project.real, outcome: outcome.label, mult });
+  return effStr;
+}
+
+function renderEraBanner() {
+  const era = ERAS[state.era - 1];
+  return `<div class="era-banner">${era.name}<div class="year-text">${state.year} 年 · 你 ${state.age} 岁 · 第 ${state.round+1}/4 回合${state.sideQuestsDone.length > 0 ? " · 支线 " + state.sideQuestsDone.length + "/5" : ""}</div></div>`;
+}
+
+function renderStatsBar() {
+  return `
+    <div class="stats-bar">
+      <div class="stat"><div class="stat-label">存款(亿)</div><div class="stat-value" id="deposits">${state.deposits.toFixed(0)} 亿</div></div>
+      <div class="stat"><div class="stat-label">不良率</div><div class="stat-value" id="npl">${state.npl.toFixed(1)}%</div></div>
+      <div class="stat"><div class="stat-label">监管评级</div><div class="stat-value" id="rating">${ratingLabel(state.rating)}</div></div>
+      <div class="stat"><div class="stat-label">政治资本</div><div class="stat-value" id="political">${state.political}</div></div>
+    </div>
+    <div class="soft-stats">
+      <div class="soft-stat">Health <span id="health-val">${state.health}</span><div class="soft-bar"><div class="soft-fill" id="health-bar" style="background:#ffd54f;width:100%"></div></div></div>
+      <div class="soft-stat">Family <span id="family-val">${state.family}</span><div class="soft-bar"><div class="soft-fill" id="family-bar" style="background:#ffd54f;width:100%"></div></div></div>
+      <div class="soft-stat">Social <span id="social-val">${state.social}</span><div class="soft-bar"><div class="soft-fill" id="social-bar" style="background:#ffd54f;width:80%"></div></div></div>
+    </div>
+  `;
+}
+
+function renderEvent() {
+  const ev = state.pendingEvent;
+  document.getElementById("game-area").innerHTML = `
+    ${renderStatsBar()}
+    ${renderEraBanner()}
+    <div class="event-card">
+      <div class="card-title">📰 时代事件 · 2 选 1 派系/人际</div>
+      <div class="card-desc">${ev.desc}</div>
+      <div class="choices">
+        <button class="choice" onclick="chooseEvent('a')"><span class="choice-tag">A</span>${ev.a.text}<span class="choice-eff">${ev.a.eff}</span></button>
+        <button class="choice" onclick="chooseEvent('b')"><span class="choice-tag">B</span>${ev.b.text}<span class="choice-eff">${ev.b.eff}</span></button>
+      </div>
+    </div>
+  `;
+  renderStats();
+}
+
+function renderProject() {
+  const projects = state.pendingProject;
+  document.getElementById("game-area").innerHTML = `
+    ${renderStatsBar()}
+    ${renderEraBanner()}
+    <div class="project-card">
+      <div class="card-title">💼 业务/项目选择 · 3 选 1</div>
+      <div class="card-desc">从 3 个化身项目/银行/产品中选 1:</div>
+      <div class="choices">
+        ${projects.map((p, i) => `
+          <button class="choice" onclick="chooseProject(${i})">
+            <span class="choice-tag">${String.fromCharCode(65+i)}</span><strong>${p.name}</strong> (${p.real})
+            <span class="choice-eff">赛道:${p.sector} · 成功率 ${(p.rate*100).toFixed(0)}% · 最高 ${p.mult}x</span>
+            <span class="choice-eff">⚠ ${p.hint}</span>
+          </button>
+        `).join("")}
+      </div>
+    </div>
+  `;
+  renderStats();
+}
+
+function renderIntensity() {
+  document.getElementById("game-area").innerHTML = `
+    ${renderStatsBar()}
+    ${renderEraBanner()}
+    <div class="intensity-card">
+      <div class="card-title">⚙️ 投入度 · 3 选 1</div>
+      <div class="card-desc">本回合你打算多拼?</div>
+      <div class="choices">
+        <button class="choice" onclick="chooseIntensity('a')"><span class="choice-tag">A</span>996 极限<span class="choice-eff">存款+20%, Health-10, 不良率+0.5%, Family-3</span></button>
+        <button class="choice" onclick="chooseIntensity('b')"><span class="choice-tag">B</span>8h 平衡<span class="choice-eff">存款+5%, Health-3</span></button>
+        <button class="choice" onclick="chooseIntensity('c')"><span class="choice-tag">C</span>摆烂<span class="choice-eff">存款-5%, Health+5, 政治资本-5, Family+3</span></button>
+      </div>
+    </div>
+  `;
+  renderStats();
+}
+
+function renderSideQuest() {
+  const sq = state.pendingSideQuest;
+  document.getElementById("game-area").innerHTML = `
+    ${renderStatsBar()}
+    ${renderEraBanner()}
+    <div class="sidequest-card">
+      <div class="card-title">${sq.title} <span class="side-quest-badge">🌟 支线 ${state.sideQuestsDone.length+1}/5</span></div>
+      <div class="card-desc">${sq.desc}</div>
+      <div class="choices">
+        ${sq.choices.map((c, i) => `
+          <button class="choice" onclick="chooseSideQuest(${i})">
+            <span class="choice-tag">${String.fromCharCode(65+i)}</span>${c.text}
+            <span class="choice-eff">${c.eff}</span>
+          </button>
+        `).join("")}
+      </div>
+    </div>
+  `;
+  renderStats();
+}
+
+function renderResult(outcome, project) {
+  document.getElementById("game-area").innerHTML = `
+    ${renderStatsBar()}
+    ${renderEraBanner()}
+    <div class="event-card">
+      <div class="card-title">📊 ${state.year} 年终结算</div>
+      <div class="card-desc">
+        <strong>${project.name} (${project.real})</strong> → ${outcome.label}<br>
+        <em>${outcome.text}</em>
+      </div>
+      <div style="margin: 12px 0; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 6px; font-size: 13px;">
+        <div>💰 存款: ${state.deposits.toFixed(1)} 亿 | 不良率: ${state.npl.toFixed(1)}% | 监管评级: ${ratingLabel(state.rating)}</div>
+        <div>📈 政治资本: ${state.political}</div>
+        <div>❤️ Health: ${state.health} | 👪 Family: ${state.family} | 🤝 Social: ${state.social}</div>
+      </div>
+      <button class="choice" onclick="nextRound()" style="text-align:center; background: rgba(255,213,79,0.2);">进入下一年 →</button>
+    </div>
+  `;
+  renderStats();
+}
+
+function renderEnding(ending) {
+  document.getElementById("game-area").innerHTML = `
+    <div class="ending-screen">
+      <div class="ending-title">${ending.title}</div>
+      <div class="ending-desc">${ending.desc}</div>
+      <div class="ending-stats">
+        <div>📅 ${state.year} 年 · ${state.age} 岁 · 30 年银行路</div>
+        <div>💰 最终存款: ${state.deposits.toFixed(1)} 亿 | 不良率: ${state.npl.toFixed(1)}%</div>
+        <div>📈 监管评级: ${ratingLabel(state.rating)} | 政治资本: ${state.political}</div>
+        <div>❤️ Health: ${state.health} | 👪 Family: ${state.family} | 🤝 Social: ${state.social}</div>
+        <div>🌟 完成支线: ${state.sideQuestsDone.length}/5</div>
+        <div style="margin-top:12px;">📜 30 年足迹:</div>
+        <div style="text-align:left; margin-top:8px; max-height:200px; overflow-y:auto; font-size:13px;">
+          ${state.projectResults.map(r => `<div>· ${r.year} ${r.project} (${r.real}) → ${r.outcome} x${r.mult.toFixed(1)}</div>`).join("")}
+        </div>
+      </div>
+      <button class="restart-btn" onclick="restart()">🔄 重新开始 30 年银行路</button>
+    </div>
+  `;
+}
+
+window.startGame = function() {
+  document.getElementById("log").style.display = "block";
+  addLog("📜 <strong>1995 年</strong> · 你 22 岁,入行工行某支行做柜员");
+  checkSideQuest();
+  if (state.phase === "sidequest") {
+    renderSideQuest();
+  } else {
+    state.pendingEvent = EVENTS[1][0];
+    renderEvent();
+  }
+};
+
+window.chooseEvent = function(key) {
+  const ev = state.pendingEvent;
+  const choice = ev[key];
+  updateState({ deposits: choice.deposits, npl: choice.npl, political: choice.political, health: choice.health, family: choice.family, social: choice.social });
+  addLog(`📰 时代事件 → <strong>${choice.text}</strong> (${choice.eff})`);
+  state.pendingProject = pick3(PROJECTS[state.era]);
+  renderProject();
+};
+
+window.chooseProject = function(idx) {
+  const project = state.pendingProject[idx];
+  state._currentProject = project;
+  addLog(`💼 选择了 <strong>${project.name}</strong> (${project.real})`);
+  renderIntensity();
+};
+
+window.chooseIntensity = function(key) {
+  let changes = {};
+  if (key === 'a') changes = { deposits: state.deposits * 0.2, health: -10, npl: 0.5, family: -3 };
+  if (key === 'b') changes = { deposits: state.deposits * 0.05, health: -3 };
+  if (key === 'c') changes = { deposits: state.deposits * -0.05, health: 5, family: 3, political: -5 };
+  updateState(changes);
+  addLog(`⚙️ 投入度: ${key === 'a' ? '996 极限' : key === 'b' ? '8h 平衡' : '摆烂'}`);
+  const project = state._currentProject;
+  const outcome = rollOutcome(project);
+  const effStr = applyOutcome(outcome, project);
+  addLog(`📊 <strong>${project.name}</strong> → ${outcome.label} · ${effStr}`);
+  renderResult(outcome, project);
+};
+
+window.chooseSideQuest = function(idx) {
+  const sq = state.pendingSideQuest;
+  const choice = sq.choices[idx];
+  if (choice.gamble) {
+    const won = Math.random() < 0.6;
+    if (won) {
+      addLog(`🌟 支线:${choice.text} <strong style="color:#ffd54f;">【赌赢了!】</strong>`, "sidequest");
+      const winChanges = {};
+      Object.keys(choice.changes).forEach(k => { winChanges[k] = choice.changes[k] * 2; });
+      updateState(winChanges);
+    } else {
+      addLog(`🌟 支线:${choice.text} <strong style="color:#ff5252;">【赌输了,血本无归】</strong>`, "sidequest");
+      const loseChanges = {};
+      Object.keys(choice.changes).forEach(k => { loseChanges[k] = choice.changes[k] * 2; });
+      updateState(loseChanges);
+    }
+  } else {
+    updateState(choice.changes);
+    addLog(`🌟 支线:${choice.text} (${choice.eff})`, "sidequest");
+  }
+  state.sideQuestsDone.push({ year: state.year, title: sq.title });
+  state.pendingSideQuest = null;
+  if (state.pendingEvent) {
+    renderEvent();
+  } else {
+    nextRound();
+  }
+};
+
+function checkSideQuest() {
+  const sq = SIDE_QUESTS.find(s => s.year === state.year && !state.sideQuestsDone.find(d => d.year === s.year));
+  if (sq) {
+    state.pendingSideQuest = sq;
+    state.phase = "sidequest";
+  }
+}
+
+window.nextRound = function() {
+  state.round += 1;
+  state.year += 1;
+  state.age += 1;
+  state._currentProject = null;
+  state.pendingEvent = null;
+  if (state.round >= 4) {
+    state.era += 1;
+    state.round = 0;
+    if (state.era > 5) { finishGame(); return; }
+    addLog(`🚪 <strong>时代切换 → ${ERAS[state.era-1].name}</strong>`);
+    const era = ERAS[state.era - 1];
+    if (era.gate) {
+      const stat = state[era.gate.stat];
+      const check = era.gate.stat === "rating" ? ratingLabel(stat) : stat;
+      if ((era.gate.stat === "rating" && stat < era.gate.min) || (era.gate.stat !== "rating" && stat < era.gate.min)) {
+        addLog(`⚠ 门控失败:${era.gate.fail}`);
+        updateState({ political: -10, social: -5 });
+      } else {
+        addLog(`✅ 门控通过:${era.gate.stat}=${check} ≥ ${era.gate.min}`);
+      }
+    }
+  }
+  if (state.era === 5 && state.political < 50 && Math.random() < 0.3) {
+    addLog(`⚖️ <strong style="color:#ff5252;">【被查!】</strong>中纪委调查你,你被双规`, "sidequest");
+    state.political = Math.max(0, state.political - 20);
+  }
+  if (state.health <= 30) { finishGame(); return; }
+  if (state.political <= 30) { finishGame(); return; }
+  if (state.family <= 30) { finishGame(); return; }
+  checkSideQuest();
+  if (state.phase === "sidequest") {
+    renderSideQuest();
+  } else {
+    state.pendingEvent = EVENTS[state.era][state.round];
+    renderEvent();
+  }
+};
+
+function finishGame() {
+  let ending;
+  if (state.political <= 30) {
+    ending = { title: "💔 金融反腐被查", desc: "2024 年你被中纪委带走。10 年间你贪了 500 万,现在写《忏悔录》。老婆跟你离了婚,孩子在同学面前抬不起头。" };
+  } else if (state.health <= 30) {
+    ending = { title: "💔 过劳病退", desc: "你的 Health 撑不到 2025。48 岁那年你突发心梗,提前病退。退休金 8000/月,医保报不完 ICU 费。" };
+  } else if (state.family <= 30) {
+    ending = { title: "💔 家人决裂", desc: "你错过了孩子的家长会,错过了父母的最后时光。52 岁那年你发现妻子已经签好了离婚协议。" };
+  } else if (state.rating >= 3 && state.deposits >= 1000 && state.political >= 80) {
+    ending = { title: "🏆 国有大行总行行长", desc: "你是国有大行总行 VP/行长,金融街大佬。你的名字出现在《财富》中国 50 位商界领袖榜单上。" };
+  } else if (state.rating >= 2 && state.deposits >= 500) {
+    ending = { title: "🌟 股份制分行行长", desc: "你是招行/兴业/民生某省分行行长,身价 5000 万+,圈内有名。2024 年安全退休。" };
+  } else if (state.deposits >= 100 && state.political >= 60) {
+    ending = { title: "🏠 城商行总行行长", desc: "你是宁波/南京/北京银行总行行长,地方金融王。52 岁退休,本地政协委员。" };
+  } else if (state.deposits >= 50) {
+    ending = { title: "🛋 稳定支行长", desc: "你一直在支行长位置,2025 退休,退休金 1.5 万/月。平凡而安全。" };
+  } else if (state.rating <= 1 && state.political < 40) {
+    ending = { title: "😢 35 岁被裁", desc: "2018 金融反腐,你被分流到郊区支行,2019 提前内退。52 岁你还在投简历,感叹时代抛弃你连招呼都不打。" };
+  } else if (state.projectResults.filter(r => r.outcome.includes("failure")).length >= 5) {
+    ending = { title: "🔒 隐藏·跳楼结局", desc: "5 次失败业务+监管处分+派系斗争,你 50 岁那年从办公楼 18 层跳下。银行给你开了追悼会,但谁也不敢说是'过劳'。" };
+  } else {
+    ending = { title: "😐 平平无奇", desc: "30 年就这样过去了。你没有大富大贵,也没有跌入谷底,只是……普通。" };
+  }
+  renderEnding(ending);
+}
+
+window.restart = function() {
+  state = {
+    era: 1, round: 0, year: 1995, age: 22,
+    deposits: 0.5, npl: 0, rating: 3, political: 20,
+    health: 100, family: 100, social: 80,
+    log: [], projectResults: [], sideQuestsDone: [],
+    phase: "intro", pendingEvent: null, pendingProject: null, pendingSideQuest: null
+  };
+  document.getElementById("log").innerHTML = "";
+  document.getElementById("log").style.display = "none";
+  showIntro();
+};
+
+function showIntro() {
+  document.getElementById("game-area").innerHTML = INTRO_HTML;
+}
+
+showIntro();
+</script>
+</body>
+</html>
