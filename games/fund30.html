@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>基金经理 30 年 · 投资人穿越</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:linear-gradient(135deg,#0a1a1a 0%,#0d2624 100%);color:#e0f2f1;min-height:100vh;padding:20px}
+.container{max-width:900px;margin:0 auto}
+h1{text-align:center;font-size:30px;margin:20px 0 8px;background:linear-gradient(90deg,#00d4aa,#4caf50,#00d4aa);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.subtitle{text-align:center;color:#80cbc4;margin-bottom:30px;font-size:14px}
+.intro-card{background:rgba(0,212,170,0.05);border:1px solid rgba(0,212,170,0.2);border-radius:12px;padding:24px;margin-bottom:16px}
+.intro-card h2{color:#00d4aa;font-size:18px;margin-bottom:12px;border-bottom:1px dashed rgba(0,212,170,0.3);padding-bottom:6px}
+.intro-card p{line-height:1.7;font-size:14px;margin-bottom:8px}
+.intro-card ul{margin-left:18px;font-size:13px;line-height:1.7}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}
+.stat-block{background:rgba(255,255,255,0.04);border:1px solid rgba(0,212,170,0.15);border-radius:8px;padding:12px;font-size:13px}
+.stat-block.soft{border-color:rgba(255,167,38,0.25)}
+.stat-block strong{color:#00d4aa;display:block;margin-bottom:6px}
+.stat-block.soft strong{color:#ffa726}
+.stats-bar{background:rgba(0,212,170,0.08);border:1px solid rgba(0,212,170,0.3);border-radius:10px;padding:12px;margin-bottom:14px;font-size:13px;line-height:1.7;position:sticky;top:8px;z-index:5}
+.stats-bar .year{color:#00d4aa;font-weight:bold;font-size:15px}
+.stats-bar .stat{color:#80cbc4}
+.stats-bar .stat.warn{color:#ffa726}
+.stats-bar .stat.danger{color:#ff5252}
+.choice-card{background:rgba(255,255,255,0.04);border:1px solid rgba(0,212,170,0.2);border-radius:10px;padding:16px;margin-bottom:12px}
+.choice-card h3{color:#00d4aa;font-size:16px;margin-bottom:10px}
+.choice-card .desc{font-size:13px;line-height:1.7;color:#b2dfdb;margin-bottom:12px}
+.btn{display:inline-block;background:rgba(0,212,170,0.15);border:1px solid #00d4aa;color:#00d4aa;padding:10px 18px;border-radius:6px;cursor:pointer;font-size:13px;margin:4px 4px 4px 0;transition:all .2s;font-family:inherit}
+.btn:hover{background:#00d4aa;color:#0a1a1a;font-weight:bold}
+.btn.b{border-color:#ffa726;color:#ffa726}
+.btn.b:hover{background:#ffa726;color:#0a1a1a}
+.btn.c{border-color:#80cbc4;color:#80cbc4}
+.btn.c:hover{background:#80cbc4;color:#0a1a1a}
+.btn.danger{border-color:#ff5252;color:#ff5252}
+.btn.danger:hover{background:#ff5252;color:#fff}
+.btn.gold{border-color:#ffeb3b;color:#ffeb3b}
+.btn.gold:hover{background:#ffeb3b;color:#0a1a1a;font-weight:bold}
+.result-card{background:rgba(76,175,80,0.08);border:1px solid rgba(76,175,80,0.4);border-radius:10px;padding:16px;margin-bottom:12px}
+.result-card.warn{background:rgba(255,167,38,0.08);border-color:rgba(255,167,38,0.4)}
+.result-card.bad{background:rgba(255,82,82,0.08);border-color:rgba(255,82,82,0.4)}
+.result-card h3{color:#4caf50;font-size:16px;margin-bottom:8px}
+.result-card.warn h3{color:#ffa726}
+.result-card.bad h3{color:#ff5252}
+.ending{background:rgba(255,235,59,0.08);border:2px solid #ffeb3b;border-radius:14px;padding:24px;margin-top:16px;text-align:center}
+.ending h2{color:#ffeb3b;font-size:24px;margin-bottom:14px}
+.ending p{font-size:14px;line-height:1.8;margin-bottom:8px}
+.ending .footer{font-size:12px;color:#80cbc4;margin-top:14px}
+.log{background:rgba(0,0,0,0.3);border-radius:8px;padding:10px 14px;margin-top:12px;font-size:12px;line-height:1.6;max-height:280px;overflow-y:auto;color:#b2dfdb}
+.log .l-side{color:#ffa726}
+.log .l-bad{color:#ff5252}
+.log .l-good{color:#4caf50}
+.log .l-gold{color:#ffeb3b}
+hr{border:none;border-top:1px dashed rgba(0,212,170,0.2);margin:16px 0}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>基金经理 30 年</h1>
+  <div class="subtitle">— 一位投资人的 30 年 (1995-2025) —</div>
+  <div id="game-area"></div>
+  <div class="log" id="log" style="display:none;"></div>
+</div>
+<script>
+const INTRO_HTML = `
+  <div class="intro-card">
+    <h2>📖 故事背景</h2>
+    <p>1995 年,你 22 岁,北大经院毕业,被分配到<strong style="color:#00d4aa;">申银万国</strong>研究部做实习研究员。你爸是县农信社主任,你妈是中学老师——家里给你铺好了路,但要在投资圈混出来,还得靠你自己。</p>
+    <p>接下来 <strong style="color:#00d4aa;">30 年</strong>(1995-2025),你要经历 5 个时代:庄股黑幕 → 价值投资 → 公募黄金 → 私募爆发 → 量化 AI。每一年都可能决定你升基金经理还是被淘汰,甚至决定你 2018 年是不是被证监会带走。</p>
+    <p>30 年后 52 岁的你,会变成高瓴/景林级大佬、王亚伟级一哥,还是老鼠仓里的囚徒?一切,取决于你接下来 20 个回合的每一个选择。</p>
+  </div>
+  <div class="intro-card">
+    <h2>📊 你有 7 项数值(双轴)</h2>
+    <div class="stat-grid">
+      <div class="stat-block">
+        <strong>硬指标(累积型)</strong>
+        <span>· AUM 管理规模(亿) — 决定江湖地位</span><br>
+        <span>· 年化收益率(%) — 决定排名 / 募集</span><br>
+        <span>· 百分位排名(1-100) — 越小越顶流</span><br>
+        <span>· 老鼠仓风险(0-100) — 越高越危险</span>
+      </div>
+      <div class="stat-block soft">
+        <strong>软指标(衰减型)</strong>
+        <span>· Health 健康(0-100) — 低于 30 触发过劳猝死</span><br>
+        <span>· Family 家庭(0-100) — 低于 30 触发离婚</span><br>
+        <span>· Social 圈脉(0-100) — 决定跳槽 / 募集</span>
+      </div>
+    </div>
+  </div>
+  <div class="intro-card">
+    <h2>🎯 每回合 3 步决策</h2>
+    <p>① <strong style="color:#00d4aa;">时代事件(2 选 1)</strong> — 派系 / 伦理选择,影响软指标 + 老鼠仓风险</p>
+    <p>例:1998 时代事件 = "吕梁请你加入康达尔操盘团队"</p>
+    <p>② <strong style="color:#00d4aa;">业务选择(3 选 1)</strong> — 化身股票 / 基金,影响硬指标</p>
+    <p>例:2003 业务 = "茅台 / 富国天惠 / 招商大盘"</p>
+    <p>③ <strong style="color:#00d4aa;">投入度(3 选 1)</strong> — 工作方式,影响双轴</p>
+    <p>A 996 极限 / B 8h 平衡 / C 摆烂</p>
+  </div>
+  <div class="intro-card">
+    <h2>🎁 5 个支线任务</h2>
+    <p>主线之外,30 年里会有 5 个支线任务穿插出现:</p>
+    <p>🏦 <strong>1998 老鼠仓诱惑</strong> — 吕梁给 50 万,亲属账户跟买康达尔</p>
+    <p>💍 <strong>2003 婚恋抉择</strong> — 同行(大学同学)vs 客户千金</p>
+    <p>📉 <strong>2008 救市 / 抄底</strong> — 4 万亿前夜,发新产品 All-in?</p>
+    <p>💼 <strong>2014 公奔私</strong> — 公募副总 vs 私募创始人</p>
+    <p>⚖️ <strong>2019 旧账被翻</strong> — 你 2002 年的亲属账户被查</p>
+  </div>
+  <div class="intro-card">
+    <h2>🚪 4 个时代门控</h2>
+    <p>时代切换时会检查你的硬指标:</p>
+    <p>进入 <strong style="color:#00d4aa;">价值投资</strong>(2000):需 AUM ≥ 5 亿</p>
+    <p>进入 <strong style="color:#00d4aa;">公募黄金</strong>(2005):需 排名 ≤ 20(前 20%)</p>
+    <p>进入 <strong style="color:#00d4aa;">私募爆发</strong>(2013):需 年化收益 ≥ 15%</p>
+    <p>进入 <strong style="color:#00d4aa;">量化 AI</strong>(2018):需 老鼠仓风险 ≤ 30</p>
+    <p>⚠ 时代 5 监管严打,老鼠仓 ≥ 60 有 50% 概率触发"被查"事件</p>
+  </div>
+  <div class="intro-card">
+    <h2>🏆 9 种结局</h2>
+    <p>🏆 <strong>顶级私募大佬</strong>:排名 ≤ 5 + AUM 500亿+ + 老鼠仓 ≤ 10 — 高瓴/景林级</p>
+    <p>🌟 <strong>明星公募经理</strong>:排名 ≤ 10 + AUM 100亿+ — 王亚伟级</p>
+    <p>🏠 <strong>量化私募创始人</strong>:时代5切量化 + AUM 50亿+ — 幻方级</p>
+    <p>🛋 <strong>银行理财子 / 养老 FOF</strong>:AUM 100亿+ + 排名 ≤ 30</p>
+    <p>😢 <strong>排名垫底被清盘</strong>:排名 ≥ 80 + AUM ≤ 1亿</p>
+    <p>💔 <strong>老鼠仓被查</strong>:老鼠仓风险 ≥ 60 — 罚没 + 刑拘</p>
+    <p>💔 <strong>过劳猝死</strong>:Health ≤ 30</p>
+    <p>🔒 <strong>隐藏:公奔私成功</strong>:时代3→4跳私募 + 排名 ≤ 10</p>
+    <p>🔒 <strong>隐藏:AI 量化之神</strong>:时代5选 AI 选股 + AUM 50亿+</p>
+  </div>
+  <button class="btn gold" onclick="window.startGame()">🚀 开始 30 年投资路</button>
+`;
+
+const SIDE_QUESTS = [
+  { year: 1998, title: "🏦 支线:老鼠仓诱惑", desc: "1998 年你 25 岁,吕梁找你做康达尔坐庄团队,给你亲属账户开通老鼠仓,先打 50 万诚意金。① 加入 — 收益翻倍但风险累计;② 拒绝 — 守住底线但错过红利。",
+    choices: [
+      { text: "A. 加入(灰色)", eff: "AUM+3亿, 收益+20%, 老鼠仓风险+15, Social+10", changes: { aum: 3, returnRate: 20, mouseRisk: 15, social: 10 } },
+      { text: "B. 拒绝(守规)", eff: "Reputation+5, 老鼠仓风险-3, Family+3, Social-5", changes: { mouseRisk: -3, family: 3, social: -5 } }
+    ]
+  },
+  { year: 2003, title: "💍 支线:婚恋抉择", desc: "2003 年你 30 岁,有两段姻缘:① 大学同学小芳(同行,感情深但晋升慢);② 客户董事长千金(政治资源暴涨但你得 996 陪岳父)。家里催你定下来。",
+    choices: [
+      { text: "A. 娶小芳", eff: "Family+20, Health+5, Social-5, 但 2007 牛市岳父帮忙升职", changes: { family: 20, health: 5, social: -5 } },
+      { text: "B. 娶千金", eff: "Social+20, AUM+5亿, Family-10(感情淡), Health-5(陪酒多)", changes: { social: 20, aum: 5, family: -10, health: -5 } }
+    ]
+  },
+  { year: 2008, title: "📉 支线:救市 / 抄底", desc: "2008 年 9 月雷曼破产,A 股跌 70%。要不要发新产品 All-in 抄底?① 抄底(赌国运);② 等 4 万亿(稳健);③ 减仓避险。",
+    choices: [
+      { text: "A. All-in 抄底", eff: "2009 反弹收益+30%, 但若 2010 续跌可能回撤", changes: { aum: 5, returnRate: 30, health: -10 } },
+      { text: "B. 等 4 万亿", eff: "2010 反弹收益+15%, 稳健", changes: { returnRate: 15, health: -3 } },
+      { text: "C. 减仓避险", eff: "Family+5, AUM-3亿, 但躲过 2008 底", changes: { family: 5, aum: -3 } }
+    ]
+  },
+  { year: 2014, title: "💼 支线:公奔私抉择", desc: "2014 年你 41 岁,公募副总升总经理卡了 3 年。高瓴/景林抛橄榄枝,2 倍薪资 + 股权。① 跳私募(收入暴涨,平台依赖少);② 留公募(等升迁)。",
+    choices: [
+      { text: "A. 跳私募", eff: "AUM+30亿, Social+20, Health-10(加班), 收益潜力+50%", changes: { aum: 30, social: 20, health: -10 } },
+      { text: "B. 留公募", eff: "Family+10, 收益稳健,但错过 2015 杠杆牛", changes: { family: 10 } },
+      { text: "C. 创业私募", eff: "AUM+10亿, 老鼠仓风险+10, 收益潜力大但压力", changes: { aum: 10, mouseRisk: 10, health: -5 } }
+    ]
+  },
+  { year: 2019, title: "⚖️ 支线:旧账被翻", desc: "2019 年你 46 岁,证监会反查 2018-2019 年老鼠仓,翻出你 2002 年亲属账户买入银广夏的记录。① 主动投案(从轻);② 律师介入;③ 跑路海外。",
+    choices: [
+      { text: "A. 主动投案", eff: "老鼠仓风险清零, 罚没 200 万, 但避免刑拘", changes: { mouseRisk: -50, family: -10 } },
+      { text: "B. 律师介入", eff: "老鼠仓风险-20, 罚没 500 万, 但留下案底", changes: { mouseRisk: -20, family: -5 } },
+      { text: "C. 跑路海外", eff: "老鼠仓风险+30, Family-30, 但暂时不被抓", changes: { mouseRisk: 30, family: -30 } }
+    ]
+  }
+];
+
+const ERAS = [
+  { name: "庄股时代", yearStart: 1995, yearEnd: 2000, gate: { stat: "aum", min: 5, fail: "AUM 不足 5 亿,卡在研究员 5 年,2005 才升基金经理" }, desc: "君安-万科 / 吕梁-康达尔 / 德隆" },
+  { name: "价值投资时代", yearStart: 2000, yearEnd: 2005, gate: { stat: "rank", min: 20, fail: "排名跌出前 20%,2007 牛市翻不了身,2008 跌成中等" }, desc: "但斌 / 林园 / 茅台 / 国九条" },
+  { name: "公募黄金时代", yearStart: 2005, yearEnd: 2013, gate: { stat: "returnRate", min: 15, fail: "年化收益不足 15%,2013 公奔私潮没资本" }, desc: "王亚伟 / 2007 6000 点 / 余额宝冲击" },
+  { name: "私募爆发时代", yearStart: 2013, yearEnd: 2018, gate: { stat: "mouseRisk", min: 30, fail: "老鼠仓风险过高,2018 资管新规第一批被查" }, desc: "徐翔 / 高瓴 / 2015 杠杆牛" },
+  { name: "量化+AI 时代", yearStart: 2018, yearEnd: 2025, gate: null, desc: "幻方 / DeepSeek / 9.24" }
+];
+
+const PROJECTS = {
+  1: [
+    { name: "君安证券", real: "君安杨骏", sector: "券商自营", rate: 0.30, mult: 6.0, hint: "杨骏时代,1998 君万之争后被合并", outs: { huge: "1995 入君安,2000 跟张国庆上位,6x", moderate: "君安部门副总", breakeven: "君安分析师", failure: "1998 君万之争后被裁" } },
+    { name: "申银万国", real: "阚治东", sector: "券商自营", rate: 0.25, mult: 4.0, hint: "阚治东 1996 327 国债入狱", outs: { huge: "1995 入申万,2000 升副总,4x", moderate: "申万部门经理", breakeven: "申万分析师", failure: "1996 国债事件被牵连" } },
+    { name: "万科 A", real: "王石", sector: "价值股", rate: 0.35, mult: 8.0, hint: "1998 君万之争,地产拐点", outs: { huge: "1996 重仓万科,2007 涨 10x", moderate: "万科长线,4x", breakeven: "万科波段,1.5x", failure: "1998 君安事件被套" } },
+    { name: "康达尔", real: "吕梁", sector: "坐庄", rate: 0.15, mult: 10.0, hint: "吕梁中科创业,2001 崩盘", outs: { huge: "1997 跟庄,2000 顶峰离场,10x", moderate: "中科创业波段,4x", breakeven: "持平", failure: "2001 崩盘血亏" } },
+    { name: "德隆系", real: "唐万新", sector: "产业整合", rate: 0.10, mult: 15.0, hint: "2004 德隆崩盘,唐万新入狱", outs: { huge: "1997 入德隆,2003 顶峰退出,15x", moderate: "德隆关联,5x", breakeven: "微赚", failure: "2004 崩盘血本无归" } },
+    { name: "蓝田股份", real: "瞿兆玉", sector: "题材股", rate: 0.20, mult: 6.0, hint: "2002 刘姝威戳穿造假", outs: { huge: "1999 短线蓝田,2001 出局,6x", moderate: "蓝田波段,3x", breakeven: "持平", failure: "2002 造假曝光血亏" } },
+    { name: "银广夏", real: "造假", sector: "财务造假", rate: 0.20, mult: 7.0, hint: "2001 银广夏造假曝光", outs: { huge: "1999 重仓,2001 顶部离场,7x", moderate: "银广夏波段,3x", breakeven: "持平", failure: "2001 造假曝光连跌" } },
+    { name: "琼民源", real: "造假", sector: "题材股", rate: 0.15, mult: 5.0, hint: "1998 琼民源停牌,改中关村", outs: { huge: "1996 入琼民源,1997 离场,5x", moderate: "琼民源老股,2x", breakeven: "持平", failure: "1998 停牌套牢" } },
+    { name: "综艺股份", real: "昝圣达", sector: "多元化", rate: 0.30, mult: 5.0, hint: "综艺系,多家上市公司", outs: { huge: "1997 入综艺系,2007 顶峰,5x", moderate: "综艺相关,3x", breakeven: "持平", failure: "综艺系问题曝光" } },
+    { name: "中科创业", real: "吕梁", sector: "坐庄", rate: 0.10, mult: 12.0, hint: "2000 崩盘,吕梁出逃", outs: { huge: "1999 跟庄,2000 顶部离场,12x", moderate: "中科创业波段,3x", breakeven: "持平", failure: "2000 崩盘血亏" } },
+    { name: "亿安科技", real: "操纵", sector: "股价操纵", rate: 0.15, mult: 8.0, hint: "2001 中国第一只百元股崩盘", outs: { huge: "2000 入亿安,顶峰离场,8x", moderate: "亿安科技,3x", breakeven: "持平", failure: "2001 崩盘血亏" } },
+    { name: "红光实业", real: "造假", sector: "IPO 造假", rate: 0.20, mult: 4.0, hint: "1997 红光造假上市被查", outs: { huge: "1997 短线红光,1997 出局,4x", moderate: "红光波段,2x", breakeven: "持平", failure: "1997 退市血亏" } },
+    { name: "东方电子", real: "造假", sector: "财务造假", rate: 0.20, mult: 5.0, hint: "2001 东方电子造假曝光", outs: { huge: "1999 入东方,2000 顶峰离场,5x", moderate: "东方波段,3x", breakeven: "持平", failure: "2001 造假曝光" } },
+    { name: "国电电力", real: "公用事业", sector: "稳健", rate: 0.35, mult: 6.0, hint: "稳健但增长慢", outs: { huge: "1996 重仓国电,2007 涨 6x", moderate: "国电长线,3x", breakeven: "持平", failure: "1998 业绩下滑" } },
+    { name: "国泰君安", real: "券商", sector: "稳健", rate: 0.30, mult: 5.0, hint: "1999 合并成立,稳健", outs: { huge: "1999 入国君,2007 涨 5x", moderate: "国君长线,3x", breakeven: "持平", failure: "2003 业绩低谷" } },
+    { name: "中信证券", real: "券商", sector: "稳健", rate: 0.35, mult: 10.0, hint: "1995 成立,2003 上市", outs: { huge: "1995 入中信,2007 涨 10x", moderate: "中信长线,4x", breakeven: "持平", failure: "2004 熊市低谷" } }
+  ],
+  2: [
+    { name: "但斌·东方港湾", real: "但斌", sector: "价值投资", rate: 0.30, mult: 8.0, hint: "茅台死多头", outs: { huge: "2003 跟但斌,2012 涨 8x", moderate: "东方港湾,4x", breakeven: "持平", failure: "2008 抗不住赎回" } },
+    { name: "林园·林园投资", real: "林园", sector: "价值投资", rate: 0.30, mult: 10.0, hint: "茅五轮+中药", outs: { huge: "2003 跟林园,2012 涨 10x", moderate: "林园,5x", breakeven: "持平", failure: "2008 抗不住赎回" } },
+    { name: "赵丹阳·赤子之心", real: "赵丹阳", sector: "价值投资", rate: 0.25, mult: 7.0, hint: "2008 主动清盘避险", outs: { huge: "2003 跟赵丹阳,2007 涨 7x", moderate: "赤子之心,3x", breakeven: "持平", failure: "2008 提前清盘错过反弹" } },
+    { name: "李驰·同威", real: "李驰", sector: "价值投资", rate: 0.25, mult: 5.0, hint: "稳健派", outs: { huge: "2003 跟同威,2007 涨 5x", moderate: "同威,3x", breakeven: "持平", failure: "2004 业绩下滑" } },
+    { name: "陈光明·东方红", real: "陈光明", sector: "价值投资", rate: 0.35, mult: 8.0, hint: "东方红资管", outs: { huge: "2005 跟陈光明,2015 涨 8x", moderate: "东方红,4x", breakeven: "持平", failure: "2008 业绩中等" } },
+    { name: "傅鹏博·兴全", real: "傅鹏博", sector: "价值投资", rate: 0.30, mult: 7.0, hint: "长跑健将", outs: { huge: "2003 入兴全,2015 涨 7x", moderate: "兴全,4x", breakeven: "持平", failure: "2007 牛市没抓住" } },
+    { name: "朱少醒·富国天惠", real: "朱少醒", sector: "价值投资", rate: 0.40, mult: 10.0, hint: "15 年 20 倍神话", outs: { huge: "2005 入富国,2020 涨 10x", moderate: "富国,5x", breakeven: "持平", failure: "2008 抗不住赎回" } },
+    { name: "华夏大盘", real: "早期公募", sector: "公募", rate: 0.30, mult: 5.0, hint: "成立后早期", outs: { huge: "2004 入华夏,2007 涨 5x", moderate: "华夏,3x", breakeven: "持平", failure: "2005 业绩中等" } },
+    { name: "博时主题", real: "邓晓峰", sector: "公募", rate: 0.25, mult: 4.0, hint: "邓晓峰时代", outs: { huge: "2005 入博时,2007 涨 4x", moderate: "博时,3x", breakeven: "持平", failure: "2007 业绩中等" } },
+    { name: "易方达平稳", real: "稳健", sector: "公募", rate: 0.25, mult: 4.0, hint: "稳健派", outs: { huge: "2003 入易方达,2007 涨 4x", moderate: "易方达,3x", breakeven: "持平", failure: "2004 业绩中等" } },
+    { name: "南方稳健", real: "南方系", sector: "公募", rate: 0.25, mult: 4.0, hint: "南方系", outs: { huge: "2003 入南方,2007 涨 4x", moderate: "南方,3x", breakeven: "持平", failure: "2005 业绩中等" } },
+    { name: "上投摩根阿尔法", real: "QDII", sector: "QDII", rate: 0.30, mult: 5.0, hint: "2007 上限", outs: { huge: "2004 入上投,2007 涨 5x", moderate: "上投,3x", breakeven: "持平", failure: "2008 海外危机" } },
+    { name: "汇添富优势精选", real: "汇添富", sector: "公募", rate: 0.30, mult: 5.0, hint: "汇添富系", outs: { huge: "2005 入汇添富,2007 涨 5x", moderate: "汇添富,3x", breakeven: "持平", failure: "2007 业绩中等" } },
+    { name: "嘉实增长", real: "嘉实", sector: "公募", rate: 0.30, mult: 5.0, hint: "嘉实系", outs: { huge: "2004 入嘉实,2007 涨 5x", moderate: "嘉实,3x", breakeven: "持平", failure: "2005 业绩中等" } },
+    { name: "贵州茅台", real: "核心资产", sector: "白酒", rate: 0.40, mult: 50.0, hint: "2001 上市,价值典范", outs: { huge: "2003 重仓茅台,2021 涨 50x", moderate: "茅台长线,15x", breakeven: "茅台波段,3x", failure: "2012-2014 反腐被洗出" } },
+    { name: "万科 A", real: "王石", sector: "核心资产", rate: 0.35, mult: 10.0, hint: "王石 / 郁亮", outs: { huge: "2001 重仓万科,2007 涨 10x", moderate: "万科长线,5x", breakeven: "万科波段,2x", failure: "2008 抗不住地产危机" } }
+  ],
+  3: [
+    { name: "王亚伟·华夏大盘", real: "王亚伟", sector: "公募一哥", rate: 0.25, mult: 12.0, hint: "2005-2012 神话", outs: { huge: "2006 跟王亚伟,2012 涨 12x", moderate: "华夏大盘,5x", breakeven: "持平", failure: "2012 离职后业绩下滑" } },
+    { name: "华夏策略", real: "孙建冬", sector: "公募", rate: 0.30, mult: 6.0, hint: "接棒华夏大盘", outs: { huge: "2008 入华夏策略,2013 涨 6x", moderate: "华夏策略,3x", breakeven: "持平", failure: "2010 业绩中等" } },
+    { name: "兴全社会", real: "傅鹏博", sector: "价值投资", rate: 0.30, mult: 7.0, hint: "傅鹏博坚守", outs: { huge: "2005 入兴全,2013 涨 7x", moderate: "兴全,4x", breakeven: "持平", failure: "2008 抗不住赎回" } },
+    { name: "富国天惠", real: "朱少醒", sector: "价值投资", rate: 0.40, mult: 8.0, hint: "持续 15 年", outs: { huge: "2005 入富国,2013 涨 8x", moderate: "富国,4x", breakeven: "持平", failure: "2008 抗不住赎回" } },
+    { name: "景顺内需", real: "王鹏", sector: "公募", rate: 0.25, mult: 5.0, hint: "景顺系", outs: { huge: "2006 入景顺,2010 涨 5x", moderate: "景顺,3x", breakeven: "持平", failure: "2011 业绩下滑" } },
+    { name: "银华核心", real: "陆文俊", sector: "公募", rate: 0.25, mult: 5.0, hint: "银华系", outs: { huge: "2007 入银华,2010 涨 5x", moderate: "银华,3x", breakeven: "持平", failure: "2009 业绩中等" } },
+    { name: "招商大盘", real: "刘树祥", sector: "公募", rate: 0.25, mult: 4.0, hint: "招商系", outs: { huge: "2007 入招商,2010 涨 4x", moderate: "招商,3x", breakeven: "持平", failure: "2008 业绩中等" } },
+    { name: "中邮核心", real: "刘格菘", sector: "公募", rate: 0.25, mult: 5.0, hint: "风格激进", outs: { huge: "2007 入中邮,2010 涨 5x", moderate: "中邮,3x", breakeven: "持平", failure: "2008 业绩下滑" } },
+    { name: "王亚伟·中科招商", real: "公转私", sector: "PE 试水", rate: 0.20, mult: 5.0, hint: "2012 离任 PE", outs: { huge: "2012 跟中科招商,2015 涨 5x", moderate: "中科招商,3x", breakeven: "持平", failure: "2016 新三板低迷" } },
+    { name: "公募一哥", real: "王亚伟 IP", sector: "明星 IP", rate: 0.15, mult: 10.0, hint: "王亚伟个人光环", outs: { huge: "2006 抱团,2012 顶峰离场,10x", moderate: "跟王亚伟长线,5x", breakeven: "持平", failure: "2012 离任塌陷" } },
+    { name: "2007 6000 点", real: "大牛市", sector: "牛市", rate: 0.50, mult: 3.0, hint: "2007.10 上证 6124", outs: { huge: "2005 满仓等 2007 顶峰,3x", moderate: "2007 牛市,2x", breakeven: "持平", failure: "2008 跑慢被埋" } },
+    { name: "2008 1664 点", real: "大熊市", sector: "熊市", rate: 0.30, mult: 2.0, hint: "全球金融危机", outs: { huge: "2008 抄底,2009 反弹,2x", moderate: "2008 减仓,1.5x", breakeven: "持平", failure: "2008 满仓腰斩" } },
+    { name: "2009 4 万亿", real: "政策刺激", sector: "反弹", rate: 0.40, mult: 2.5, hint: "4 万亿反弹", outs: { huge: "2008 末抄底,2009 顶峰,2.5x", moderate: "2009 反弹,1.8x", breakeven: "持平", failure: "2009 末追高" } },
+    { name: "2013 余额宝", real: "互联网金融", sector: "新物种", rate: 0.50, mult: 1.5, hint: "货币基金抢存款", outs: { huge: "2013 拥抱余额宝,2014 涨 1.5x", moderate: "2013 转型,1.2x", breakeven: "持平", failure: "2013 错过转型" } },
+    { name: "中概股回归", real: "VIE", sector: "回归潮", rate: 0.25, mult: 3.0, hint: "2012-2015 中概回 A", outs: { huge: "2012 布局中概回归,2015 涨 3x", moderate: "2014 跟,1.8x", breakeven: "持平", failure: "2015 后政策收紧" } },
+    { name: "创业板 2010", real: "创业板", sector: "创业板", rate: 0.30, mult: 3.0, hint: "2009 创业板开市", outs: { huge: "2010 重仓创业板,2012 顶峰,3x", moderate: "创业板长线,1.8x", breakeven: "持平", failure: "2012 创业板熊市" } }
+  ],
+  4: [
+    { name: "徐翔·泽熙", real: "徐翔", sector: "涨停板敢死队", rate: 0.10, mult: 30.0, hint: "2015 徐翔被抓", outs: { huge: "2013 跟徐翔,2015 顶峰,30x", moderate: "泽熙,8x", breakeven: "持平", failure: "2015.11 徐翔被抓" } },
+    { name: "张磊·高瓴", real: "张磊", sector: "长期价值", rate: 0.35, mult: 25.0, hint: "重仓腾讯/京东/百济", outs: { huge: "2014 跟高瓴,2021 涨 25x", moderate: "高瓴,8x", breakeven: "持平", failure: "2021 后回调" } },
+    { name: "邱国鹭·高毅", real: "邱国鹭", sector: "价值投资", rate: 0.30, mult: 6.0, hint: "邱国鹭 + 邓晓峰 + 冯柳", outs: { huge: "2014 跟高毅,2020 涨 6x", moderate: "高毅,3x", breakeven: "持平", failure: "2018 业绩下滑" } },
+    { name: "邓晓峰·高毅", real: "邓晓峰", sector: "价值投资", rate: 0.35, mult: 8.0, hint: "博时系出身", outs: { huge: "2014 跟邓晓峰,2020 涨 8x", moderate: "邓晓峰,4x", breakeven: "持平", failure: "2018 业绩中等" } },
+    { name: "冯柳·高毅", real: "冯柳", sector: "逆向投资", rate: 0.30, mult: 10.0, hint: "消费品 / 医药逆向", outs: { huge: "2015 跟冯柳,2020 涨 10x", moderate: "冯柳,5x", breakeven: "持平", failure: "2021 白马调整" } },
+    { name: "林园·私募化", real: "林园", sector: "消费品", rate: 0.30, mult: 6.0, hint: "林园私募化", outs: { huge: "2014 跟林园,2020 涨 6x", moderate: "林园,3x", breakeven: "持平", failure: "2018 抗不住赎回" } },
+    { name: "但斌·二轮", real: "但斌", sector: "价值投资", rate: 0.25, mult: 5.0, hint: "但斌二轮私募", outs: { huge: "2014 跟但斌,2020 涨 5x", moderate: "但斌,3x", breakeven: "持平", failure: "2018 业绩下滑" } },
+    { name: "王亚伟·千合", real: "王亚伟", sector: "公转私", rate: 0.25, mult: 5.0, hint: "千合资本", outs: { huge: "2013 跟千合,2015 涨 5x", moderate: "千合,3x", breakeven: "持平", failure: "2016 中科招商低迷" } },
+    { name: "公奔私潮", real: "行业风口", sector: "风口", rate: 0.30, mult: 4.0, hint: "2013-2015 公奔私", outs: { huge: "2013 入公奔私,2015 顶峰,4x", moderate: "公奔私,2.5x", breakeven: "持平", failure: "2016 监管严打" } },
+    { name: "量化 1.0", real: "富善/锐天", sector: "早期量化", rate: 0.25, mult: 3.0, hint: "2010-2014 起步", outs: { huge: "2013 入量化,2015 涨 3x", moderate: "量化,2x", breakeven: "持平", failure: "2014 量化寒冬" } },
+    { name: "2015 杠杆牛", real: "杠杆牛市", sector: "杠杆", rate: 0.40, mult: 2.5, hint: "2015.6 上证 5178", outs: { huge: "2014 末满仓加杠杆,2015.6 顶峰,2.5x", moderate: "2015 牛市,1.8x", breakeven: "持平", failure: "2015.6 顶加杠杆爆仓" } },
+    { name: "2015 股灾", real: "股灾", sector: "股灾", rate: 0.30, mult: 1.5, hint: "三轮股灾", outs: { huge: "2015.6 顶部离场,2015.9 抄底,1.5x", moderate: "2015 减仓,1.2x", breakeven: "持平", failure: "2015 满仓被埋" } },
+    { name: "2016 熔断", real: "熔断", sector: "熔断", rate: 0.20, mult: 1.2, hint: "2016.1 熔断", outs: { huge: "2015.12 减仓,2016.1 抄底,1.2x", moderate: "2016 谨慎,持平", breakeven: "持平", failure: "2016.1 满仓熔断" } },
+    { name: "2017 白马股", real: "核心资产", sector: "白马", rate: 0.40, mult: 2.0, hint: "2017 价值回归", outs: { huge: "2017 重仓白马,2018 初,2x", moderate: "2017 白马,1.5x", breakeven: "持平", failure: "2018 末抗不住回调" } },
+    { name: "2018 中美贸易", real: "宏观对冲", sector: "对冲", rate: 0.30, mult: 1.5, hint: "中美贸易战", outs: { huge: "2018 减仓对冲,2019 抄底,1.5x", moderate: "2018 减仓,1.2x", breakeven: "持平", failure: "2018 满仓跌 30%" } },
+    { name: "2018 资管新规", real: "监管变革", sector: "转型", rate: 0.30, mult: 1.3, hint: "2018.4 资管新规", outs: { huge: "2018 主动转型,2019 涨 1.3x", moderate: "2018 转型,持平", breakeven: "持平", failure: "2018 拒绝转型" } }
+  ],
+  5: [
+    { name: "幻方量化", real: "幻方", sector: "量化指增", rate: 0.40, mult: 10.0, hint: "2018 后量化崛起", outs: { huge: "2018 入幻方,2024 涨 10x", moderate: "幻方,5x", breakeven: "持平", failure: "2021 量化收紧" } },
+    { name: "九坤投资", real: "九坤", sector: "量化指增", rate: 0.35, mult: 7.0, hint: "头部量化", outs: { huge: "2018 入九坤,2024 涨 7x", moderate: "九坤,4x", breakeven: "持平", failure: "2021 量化收紧" } },
+    { name: "明汯投资", real: "明汯", sector: "量化中性", rate: 0.35, mult: 6.0, hint: "头部量化", outs: { huge: "2018 入明汯,2024 涨 6x", moderate: "明汯,3x", breakeven: "持平", failure: "2021 量化收紧" } },
+    { name: "衍复投资", real: "衍复", sector: "量化指增", rate: 0.30, mult: 6.0, hint: "中等量化", outs: { huge: "2018 入衍复,2024 涨 6x", moderate: "衍复,3x", breakeven: "持平", failure: "2021 量化收紧" } },
+    { name: "鸣石投资", real: "鸣石", sector: "量化对冲", rate: 0.25, mult: 5.0, hint: "中等量化", outs: { huge: "2018 入鸣石,2024 涨 5x", moderate: "鸣石,3x", breakeven: "持平", failure: "2021 量化收紧" } },
+    { name: "桥水·中国", real: "桥水", sector: "全天候", rate: 0.25, mult: 3.0, hint: "宏观对冲", outs: { huge: "2018 跟桥水,2024 涨 3x", moderate: "桥水,2x", breakeven: "持平", failure: "2018 末宏观失效" } },
+    { name: "高瓴·二级", real: "张磊", sector: "长期价值", rate: 0.30, mult: 5.0, hint: "高瓴二级", outs: { huge: "2018 跟高瓴,2021 涨 5x", moderate: "高瓴,3x", breakeven: "持平", failure: "2021 后回调" } },
+    { name: "公募 REITs", real: "基础设施", sector: "REITs", rate: 0.35, mult: 1.5, hint: "2021 试点", outs: { huge: "2021 入 REITs,2024 涨 1.5x", moderate: "REITs,1.2x", breakeven: "持平", failure: "2022 业绩下滑" } },
+    { name: "养老 FOF", real: "养老目标", sector: "养老 FOF", rate: 0.30, mult: 1.3, hint: "2018 试点", outs: { huge: "2018 入 FOF,2024 涨 1.3x", moderate: "养老 FOF,1.1x", breakeven: "持平", failure: "2022 业绩中等" } },
+    { name: "投顾牌照", real: "基金投顾", sector: "投顾", rate: 0.35, mult: 2.0, hint: "2019 试点", outs: { huge: "2019 拿牌照,2024 涨 2x", moderate: "投顾,1.5x", breakeven: "持平", failure: "2022 投顾收紧" } },
+    { name: "主观 vs 量化", real: "策略选择", sector: "切换", rate: 0.30, mult: 2.0, hint: "2020 主观跑输量化", outs: { huge: "2018 切量化,2024 涨 2x", moderate: "2020 转量化,1.5x", breakeven: "持平", failure: "2024 主观回撤" } },
+    { name: "2020 牛市", real: "疫情牛", sector: "牛市", rate: 0.50, mult: 1.8, hint: "2020 流动性牛", outs: { huge: "2020 满仓,2021 初,1.8x", moderate: "2020 牛市,1.5x", breakeven: "持平", failure: "2021 顶加仓" } },
+    { name: "2022 熊市", real: "熊市", sector: "熊市", rate: 0.30, mult: 1.3, hint: "沪深 300 跌 21%", outs: { huge: "2021 末减仓,2022 末抄底,1.3x", moderate: "2022 减仓,持平", breakeven: "持平", failure: "2022 满仓跌 20%" } },
+    { name: "2024 9.24", real: "政策反转", sector: "反转", rate: 0.50, mult: 1.5, hint: "9.24 政策反转", outs: { huge: "2024.9 抄底,2024.10 顶峰,1.5x", moderate: "2024 反弹,1.3x", breakeven: "持平", failure: "2024.10 顶部追高" } },
+    { name: "AI 选股", real: "DeepSeek", sector: "AI 量化", rate: 0.35, mult: 3.0, hint: "2024 后 AI 选股", outs: { huge: "2024 入 AI,2025 涨 3x", moderate: "AI,2x", breakeven: "持平", failure: "2025 AI 失效" } },
+    { name: "数字人民币 ETF", real: "数字人民币", sector: "新物种", rate: 0.20, mult: 1.3, hint: "2020 试点", outs: { huge: "2020 入数字人民币,2024 涨 1.3x", moderate: "数字人民币,1.1x", breakeven: "持平", failure: "2022 业绩下滑" } }
+  ]
+};
+
+const EVENTS = {
+  1: [
+    { desc: "1995 入行:申万研究员 vs 跳君安(高风险高收益)?",
+      a: { text: "留申万(稳健起步)", eff: "Social+5, Health-2, 老鼠仓+2", social: 5, health: -2, mouseRisk: 2 },
+      b: { text: "跳君安(押注张国庆)", eff: "AUM+1亿, Social+10, 老鼠仓+10", aum: 1, social: 10, mouseRisk: 10 } },
+    { desc: "1996 万科 10 转 5 派 1,要不要重仓?",
+      a: { text: "重仓万科(赌王石)", eff: "AUM+2亿, 收益+5%, 但 1998 君万之争风险", aum: 2, returnRate: 5 },
+      b: { text: "稳健配置(分散)", eff: "收益+2%, Health-2, 老鼠仓-2", returnRate: 2, health: -2, mouseRisk: -2 } },
+    { desc: "1997 央行查处违规揽存,你行里有人被查,要不要通风报信?",
+      a: { text: "通风报信(讲义气)", eff: "Social+10, 老鼠仓+10, 2018 后被翻出来", social: 10, mouseRisk: 10 },
+      b: { text: "不报信(自保)", eff: "Social-5, 老鼠仓-3, Family+3", social: -5, mouseRisk: -3, family: 3 } },
+    { desc: "1998 君安-万科事件 + 房改启动,挖你去做房地产研究,去不去?",
+      a: { text: "去房地产(吃时代红利)", eff: "AUM+3亿, 收益+8%, 但 2008 房地产崩盘", aum: 3, returnRate: 8 },
+      b: { text: "留研究部(求稳)", eff: "Social+5, 老鼠仓-3, 排名不变", social: 5, mouseRisk: -3 } }
+  ],
+  2: [
+    { desc: "2001 WTO 入世 + 第一波价值投资启蒙,要不要全面转向价值投资?",
+      a: { text: "全转价值投资", eff: "收益+10%, 排名+5, 老鼠仓-5", returnRate: 10, rank: -5, mouseRisk: -5 },
+      b: { text: "继续题材股", eff: "收益+5%, 但 2003 茅台起飞错过", returnRate: 5 } },
+    { desc: "2002 银广夏造假曝光,你手里有没有?",
+      a: { text: "有, 赶紧清仓", eff: "收益-15%, 老鼠仓-5, 保住本金", returnRate: -15, mouseRisk: -5 },
+      b: { text: "有, 等反弹", eff: "收益-30%, 老鼠仓+5, 大亏", returnRate: -30, mouseRisk: 5 } },
+    { desc: "2003 茅台 / 五粮液 起步,要不要 All-in 白酒?",
+      a: { text: "All-in 白酒(赌国运)", eff: "AUM+5亿, 收益+15%, 排名+10", aum: 5, returnRate: 15, rank: -10 },
+      b: { text: "分散持仓", eff: "收益+5%, 稳健", returnRate: 5 } },
+    { desc: "2004 国九条 + 股权分置改革,要不要 All-in 改革红利?",
+      a: { text: "All-in 改革(高赔率)", eff: "AUM+5亿, 收益+10%, 老鼠仓+5", aum: 5, returnRate: 10, mouseRisk: 5 },
+      b: { text: "观望(等 2005)", eff: "收益+5%, 老鼠仓-3", returnRate: 5, mouseRisk: -3 } }
+  ],
+  3: [
+    { desc: "2006 大牛市起步,要不要 All-in 券商 / 银行?",
+      a: { text: "All-in 银证(押大牛市)", eff: "AUM+10亿, 收益+30%, 排名+15", aum: 10, returnRate: 30, rank: -15 },
+      b: { text: "均衡配置", eff: "收益+10%, 稳健", returnRate: 10 } },
+    { desc: "2007 上证 6000 点,要不要清仓?",
+      a: { text: "清仓(锁定收益)", eff: "收益-5%(止盈), 老鼠仓-5", returnRate: -5, mouseRisk: -5 },
+      b: { text: "满仓(等 8000 点)", eff: "2008 跌 70% 套牢, 收益-30%", returnRate: -30 } },
+    { desc: "2008 雷曼破产 + A 股跌 70%,要不要 All-in 抄底?",
+      a: { text: "All-in 抄底(赌国运)", eff: "2009 反弹收益+30%, 但若 2010 续跌可能回撤", aum: 5, returnRate: 30, health: -10 },
+      b: { text: "减仓避险", eff: "Family+5, AUM-3亿, 但躲过 2008 底", family: 5, aum: -3 } },
+    { desc: "2010 王亚伟神话 + 中邮核心激进风格,要不要模仿?",
+      a: { text: "学王亚伟(中小盘)", eff: "收益+10%, 排名+5, 但 2012 风格切换", returnRate: 10, rank: -5 },
+      b: { text: "坚持价值投资", eff: "收益+5%, 稳健", returnRate: 5 } }
+  ],
+  4: [
+    { desc: "2013 余额宝冲击,公募面临赎回压力,要不要发新产品对抗?",
+      a: { text: "拥抱余额宝合作", eff: "AUM+10亿, Social+10, 收益+5%", aum: 10, social: 10, returnRate: 5 },
+      b: { text: "拒绝合作", eff: "Family+5, AUM-5亿", family: 5, aum: -5 } },
+    { desc: "2015 杠杆牛启动,要不要 All-in 加杠杆?",
+      a: { text: "All-in 加杠杆", eff: "2015.6 顶峰收益+30%, 但股灾后回撤-50%", aum: 10, returnRate: 30 },
+      b: { text: "不加杠杆", eff: "收益+15%, 稳健", returnRate: 15 } },
+    { desc: "2015.6 股灾后,要不要抄底?",
+      a: { text: "9 月抄底(国家队入场)", eff: "收益+10%, AUM+5亿, 排名+5", returnRate: 10, aum: 5, rank: -5 },
+      b: { text: "减仓避险", eff: "Family+5, 收益-5%", family: 5, returnRate: -5 } },
+    { desc: "2017 白马股行情,要不要切核心资产?",
+      a: { text: "切核心资产(茅台/平安)", eff: "AUM+10亿, 收益+15%, 排名+10", aum: 10, returnRate: 15, rank: -10 },
+      b: { text: "继续中小创", eff: "收益-10%, 排名-10", returnRate: -10, rank: 10 } }
+  ],
+  5: [
+    { desc: "2018 资管新规 + 中美贸易战,要不要切量化?",
+      a: { text: "切量化(拥抱新趋势)", eff: "AUM+5亿, 收益+5%, 排名+5", aum: 5, returnRate: 5, rank: -5 },
+      b: { text: "继续主观投资", eff: "2019-2020 跑输量化, 收益+2%", returnRate: 2 } },
+    { desc: "2020 疫情牛 + 流动性泛滥,要不要 All-in?",
+      a: { text: "满仓 All-in", eff: "2021 初收益+20%, 但 2022 大跌回撤", aum: 10, returnRate: 20 },
+      b: { text: "均衡配置", eff: "收益+10%, 稳健", returnRate: 10 } },
+    { desc: "2022 熊市(沪深 300 跌 21%),要不要减仓?",
+      a: { text: "减仓避险", eff: "Family+5, 收益-5%, 但躲过最差", family: 5, returnRate: -5 },
+      b: { text: "满仓硬扛", eff: "收益-20%, AUM-10亿, 排名-15", returnRate: -20, aum: -10, rank: 15 } },
+    { desc: "2024 9.24 政策反转 + DeepSeek 出圈,要不要 All-in AI + 政策利好?",
+      a: { text: "All-in AI/政策利好", eff: "收益+15%, AUM+10亿, 排名+10", returnRate: 15, aum: 10, rank: -10 },
+      b: { text: "观望", eff: "收益+5%, 错过 9.24 反弹", returnRate: 5 } }
+  ]
+};
+
+function initState() {
+  return {
+    year: 1995, age: 22, round: 0, era: 1,
+    aum: 0.5, returnRate: 0, rank: 50, mouseRisk: 0,
+    health: 100, family: 100, social: 80,
+    sideQuestsDone: [], projectResults: [],
+    pendingEvent: null, pendingProject: null, _currentProject: null,
+    pendingSideQuest: null, phase: "intro"
+  };
+}
+let state = initState();
+
+function updateState(changes) {
+  Object.keys(changes).forEach(k => {
+    state[k] = (state[k] || 0) + changes[k];
+  });
+  ['health','family','social'].forEach(k => {
+    if (state[k] > 100) state[k] = 100;
+    if (state[k] < 0) state[k] = 0;
+  });
+  if (state.aum < 0) state.aum = 0;
+  if (state.mouseRisk < 0) state.mouseRisk = 0;
+  if (state.mouseRisk > 100) state.mouseRisk = 100;
+  if (state.rank < 1) state.rank = 1;
+  if (state.rank > 100) state.rank = 100;
+}
+
+function addLog(msg, cls) {
+  const log = document.getElementById("log");
+  log.style.display = "block";
+  const div = document.createElement("div");
+  if (cls) div.className = cls;
+  div.innerHTML = msg;
+  log.appendChild(div);
+  log.scrollTop = log.scrollHeight;
+}
+
+function pick3(arr) {
+  const copy = [...arr];
+  const picked = [];
+  for (let i = 0; i < 3 && copy.length; i++) {
+    const idx = Math.floor(Math.random() * copy.length);
+    picked.push(copy.splice(idx, 1)[0]);
+  }
+  return picked;
+}
+
+function rollOutcome(project) {
+  const r = Math.random();
+  if (r < project.rate) return { label: '🟢 huge', mult: project.mult };
+  if (r < project.rate + 0.3) return { label: '🔵 moderate', mult: project.mult * 0.5 };
+  if (r < project.rate + 0.55) return { label: '🟡 breakeven', mult: 1 };
+  return { label: '🔴 failure', mult: 0.3 };
+}
+
+function applyOutcome(outcome, project) {
+  const out = project.outs;
+  if (outcome.label === '🟢 huge') return out.huge;
+  if (outcome.label === '🔵 moderate') return out.moderate;
+  if (outcome.label === '🟡 breakeven') return out.breakeven;
+  return out.failure;
+}
+
+function rankLabel(rank) {
+  if (rank <= 5) return `🥇顶流(${rank})`;
+  if (rank <= 20) return `🥈明星(${rank})`;
+  if (rank <= 50) return `🥉中等(${rank})`;
+  if (rank <= 80) return `⚠️中下(${rank})`;
+  return `💀垫底(${rank})`;
+}
+
+function renderStats() {
+  const statsHtml = `
+    <div class="stats-bar">
+      <span class="year">📅 ${state.year} 年 · ${state.age} 岁 · 时代 ${state.era}/5 · 回合 ${state.round+1}/4</span><br>
+      <span class="stat">💰 AUM: <strong>${state.aum.toFixed(1)}</strong> 亿</span> |
+      <span class="stat">📈 收益: <strong>${state.returnRate.toFixed(1)}</strong>%</span> |
+      <span class="stat">📊 排名: <strong>${rankLabel(state.rank)}</strong></span> |
+      <span class="${state.mouseRisk >= 60 ? 'stat danger' : state.mouseRisk >= 30 ? 'stat warn' : 'stat'}">🐭 老鼠仓: <strong>${state.mouseRisk}</strong></span><br>
+      <span class="stat">❤️ Health: <strong>${state.health}</strong></span> |
+      <span class="stat">👪 Family: <strong>${state.family}</strong></span> |
+      <span class="stat">🤝 Social: <strong>${state.social}</strong></span>
+    </div>`;
+  const gameArea = document.getElementById("game-area");
+  const existing = gameArea.querySelector('.stats-bar');
+  if (existing) existing.outerHTML = statsHtml;
+  else gameArea.insertAdjacentHTML("afterbegin", statsHtml);
+}
+
+function renderEvent() {
+  renderStats();
+  const ev = state.pendingEvent;
+  document.getElementById("game-area").insertAdjacentHTML("beforeend", `
+    <div class="choice-card">
+      <h3>📰 时代事件</h3>
+      <p class="desc">${ev.desc}</p>
+      <button class="btn" onclick="window.chooseEvent('a')">${ev.a.text}</button>
+      <button class="btn" onclick="window.chooseEvent('b')">${ev.b.text}</button>
+      <div class="footer" style="font-size:11px;color:#80cbc4;margin-top:6px">A: ${ev.a.eff} | B: ${ev.b.eff}</div>
+    </div>
+  `);
+}
+
+function renderProject() {
+  renderStats();
+  const projects = state.pendingProject;
+  document.getElementById("game-area").insertAdjacentHTML("beforeend", `
+    <div class="choice-card">
+      <h3>💼 业务选择 — 3 选 1</h3>
+      ${projects.map((p, i) => `
+        <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(0,212,170,0.2);border-radius:8px;padding:10px;margin-bottom:8px">
+          <strong style="color:#00d4aa">${String.fromCharCode(65+i)}. ${p.name}</strong>
+          <span style="color:#80cbc4;font-size:12px"> · ${p.real} · ${p.sector}</span><br>
+          <span style="font-size:12px;color:#b2dfdb">成功率 ${(p.rate*100).toFixed(0)}% · 最高 ${p.mult}x · ${p.hint}</span>
+        </div>
+      `).join("")}
+      ${projects.map((p, i) => `
+        <button class="btn" onclick="window.chooseProject(${i})">${String.fromCharCode(65+i)}. 选 ${p.name}</button>
+      `).join("")}
+    </div>
+  `);
+}
+
+function renderIntensity() {
+  renderStats();
+  const p = state._currentProject;
+  document.getElementById("game-area").insertAdjacentHTML("beforeend", `
+    <div class="choice-card">
+      <h3>⚙️ 投入度 — 决定硬指标变化幅度</h3>
+      <p style="color:#80cbc4;font-size:13px">项目: ${p.name} (${p.real}) · 成功率 ${(p.rate*100).toFixed(0)}%</p>
+      <button class="btn" onclick="window.chooseIntensity('a')">A. 996 极限 — AUM+20%, Health-10, 老鼠仓+5</button><br>
+      <button class="btn b" onclick="window.chooseIntensity('b')">B. 8h 平衡 — AUM+5%, Health-3</button><br>
+      <button class="btn c" onclick="window.chooseIntensity('c')">C. 摆烂 — AUM-10%, Health+5, 老鼠仓-3</button>
+    </div>
+  `);
+}
+
+function renderResult(outcome, project) {
+  renderStats();
+  const cls = outcome.label === '🟢 huge' ? '' : outcome.label === '🔵 moderate' ? '' : outcome.label === '🟡 breakeven' ? 'warn' : 'bad';
+  document.getElementById("game-area").insertAdjacentHTML("beforeend", `
+    <div class="result-card ${cls}">
+      <h3>${outcome.label} · ${outcome.mult.toFixed(1)}x</h3>
+      <p><strong>${project.name}</strong> (${project.real})</p>
+      <p style="font-size:13px;color:#b2dfdb">${applyOutcome(outcome, project)}</p>
+      <button class="btn" onclick="window.nextRound()">下一回合 →</button>
+    </div>
+  `);
+}
+
+function renderSideQuest() {
+  renderStats();
+  const sq = state.pendingSideQuest;
+  document.getElementById("game-area").insertAdjacentHTML("beforeend", `
+    <div class="choice-card">
+      <h3>${sq.title}</h3>
+      <p class="desc">${sq.desc}</p>
+      ${sq.choices.map((c, i) => `<button class="btn" onclick="window.chooseSideQuest(${i})">${c.text}</button>`).join("")}
+      <div class="footer" style="font-size:11px;color:#80cbc4;margin-top:6px">
+        ${sq.choices.map(c => `${c.text}: ${c.eff}`).join(" | ")}
+      </div>
+    </div>
+  `);
+}
+
+function checkSideQuest() {
+  const sq = SIDE_QUESTS.find(s => s.year === state.year && !state.sideQuestsDone.find(d => d.year === s.year));
+  if (sq) {
+    state.pendingSideQuest = sq;
+    state.phase = "sidequest";
+    return true;
+  }
+  return false;
+}
+
+window.startGame = function() {
+  state = initState();
+  document.getElementById("log").innerHTML = "";
+  addLog("📜 1995 年 · 你 22 岁,北大经院毕业,入申银万国研究部");
+  checkSideQuest();
+  if (state.phase === "sidequest") {
+    document.getElementById("game-area").innerHTML = "";
+    renderSideQuest();
+  } else {
+    document.getElementById("game-area").innerHTML = "";
+    state.pendingEvent = EVENTS[1][0];
+    renderEvent();
+  }
+};
+
+window.chooseEvent = function(key) {
+  const ev = state.pendingEvent;
+  const choice = ev[key];
+  updateState({ aum: choice.aum||0, returnRate: choice.returnRate||0, rank: choice.rank||0, mouseRisk: choice.mouseRisk||0, health: choice.health||0, family: choice.family||0, social: choice.social||0 });
+  addLog(`📰 时代事件 → ${choice.text} (${choice.eff})`);
+  state.pendingProject = pick3(PROJECTS[state.era]);
+  renderProject();
+};
+
+window.chooseProject = function(idx) {
+  const project = state.pendingProject[idx];
+  state._currentProject = project;
+  addLog(`💼 选择了 ${project.name} (${project.real})`);
+  renderIntensity();
+};
+
+window.chooseIntensity = function(key) {
+  let changes = {};
+  if (key === 'a') changes = { aum: state.aum * 0.2, health: -10, mouseRisk: 5 };
+  else if (key === 'b') changes = { aum: state.aum * 0.05, health: -3 };
+  else changes = { aum: state.aum * -0.1, health: 5, mouseRisk: -3 };
+  updateState(changes);
+  addLog(`⚙️ 投入度: ${key === 'a' ? '996 极限' : key === 'b' ? '8h 平衡' : '摆烂'}`);
+  const project = state._currentProject;
+  const outcome = rollOutcome(project);
+  applyOutcomeToState(outcome, project);
+  addLog(`📊 ${project.name} → ${outcome.label} · ${outcome.mult.toFixed(1)}x`, outcome.label === '🟢 huge' ? 'l-good' : outcome.label === '🔴 failure' ? 'l-bad' : '');
+  state.projectResults.push({ year: state.year, project: project.name, real: project.real, outcome: outcome.label, mult: outcome.mult });
+  renderResult(outcome, project);
+};
+
+function applyOutcomeToState(outcome, project) {
+  // 根据 outcome 影响 AUM / 收益 / 排名
+  const factor = outcome.mult / 5;
+  updateState({ aum: state.aum * factor * 0.3 });
+  updateState({ returnRate: (outcome.mult - 1) * 5 });
+  if (outcome.label === '🟢 huge') updateState({ rank: -3 });
+  else if (outcome.label === '🔵 moderate') updateState({ rank: 0 });
+  else if (outcome.label === '🟡 breakeven') updateState({ rank: 5 });
+  else updateState({ rank: 10 });
+}
+
+window.chooseSideQuest = function(idx) {
+  const sq = state.pendingSideQuest;
+  const choice = sq.choices[idx];
+  updateState({ aum: choice.changes.aum||0, returnRate: choice.changes.returnRate||0, rank: choice.changes.rank||0, mouseRisk: choice.changes.mouseRisk||0, health: choice.changes.health||0, family: choice.changes.family||0, social: choice.changes.social||0 });
+  addLog(`🌟 支线:${choice.text} (${choice.eff})`, "l-side");
+  state.sideQuestsDone.push({ year: state.year, title: sq.title });
+  state.pendingSideQuest = null;
+  document.getElementById("game-area").innerHTML = "";
+  if (state.pendingEvent) {
+    renderEvent();
+  } else {
+    nextRound();
+  }
+};
+
+window.nextRound = function() {
+  state.round += 1;
+  state.year += 1;
+  state.age += 1;
+  state._currentProject = null;
+  state.pendingEvent = null;
+  state.pendingProject = null;
+  document.getElementById("game-area").innerHTML = "";
+
+  // 时代切换
+  if (state.round >= 4) {
+    state.era += 1;
+    state.round = 0;
+    if (state.era > 5) {
+      finishGame();
+      return;
+    }
+    addLog(`🚪 时代切换 → ${ERAS[state.era-1].name}`, "l-gold");
+    const era = ERAS[state.era - 1];
+    if (era.gate) {
+      const stat = state[era.gate.stat];
+      const fail = stat < era.gate.min && !(era.gate.stat === 'rank' && stat > era.gate.min);
+      if (fail) {
+        addLog(`⚠ 门控失败:${era.gate.fail}`, "l-bad");
+        updateState({ social: -5, family: -3 });
+      } else {
+        addLog(`✅ 门控通过:${era.gate.stat} 达标`, "l-good");
+      }
+    }
+  }
+
+  // 时代 5 老鼠仓被查概率
+  if (state.era === 5 && state.mouseRisk >= 60 && Math.random() < 0.5) {
+    addLog(`⚖️ 【被查!】证监会立案,老鼠仓被查`, "l-bad");
+    state.mouseRisk = Math.max(0, state.mouseRisk - 30);
+    updateState({ family: -15, social: -10 });
+  }
+
+  if (state.health <= 30) { finishGame(); return; }
+  if (state.family <= 30) { finishGame(); return; }
+  if (state.mouseRisk >= 60 && state.era === 5) {
+    // 老鼠仓被查结局
+    finishGame();
+    return;
+  }
+
+  checkSideQuest();
+  if (state.phase === "sidequest") {
+    renderSideQuest();
+  } else {
+    state.pendingEvent = EVENTS[state.era][state.round];
+    renderEvent();
+  }
+};
+
+function finishGame() {
+  let ending;
+  if (state.mouseRisk >= 60) {
+    ending = { title: "💔 老鼠仓被查", desc: "证监会立案调查,你的 2002-2018 老鼠仓账户被翻出来。2024 年你被罚没 5000 万 + 刑拘 5 年。老婆跟你离了婚,孩子在同学面前抬不起头。" };
+  } else if (state.health <= 30) {
+    ending = { title: "💔 过劳猝死", desc: "你的 Health 撑不到 2025。48 岁那年你突发心梗倒在交易室。同事发现你电脑还亮着,屏幕上是今日 AUM 净值曲线。" };
+  } else if (state.family <= 30) {
+    ending = { title: "💔 家人决裂", desc: "你错过了孩子的家长会,错过了父母的最后时光。52 岁那年你发现妻子已经签好了离婚协议,孩子跟了她姓。" };
+  } else if (state.rank <= 5 && state.aum >= 500 && state.mouseRisk <= 10) {
+    ending = { title: "🏆 顶级私募大佬", desc: "你是张磊/邱国鹭级大佬,AUM 500 亿+,老鼠仓风险近零。2024 年你登上《财富》中国 40 位商界领袖榜单。" };
+  } else if (state.rank <= 10 && state.aum >= 100) {
+    ending = { title: "🌟 明星公募基金经理", desc: "你是王亚伟级一哥,AUM 100 亿+,江湖人称'X 一哥'。2024 年管理规模超 200 亿,身价过亿。" };
+  } else if (state.era === 5 && state.aum >= 50 && state.rank <= 30) {
+    ending = { title: "🏠 量化私募创始人", desc: "你是幻方/九坤级大佬,2024 年 DeepSeek 出圈后,你的 AI 量化产品 AUM 突破 50 亿。千万年薪 + 股权亿万身家。" };
+  } else if (state.aum >= 100 && state.rank <= 30) {
+    ending = { title: "🛋 银行理财子 / 养老 FOF 稳定", desc: "你从公募副总位置被挖到银行理财子,AUM 100 亿+,稳定年薪 500 万。52 岁退休,行业协会副会长。" };
+  } else if (state.rank >= 80 && state.aum <= 1) {
+    ending = { title: "😢 排名垫底被清盘", desc: "2020 年公募清盘潮,你的产品被清盘。50 岁那年你被迫转型,去了一家小私募做合伙人。" };
+  } else {
+    ending = { title: "🌟 投资圈中坚", desc: `30 年里你从研究员熬到了明星基金经理。AUM ${state.aum.toFixed(0)} 亿,排名 ${state.rank},健康 ${state.health}。52 岁的你正考虑退休还是二次创业。` };
+  }
+  renderEnding(ending);
+}
+
+function renderEnding(ending) {
+  document.getElementById("game-area").innerHTML = `
+    <div class="ending">
+      <h2>${ending.title}</h2>
+      <p>${ending.desc}</p>
+      <hr>
+      <p style="color:#80cbc4;font-size:13px">📅 ${state.year} 年 · ${state.age} 岁 · 30 年投资路</p>
+      <p style="color:#80cbc4;font-size:13px">💰 AUM: ${state.aum.toFixed(1)} 亿 · 收益: ${state.returnRate.toFixed(1)}%</p>
+      <p style="color:#80cbc4;font-size:13px">📊 排名: ${rankLabel(state.rank)} · 老鼠仓: ${state.mouseRisk}</p>
+      <p style="color:#80cbc4;font-size:13px">❤️ Health: ${state.health} · 👪 Family: ${state.family} · 🤝 Social: ${state.social}</p>
+      <p style="color:#80cbc4;font-size:13px">🌟 完成支线: ${state.sideQuestsDone.length}/5</p>
+      <p style="font-size:12px;color:#80cbc4;margin-top:10px">📜 30 年足迹:<br>${state.projectResults.map(r => ` · ${r.year} ${r.project} (${r.real}) → ${r.outcome} x${r.mult.toFixed(1)} `).join("<br>")}</p>
+      <button class="btn gold" onclick="window.startGame()">🔄 重新开始 30 年投资路</button>
+    </div>
+  `;
+}
+
+// 启动
+document.getElementById("game-area").innerHTML = INTRO_HTML;
+</script>
+</body>
+</html>
