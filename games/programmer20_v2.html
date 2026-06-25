@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>写代码的 20 年 · 程序员穿越</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+  color: #e8eaf6;
+  min-height: 100vh;
+  padding: 20px;
+}
+.container { max-width: 900px; margin: 0 auto; }
+h1 {
+  text-align: center;
+  font-size: 32px;
+  margin: 20px 0 8px;
+  background: linear-gradient(90deg, #64ffda, #bb86fc, #ffd54f);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.subtitle { text-align: center; color: #9fa8da; margin-bottom: 30px; font-size: 14px; }
+
+/* ====== 介绍页 ====== */
+.intro-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(100,255,218,0.2);
+  border-radius: 12px;
+  padding: 28px;
+  margin-bottom: 16px;
+}
+.intro-card h2 {
+  color: #64ffda;
+  font-size: 18px;
+  margin-bottom: 12px;
+  border-bottom: 1px dashed rgba(100,255,218,0.3);
+  padding-bottom: 6px;
+}
+.intro-card p { line-height: 1.7; font-size: 14px; margin-bottom: 8px; }
+.intro-card ul { padding-left: 22px; line-height: 1.8; font-size: 14px; }
+.intro-card li { margin-bottom: 4px; }
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-top: 12px;
+}
+.stat-block {
+  background: rgba(0,0,0,0.3);
+  padding: 10px 12px;
+  border-radius: 6px;
+  border-left: 3px solid #64ffda;
+}
+.stat-block.soft { border-left-color: #ffd54f; }
+.stat-block strong { color: #64ffda; display: block; margin-bottom: 4px; font-size: 13px; }
+.stat-block.soft strong { color: #ffd54f; }
+.stat-block span { font-size: 12px; color: #9fa8da; }
+
+.ending-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin-top: 12px;
+}
+.ending-item {
+  background: rgba(0,0,0,0.3);
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  border-left: 3px solid #ffd54f;
+}
+.ending-item.hidden { border-left-color: #bb86fc; }
+.ending-item.bad { border-left-color: #ff5252; }
+
+.start-btn {
+  display: block;
+  width: 100%;
+  margin: 24px 0 12px;
+  padding: 16px;
+  background: linear-gradient(90deg, #64ffda, #4dd0e1);
+  color: #0a0e27;
+  border: none;
+  border-radius: 8px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  letter-spacing: 2px;
+  transition: all 0.2s;
+}
+.start-btn:hover { transform: scale(1.02); box-shadow: 0 4px 20px rgba(100,255,218,0.4); }
+
+/* ====== 游戏中统计 ====== */
+.stats-bar {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  background: rgba(255,255,255,0.05);
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+.stat { text-align: center; }
+.stat-label { font-size: 11px; color: #9fa8da; }
+.stat-value { font-size: 20px; font-weight: bold; margin-top: 2px; }
+
+.soft-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  background: rgba(255,255,255,0.03);
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 12px;
+}
+.soft-stat { text-align: center; }
+.soft-bar {
+  height: 6px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 3px;
+  margin-top: 4px;
+  overflow: hidden;
+}
+.soft-fill { height: 100%; transition: width 0.3s; }
+
+.era-banner {
+  background: linear-gradient(90deg, #5e35b1, #3949ab);
+  padding: 14px 20px;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 16px;
+}
+.year-text { font-size: 13px; color: #b39ddb; margin-top: 4px; }
+
+/* ====== 卡片 ====== */
+.event-card, .project-card, .intensity-card, .sidequest-card {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(100,255,218,0.2);
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+.sidequest-card { border-color: rgba(187,134,252,0.4); background: rgba(187,134,252,0.05); }
+.card-title {
+  font-size: 13px;
+  color: #64ffda;
+  margin-bottom: 8px;
+  letter-spacing: 1px;
+}
+.sidequest-card .card-title { color: #bb86fc; }
+.card-desc { font-size: 15px; line-height: 1.5; margin-bottom: 12px; }
+
+.choices { display: flex; flex-direction: column; gap: 8px; }
+.choice {
+  background: rgba(100,255,218,0.05);
+  border: 1px solid rgba(100,255,218,0.3);
+  border-radius: 6px;
+  padding: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+  color: #e8eaf6;
+  font-size: 14px;
+  font-family: inherit;
+  line-height: 1.4;
+}
+.choice:hover:not(:disabled) {
+  background: rgba(100,255,218,0.15);
+  border-color: #64ffda;
+  transform: translateX(4px);
+}
+.sidequest-card .choice { border-color: rgba(187,134,252,0.4); background: rgba(187,134,252,0.05); }
+.sidequest-card .choice:hover { background: rgba(187,134,252,0.15); border-color: #bb86fc; }
+.choice:disabled { opacity: 0.4; cursor: not-allowed; }
+.choice-tag {
+  display: inline-block;
+  font-size: 11px;
+  background: rgba(187,134,252,0.2);
+  color: #bb86fc;
+  padding: 2px 8px;
+  border-radius: 10px;
+  margin-right: 8px;
+}
+.choice-eff {
+  display: block;
+  font-size: 12px;
+  color: #9fa8da;
+  margin-top: 4px;
+}
+
+.log {
+  background: rgba(0,0,0,0.3);
+  border-radius: 8px;
+  padding: 12px;
+  max-height: 200px;
+  overflow-y: auto;
+  margin-top: 20px;
+  font-family: monospace;
+  font-size: 12px;
+}
+.log-entry { padding: 4px 0; border-bottom: 1px dashed rgba(255,255,255,0.1); }
+.log-year { color: #64ffda; font-weight: bold; }
+.log-sidequest { color: #bb86fc; }
+
+.ending-screen {
+  background: linear-gradient(135deg, #311b92, #4a148c);
+  padding: 40px;
+  border-radius: 12px;
+  text-align: center;
+}
+.ending-title { font-size: 32px; color: #ffd54f; margin-bottom: 16px; }
+.ending-desc { font-size: 16px; line-height: 1.8; color: #e8eaf6; }
+.ending-stats { margin-top: 20px; font-size: 14px; color: #b39ddb; }
+.restart-btn {
+  margin-top: 24px;
+  padding: 12px 24px;
+  background: #64ffda;
+  color: #0a0e27;
+  border: none;
+  border-radius: 6px;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+}
+.restart-btn:hover { background: #4dd0e1; }
+
+.side-quest-badge {
+  display: inline-block;
+  background: rgba(187,134,252,0.3);
+  color: #bb86fc;
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  margin-left: 8px;
+  letter-spacing: 1px;
+}
+
+@media (max-width: 600px) {
+  .stats-bar { grid-template-columns: repeat(2, 1fr); }
+  .ending-list { grid-template-columns: 1fr; }
+  .stat-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>写代码的 20 年</h1>
+  <div class="subtitle">— 一名程序员的版本穿越(1995-2025)—</div>
+
+  <div id="game-area"></div>
+
+  <div class="log" id="log" style="display:none;"></div>
+</div>
+
+<script>
+// ==================== 介绍页内容 ====================
+const INTRO_HTML = `
+  <div class="intro-card">
+    <h2>📖 故事背景</h2>
+    <p>1995 年,你 22 岁,刚从一所普通大学的计算机系毕业。父母 50 岁,家里给你分配了工作——加入浪潮软件公司(Borland 映射)做实习生。你的同学们有的考研、有的出国、有的下海,你站在时代的十字路口。</p>
+    <p>接下来 <strong style="color:#64ffda;">30 年</strong>(1995-2025),你要经历 5 个时代:DOS/Windows → 互联网泡沫 → Web 2.0 → 移动+云 → AI 时代。每一年都可能改变你的人生轨迹——选对赛道、选对老板、选对投入度、选对生活方式。</p>
+    <p>30 年后 52 岁的你,会成为科技大佬、阿里 P9、自由职业者,还是 35 岁就被裁的过劳码农?一切,取决于你接下来 20 个回合的每一个选择。</p>
+  </div>
+
+  <div class="intro-card">
+    <h2>📊 你有 7 项数值(双轴)</h2>
+    <div class="stat-grid">
+      <div class="stat-block">
+        <strong>硬指标(累积型)</strong>
+        <span>· Coding 编程力(0-100)— 决定学新语言快慢</span><br>
+        <span>· Insight 行业洞察(0-100)— 决定看对赛道的能力</span><br>
+        <span>· Reputation 行业声誉(0-100)— 决定跳槽/升职/创业</span><br>
+        <span>· Net Worth 净资产(万)— 现金 + 期权变现</span>
+      </div>
+      <div class="stat-block soft">
+        <strong>软指标(衰减型)</strong>
+        <span>· Health 健康(0-100)— 低于 30 触发过劳病退</span><br>
+        <span>· Family 家庭(0-100)— 低于 30 触发家人决裂</span><br>
+        <span>· Social 社交(0-100)— 决定圈内人脉</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="intro-card">
+    <h2>🎯 每回合 3 步决策</h2>
+    <p><strong style="color:#64ffda;">① 时代事件(2 选 1)</strong> — 人生/职业选择,影响软指标为主</p>
+    <p style="padding-left:20px;">例:1999 时代事件 = "Sun 给你期权,要 All-in Java 还是稳饭碗?"</p>
+    <p><strong style="color:#64ffda;">② 项目选择(3 选 1)</strong> — 化身公司/技术栈,影响硬指标</p>
+    <p style="padding-left:20px;">例:2003 时代项目 = "易趣网 / 淘宝 / 卓越亚马逊",选对就 30x,选错 0.3x</p>
+    <p><strong style="color:#64ffda;">③ 投入度(3 选 1)</strong> — 工作方式,影响双轴</p>
+    <p style="padding-left:20px;">A 996 极限 / B 8h 平衡 / C 摆烂</p>
+  </div>
+
+  <div class="intro-card">
+    <h2>🎁 5 个支线任务</h2>
+    <p>主线之外,30 年里会有 <strong style="color:#bb86fc;">5 个支线任务</strong>穿插出现:</p>
+    <ul>
+      <li>💑 1997 感情线 — 女朋友催结婚</li>
+      <li>🏠 2003 房产决策 — 房价刚起步,买不买?</li>
+      <li>🚀 2008 跳槽/创业 — 金融危机后的机会</li>
+      <li>🎓 2014 读 MBA/换赛道 — 职场升级还是坚守?</li>
+      <li>🏥 2019 中年危机 — 健康/家庭/转型,30 岁前的债开始还了</li>
+    </ul>
+    <p style="margin-top:8px;">支线任务会<strong style="color:#bb86fc;">额外</strong>影响数值,有时是好机会,有时是陷阱。</p>
+  </div>
+
+  <div class="intro-card">
+    <h2>🚪 4 个时代门控</h2>
+    <p>时代切换时会检查你的硬指标,不够格会被锁在旧时代:</p>
+    <ul>
+      <li>进入 <strong>互联网时代</strong>(2000):需 Coding ≥ 40</li>
+      <li>进入 <strong>Web 2.0 时代</strong>(2005):需 Insight ≥ 50</li>
+      <li>进入 <strong>移动+云 时代</strong>(2010):需 Reputation ≥ 40</li>
+      <li>进入 <strong>AI 时代</strong>(2018):需 Coding ≥ 50</li>
+    </ul>
+    <p style="margin-top:8px;">门控失败会触发负面事件,但游戏不会死,可以继续龟速发展。</p>
+  </div>
+
+  <div class="intro-card">
+    <h2>🏆 9 种结局</h2>
+    <div class="ending-list">
+      <div class="ending-item">🏆 科技大佬:Rep≥80 + Net≥5000万</div>
+      <div class="ending-item">🌟 高级专家:Rep≥70 + Coding≥80</div>
+      <div class="ending-item">🏠 稳定中产:Net≥500万 + Health≥60</div>
+      <div class="ending-item">🛋 自由职业:Rep≥50 + Net≥200万</div>
+      <div class="ending-item">😢 35岁被裁:Coding<40 + Rep<40</div>
+      <div class="ending-item bad">💔 过劳病退:Health≤30 任意时代</div>
+      <div class="ending-item bad">💔 家人决裂:Family≤30</div>
+      <div class="ending-item hidden">🔒 隐藏·开源先驱:Rep≥90 + Coding≥90</div>
+      <div class="ending-item hidden">🔒 隐藏·创业失败:5 个失败项目</div>
+    </div>
+  </div>
+
+  <button class="start-btn" onclick="startGame()">🚀 开始 30 年穿越</button>
+`;
+
+// ==================== 支线任务 ====================
+const SIDE_QUESTS = [
+  {  // 0: 1997 感情线
+    year: 1997,
+    title: "💑 支线:感情抉择",
+    desc: "1997 年,你交往 2 年的女朋友小芳(化名)开始催结婚。她想要一个稳定的家,但你刚入行 Coding 不到 30,事业还没起色。她说:不结婚就分手。",
+    choices: [
+      { text: "A. 结婚", eff: "Family+15, Net Worth-10万(婚房首付), Health-3, Reputation+5", changes: { family: 15, networth: -10, health: -3, reputation: 5 } },
+      { text: "B. 分手,All-in 事业", eff: "Coding+5, Health-5, Social-10, Family-20", changes: { coding: 5, health: -5, social: -10, family: -20 } }
+    ]
+  },
+  {  // 1: 2003 房产
+    year: 2003,
+    title: "🏠 支线:房产决策",
+    desc: "2003 年,北京/上海房价刚起步,均价 5000 元/平米。你手头有 30 万存款,父母赞助 10 万,够付首付。但月供要 4000,占你工资 60%。",
+    choices: [
+      { text: "A. All-in 买房(投资)", eff: "Net Worth-40万,但 2025 房产 ≈ 500-800万", changes: { networth: -40, family: 10 } },
+      { text: "B. 租房 + 投资自己", eff: "Coding+10, Insight+5, Net Worth 30万 → 投资理财", changes: { coding: 10, insight: 5 } },
+      { text: "C. 找朋友合伙炒房", eff: "Net Worth-20万, 高风险高回报, 50% 翻倍 50% 亏光", changes: { networth: -20, family: -5 }, gamble: true }
+    ]
+  },
+  {  // 2: 2008 跳槽/创业
+    year: 2008,
+    title: "🚀 支线:跳槽/创业",
+    desc: "2008 金融危机,大厂裁员。你收到 2 个 offer:① 阿里 P6 高级工程师(稳定);② 朋友拉你创业做电商(50 万天使 + 10% 期权,赌一把)。",
+    choices: [
+      { text: "A. 接阿里 P6", eff: "Net Worth+30万(2008-2014), Reputation+15, Health-5", changes: { networth: 30, reputation: 15, health: -5 } },
+      { text: "B. 加入创业(赌一把)", eff: "60% 概率 Net Worth x5(2014 上市), 40% 概率血本无归", changes: { networth: -50, reputation: 5 }, gamble: true }
+    ]
+  },
+  {  // 3: 2014 读 MBA
+    year: 2014,
+    title: "🎓 支线:读 MBA/换赛道",
+    desc: "2014 年,你 41 岁,P7 升 P8 遭遇瓶颈。长江商学院 MBA 班招生,2 年脱产 + 60 万学费,毕业后人脉 + 视野 + 跳槽机会。",
+    choices: [
+      { text: "A. 读 MBA", eff: "Reputation+20, Net Worth-60万(学费), 2 年后跳 P9 概率 80%", changes: { reputation: 20, networth: -60, family: -5 } },
+      { text: "B. 继续搬砖等升 P8", eff: "Net Worth+30万(2年), Reputation+5, Coding+5", changes: { networth: 30, reputation: 5, coding: 5 } },
+      { text: "C. 转管理岗 + 投资副业", eff: "Coding-3(落伍), Net Worth+50万(投资), Health-8", changes: { coding: -3, networth: 50, health: -8 } }
+    ]
+  },
+  {  // 4: 2019 中年危机
+    year: 2019,
+    title: "🏥 支线:中年危机",
+    desc: "2019 年,你 46 岁,体检报告亮红灯:三高 + 腰椎间盘突出 + 焦虑症。医生警告:再 996 下去会猝死。同期公司启动 35 岁优化名单,你位列其中。",
+    choices: [
+      { text: "A. 接受优化,拿 N+1 走人", eff: "Net Worth+100万(N+1), Health+20(休息), Reputation-10", changes: { networth: 100, health: 20, reputation: -10 } },
+      { text: "B. 转岗降薪留下,带新人", eff: "Net Worth-20万, Health+5, Reputation-5, Coding-5(教新人)", changes: { networth: -20, health: 5, reputation: -5, coding: -5 } },
+      { text: "C. 死扛,All-in 加班保住饭碗", eff: "Net Worth+10万, Health-15, Family-10, 30% 概率被裁", changes: { networth: 10, health: -15, family: -10 }, gamble: true }
+    ]
+  }
+];
+
+// ==================== 游戏数据(同 v1) ====================
+const ERAS = [
+  { name: "DOS/Windows 时代", yearStart: 1995, yearEnd: 2000, gate: null, desc: "桌面软件、PC 起步,C/C++/汇编/单片机" },
+  { name: "互联网泡沫时代", yearStart: 2000, yearEnd: 2005, gate: { stat: "coding", min: 40, fail: "你 Coding 不足 40,Java 时代的大门对你关闭,继续在旧赛道龟速发展" }, desc: "门户、电商、SP,ASP/JSP/Java" },
+  { name: "Web 2.0 时代", yearStart: 2005, yearEnd: 2010, gate: { stat: "insight", min: 50, fail: "你 Insight 不足 50,看不清社交/视频红利,错过 Web 2.0 浪潮" }, desc: "社交、视频、安全,Java/Struts/Spring" },
+  { name: "移动 + 云 时代", yearStart: 2010, yearEnd: 2018, gate: { stat: "reputation", min: 40, fail: "你 Reputation 不足 40,没拿到移动 App offer,2008 行业下行时先被裁" }, desc: "移动 App、O2O,iOS/Android/AWS" },
+  { name: "AI 时代", yearStart: 2018, yearEnd: 2025, gate: { stat: "coding", min: 50, fail: "你 Coding 不足 50,学不动 Python/Transformer,35 岁危机 + 没赶上 AI" }, desc: "LLM、Agent、Cursor,Python/Transformer" }
+];
+
+const PROJECTS = {
+  1: [
+    { name: "浪潮DOS", real: "Borland/Delphi", sector: "工具", rate: 0.20, mult: 3, hint: "可视化编程王者,1996 后走下坡路", outs: { huge: "1995 学 Delphi,2000 转 Java,3x", moderate: "Delphi 工具市占稳健", breakeven: "工具厂商式微", failure: "未及时转 Java" } },
+    { name: "蓝色巨人", real: "IBM", sector: "企业", rate: 0.30, mult: 5, hint: "深蓝 1997 击败卡斯帕罗夫,大象转身难", outs: { huge: "1995 入 IBM,2000 转云计算,5x", moderate: "企业级开发稳定", breakeven: "IBM 内部成长", failure: "未及时转型" } },
+    { name: "微软之剑", real: "Visual Studio", sector: "工具", rate: 0.40, mult: 4, hint: "VB/VC++/C# 系列 IDE,长期饭票", outs: { huge: "1995 学 VB6,2000 转 .NET,4x", moderate: "VC++ 桌面开发", breakeven: "持续用微软栈", failure: "未及时转 Java" } },
+    { name: "甲骨文", real: "Oracle", sector: "数据库", rate: 0.35, mult: 6, hint: "关系数据库之王,工作稳定", outs: { huge: "1995 学 Oracle,2000 转 DBA,6x", moderate: "PL/SQL 开发", breakeven: "Oracle 工程师", failure: "被 MySQL 替代" } },
+    { name: "红帽开拓", real: "Red Hat Linux", sector: "系统", rate: 0.25, mult: 8, hint: "开源 Linux 商业化,2000 后大势", outs: { huge: "1998 学 Linux,2005 转运维,8x", moderate: "1999 用 Red Hat", breakeven: "Linux 基础", failure: "未学 Linux" } },
+    { name: "升阳升起", real: "Sun Microsystems", sector: "系统", rate: 0.30, mult: 15, hint: "Java 之父,2010 被 Oracle 收购,最高 15x", outs: { huge: "1996 学 Java,2000 升合伙人,15x", moderate: "Sun 工程师", breakeven: "Java 开发者", failure: "Sun 2010 被收购" } },
+    { name: "苹果复兴", real: "Apple", sector: "硬件", rate: 0.20, mult: 30, hint: "1997 乔布斯回归,逆天改命", outs: { huge: "1998 入 Apple,2005 升经理,30x", moderate: "Apple 工程师", breakeven: "Apple 内部", failure: "未及时入 Apple" } },
+    { name: "雅虎搜索", real: "Yahoo", sector: "互联网", rate: 0.25, mult: 4, hint: "90 年代门户,2000 后衰退", outs: { huge: "1998 入 Yahoo,2005 升经理,4x", moderate: "Yahoo 工程师", breakeven: "门户网站开发", failure: "Yahoo 衰落" } },
+    { name: "网景航海家", real: "Netscape", sector: "浏览器", rate: 0.10, mult: 2, hint: "浏览器霸主,1998 被 IE 打败", outs: { huge: "1995 入 Netscape,2000 转 Mozilla,2x", moderate: "Netscape 工程师", breakeven: "浏览器开发经验", failure: "Netscape 没落" } },
+    { name: "易趣网", real: "eBay", sector: "电商", rate: 0.15, mult: 3, hint: "电商先驱,2003 入华,2012 被淘宝打败", outs: { huge: "1998 入 eBay,2010 转 PayPal,3x", moderate: "eBay 工程师", breakeven: "电商开发", failure: "2012 被淘宝打败" } },
+    { name: "戴尔直营", real: "Dell", sector: "硬件", rate: 0.30, mult: 4, hint: "PC 直销模式,2000 后辉煌", outs: { huge: "1995 入 Dell,2005 转,4x", moderate: "Dell 工程师", breakeven: "服务器经验", failure: "PC 时代结束" } },
+    { name: "华硕品质", real: "Asus", sector: "硬件", rate: 0.30, mult: 5, hint: "主板之王,华人骄傲", outs: { huge: "1995 学主板,2005 转,5x", moderate: "华硕工程师", breakeven: "硬件经验", failure: "PC 时代结束" } },
+    { name: "Adobe 印艺", real: "Adobe", sector: "设计", rate: 0.25, mult: 5, hint: "Photoshop/Illustrator,创意工具", outs: { huge: "1995 学 Adobe,2010 转设计,5x", moderate: "Adobe 工程师", breakeven: "持续 Adobe", failure: "未学 Adobe" } },
+    { name: "宏碁冲击", real: "Acer", sector: "硬件", rate: 0.20, mult: 3, hint: "华人 PC 品牌,2000 后式微", outs: { huge: "1995 入宏碁,2005 转,3x", moderate: "宏碁工程师", breakeven: "华人硬件圈", failure: "未及时转型" } },
+    { name: "美国在线", real: "AOL", sector: "互联网", rate: 0.10, mult: 2, hint: "90 年代 ISP 之王,2000 后衰落", outs: { huge: "1995 入 AOL,2000 转,2x", moderate: "AOL 工程师", breakeven: "ISP 经验", failure: "AOL 没落" } },
+    { name: "网景航海家", real: "Netscape", sector: "浏览器", rate: 0.10, mult: 2, hint: "浏览器霸主,1998 被 IE 打败", outs: { huge: "1995 入 Netscape,2000 转 Mozilla,2x", moderate: "Netscape 工程师", breakeven: "浏览器开发经验", failure: "Netscape 没落" } }
+  ],
+  2: [
+    { name: "企鹅通", real: "腾讯 QQ", sector: "即时通讯", rate: 0.25, mult: 20, hint: "1999 上线,2011 微信分流", outs: { huge: "2000 入腾讯,2010 升总监,20x", moderate: "腾讯工程师", breakeven: "QQ 时代经验", failure: "2011 未转微信" } },
+    { name: "阿狸搜索", real: "阿里巴巴", sector: "电商", rate: 0.20, mult: 30, hint: "2003 淘宝,2014 美股,2021 后裁员", outs: { huge: "2003 入阿里,2014 美股上市,30x", moderate: "阿里工程师", breakeven: "电商开发", failure: "2021 后被裁" } },
+    { name: "百度一下", real: "Baidu", sector: "搜索", rate: 0.25, mult: 8, hint: "中文搜索霸主,2005 后盛极而衰", outs: { huge: "2000 入百度,2015 升经理,8x", moderate: "百度工程师", breakeven: "搜索开发", failure: "错过移动" } },
+    { name: "网易有道", real: "NetEase", sector: "门户", rate: 0.30, mult: 6, hint: "门户 + 游戏,2000 后稳定", outs: { huge: "2000 入网易,2010 转游戏,6x", moderate: "网易工程师", breakeven: "门户开发", failure: "游戏没赶上" } },
+    { name: "新浪门户", real: "Sina", sector: "门户", rate: 0.25, mult: 3, hint: "VIE 模式第一股,2005 后衰退", outs: { huge: "2000 入新浪,2005 转,3x", moderate: "新浪工程师", breakeven: "门户经验", failure: "门户衰落" } },
+    { name: "盛大传奇", real: "Shanda", sector: "游戏", rate: 0.15, mult: 5, hint: "代理传奇起家,2005 后投资转型", outs: { huge: "2001 入盛大,2005 转投资,5x", moderate: "盛大游戏", breakeven: "游戏开发", failure: "盛大没落" } },
+    { name: "携程在手", real: "Ctrip", sector: "OTA", rate: 0.30, mult: 8, hint: "2003 上市,在线旅游稳定", outs: { huge: "2000 入携程,2010 升总监,8x", moderate: "携程工程师", breakeven: "OTA 经验", failure: "被美团酒旅抢" } },
+    { name: "当当书城", real: "Dangdang", sector: "电商", rate: 0.20, mult: 3, hint: "图书电商先驱,2010 后被京东打败", outs: { huge: "2000 入当当,2010 转,3x", moderate: "当当工程师", breakeven: "电商经验", failure: "被京东打败" } },
+    { name: "卓越亚马逊", real: "Amazon China", sector: "电商", rate: 0.20, mult: 5, hint: "卓越网被亚马逊收购,2019 退出中国", outs: { huge: "2000 入卓越,2008 转,5x", moderate: "卓越工程师", breakeven: "电商经验", failure: "亚马逊中国退出" } },
+    { name: "前程无忧", real: "51job", sector: "招聘", rate: 0.20, mult: 3, hint: "招聘网站先驱,2010 后被 Boss 直聘抢", outs: { huge: "2000 入 51job,2010 转,3x", moderate: "51job 工程师", breakeven: "招聘开发", failure: "被 Boss 直聘抢" } },
+    { name: "九城魔兽", real: "The9", sector: "游戏", rate: 0.10, mult: 4, hint: "代理魔兽世界,2009 失去代理", outs: { huge: "2003 入九城,2009 转,4x", moderate: "九城游戏", breakeven: "代理经验", failure: "失去魔兽代理" } },
+    { name: "联众棋牌", real: "Ourgame", sector: "游戏", rate: 0.10, mult: 2, hint: "棋牌游戏先驱,被 QQ 游戏打败", outs: { huge: "2000 入联众,2005 转,2x", moderate: "联众开发", breakeven: "棋牌经验", failure: "被 QQ 游戏打败" } },
+    { name: "搜狐矩阵", real: "Sohu", sector: "门户", rate: 0.20, mult: 2, hint: "门户 + 视频,2005 后衰退", outs: { huge: "2000 入搜狐,2005 转,2x", moderate: "搜狐工程师", breakeven: "门户经验", failure: "搜狐衰落" } },
+    { name: "Tom 在线", real: "Tom Online", sector: "门户", rate: 0.10, mult: 1.5, hint: "李嘉诚旗下,2005 后式微", outs: { huge: "2000 入 Tom,2005 转,1.5x", moderate: "Tom 工程师", breakeven: "门户经验", failure: "Tom 没落" } },
+    { name: "3721 网络实", real: "3721", sector: "搜索", rate: 0.10, mult: 1, hint: "中文网址,2003 被雅虎收购", outs: { huge: "2000 入 3721,2003 转雅虎,1x", moderate: "3721 工程师", breakeven: "中文搜索经验", failure: "被雅虎边缘化" } },
+    { name: "易趣购物", real: "Eachnet", sector: "电商", rate: 0.10, mult: 1, hint: "eBay 中国,2005 后被淘宝打败", outs: { huge: "2000 入易趣,2005 转,1x", moderate: "易趣工程师", breakeven: "电商经验", failure: "被淘宝打败" } }
+  ],
+  3: [
+    { name: "360 卫士", real: "360", sector: "安全", rate: 0.30, mult: 20, hint: "免费杀毒颠覆者,2011 上市", outs: { huge: "2006 入 360,2011 上市,20x", moderate: "360 工程师", breakeven: "安全开发", failure: "错过 360 上市" } },
+    { name: "迅雷下载", real: "Xunlei", sector: "下载", rate: 0.15, mult: 4, hint: "P2P 下载之王,2010 后走下坡", outs: { huge: "2004 学迅雷,2015 转,4x", moderate: "迅雷工程师", breakeven: "P2P 经验", failure: "P2P 退潮" } },
+    { name: "暴风影音", real: "BaoFeng", sector: "视频", rate: 0.10, mult: 1, hint: "本地播放器,2015 上市后暴跌", outs: { huge: "2005 入暴风,2010 转,1x", moderate: "暴风工程师", breakeven: "播放器经验", failure: "2019 退市" } },
+    { name: "豆瓣书影", real: "Douban", sector: "社区", rate: 0.15, mult: 5, hint: "文艺青年社区,商业化弱", outs: { huge: "2006 入豆瓣,2015 升总监,5x", moderate: "豆瓣工程师", breakeven: "社区开发", failure: "豆瓣商业化弱" } },
+    { name: "校内网", real: "Xiaonei/Renren", sector: "社交", rate: 0.10, mult: 5, hint: "中国版 Facebook,后衰", outs: { huge: "2006 入校内,2010 转,5x", moderate: "校内工程师", breakeven: "社交开发", failure: "校内没落" } },
+    { name: "金山软件", real: "Kingsoft", sector: "工具", rate: 0.20, mult: 3, hint: "WPS/猎豹移动,2010 后出海", outs: { huge: "2005 入金山,2015 升经理,3x", moderate: "金山工程师", breakeven: "WPS 开发", failure: "错过移动互联网" } },
+    { name: "天涯社区", real: "Tianya", sector: "社区", rate: 0.10, mult: 1.5, hint: "BBS 时代王者,2008 后衰", outs: { huge: "2005 入天涯,2010 转,1.5x", moderate: "天涯工程师", breakeven: "社区经验", failure: "BBS 没落" } },
+    { name: "Java 帝国", real: "Sun/Oracle", sector: "语言", rate: 0.35, mult: 8, hint: "Java 之父,2010 被收购", outs: { huge: "2005 学 Java EE,2015 转架构,8x", moderate: "Java 开发", breakeven: "Java 工程师", failure: "被 Kotlin 抢" } },
+    { name: "Spring 春", real: "Spring Framework", sector: "框架", rate: 0.40, mult: 5, hint: "Java 事实标准,长期饭票", outs: { huge: "2006 学 Spring,2015 升架构,5x", moderate: "Spring 开发", breakeven: "SSH 框架", failure: "未及时学 Spring" } },
+    { name: "Apache 基金", real: "Apache Software", sector: "开源", rate: 0.30, mult: 4, hint: "开源软件基金会,Reputation 高", outs: { huge: "2005 参与 Apache,2010 升 PMC,4x", moderate: "Apache 贡献者", breakeven: "开源经验", failure: "没参与开源" } },
+    { name: "淘宝电商", real: "Taobao", sector: "电商", rate: 0.25, mult: 25, hint: "2003 创立,2014 美股,2021 后裁员", outs: { huge: "2005 入淘宝,2014 美股上市,25x", moderate: "淘宝工程师", breakeven: "电商开发", failure: "2021 后被裁" } },
+    { name: "瑞星杀毒", real: "Rising", sector: "安全", rate: 0.10, mult: 1, hint: "传统杀毒,被 360 免费打败", outs: { huge: "2005 入瑞星,2008 转,1x", moderate: "瑞星工程师", breakeven: "安全经验", failure: "瑞星衰落" } },
+    { name: "猫扑杂烩", real: "Mop", sector: "社区", rate: 0.10, mult: 1, hint: "娱乐社区,2008 后衰", outs: { huge: "2005 入猫扑,2010 转,1x", moderate: "猫扑工程师", breakeven: "社区经验", failure: "猫扑衰落" } },
+    { name: "CSDN 学院", real: "CSDN", sector: "技术", rate: 0.20, mult: 3, hint: "程序员社区,稳定但慢", outs: { huge: "2005 入 CSDN,2010 转,3x", moderate: "CSDN 工程师", breakeven: "社区经验", failure: "博客没跟上" } },
+    { name: "饭否微博", real: "Fanfou", sector: "微博", rate: 0.05, mult: 2, hint: "中国第一微博,被关", outs: { huge: "2007 入饭否,2009 转,2x", moderate: "饭否工程师", breakeven: "微博开发", failure: "饭否被关" } },
+    { name: "PPTV 聚力", real: "PPTV", sector: "视频", rate: 0.10, mult: 2, hint: "P2P 视频,2010 后被爱奇艺超越", outs: { huge: "2005 入 PPTV,2010 转,2x", moderate: "PPTV 工程师", breakeven: "视频经验", failure: "被爱奇艺超越" } }
+  ],
+  4: [
+    { name: "美团外卖", real: "Meituan", sector: "O2O", rate: 0.20, mult: 15, hint: "2010 团购,2014 O2O 大战", outs: { huge: "2010 入美团,2018 上市,15x", moderate: "美团工程师", breakeven: "O2O 开发", failure: "被美团裁员" } },
+    { name: "字节跳动", real: "ByteDance", sector: "算法", rate: 0.20, mult: 50, hint: "2012 创建,2017 抖音出海,最高 50x", outs: { huge: "2012 入字节,2018 升总监,50x", moderate: "字节工程师", breakeven: "算法开发", failure: "字节加班累垮" } },
+    { name: "拼好货", real: "Pinduoduo", sector: "电商", rate: 0.15, mult: 30, hint: "2015 上市,下沉市场,2021 加班", outs: { huge: "2015 入拼多多,2018 上市,30x", moderate: "拼多多工程师", breakeven: "电商开发", failure: "2021 加班严重" } },
+    { name: "滴滴出行", real: "Didi", sector: "出行", rate: 0.20, mult: 8, hint: "2012 创立,2022 被下架", outs: { huge: "2014 入滴滴,2021 美股上市,8x", moderate: "滴滴工程师", breakeven: "出行开发", failure: "2022 被下架" } },
+    { name: "小米手机", real: "Xiaomi", sector: "硬件", rate: 0.25, mult: 6, hint: "2010 创立,互联网思维,2018 上市", outs: { huge: "2010 入小米,2018 上市,6x", moderate: "小米工程师", breakeven: "硬件开发", failure: "小米加班" } },
+    { name: "微信生态", real: "WeChat", sector: "应用", rate: 0.25, mult: 20, hint: "2011 发布,小程序 2017", outs: { huge: "2014 入腾讯,2018 升架构,20x", moderate: "微信开发", breakeven: "小程序开发", failure: "微信内卷" } },
+    { name: "钉钉办公", real: "DingTalk", sector: "SaaS", rate: 0.20, mult: 8, hint: "2015 发布,企业 IM", outs: { huge: "2015 入阿里钉钉,2020 升P8,8x", moderate: "钉钉开发", breakeven: "SaaS 开发", failure: "钉钉内卷" } },
+    { name: "AWS 云", real: "AWS China", sector: "云", rate: 0.30, mult: 6, hint: "2016 宁夏区,稳定", outs: { huge: "2014 学 AWS,2020 升架构,6x", moderate: "AWS 工程师", breakeven: "云开发", failure: "未及时学云" } },
+    { name: "阿里云", real: "Aliyun", sector: "云", rate: 0.30, mult: 8, hint: "2009 创立,2021 上市前", outs: { huge: "2010 入阿里云,2021 上市,8x", moderate: "阿里云工程师", breakeven: "云开发", failure: "加班严重" } },
+    { name: "华为荣耀", real: "Huawei Honor", sector: "硬件", rate: 0.30, mult: 8, hint: "2013 独立,2020 出售,2020 被制裁", outs: { huge: "2012 入华为,2020 转,8x", moderate: "华为工程师", breakeven: "硬件经验", failure: "2020 被制裁" } },
+    { name: "苹果大屏", real: "iPhone 6", sector: "硬件", rate: 0.25, mult: 5, hint: "2014 iPhone 6 大屏时代", outs: { huge: "2012 学 iOS,2018 升资深,5x", moderate: "iOS 开发", breakeven: "移动开发", failure: "iOS 市场萎缩" } },
+    { name: "安卓崛起", real: "Android", sector: "系统", rate: 0.30, mult: 4, hint: "2010 后 Android 统治", outs: { huge: "2010 学 Android,2015 升架构,4x", moderate: "Android 开发", breakeven: "移动开发", failure: "Android 碎片化累" } },
+    { name: "七牛存储", real: "Qiniu", sector: "云", rate: 0.15, mult: 3, hint: "云存储先驱,被 OSS/COS 抢", outs: { huge: "2012 入七牛,2020 转,3x", moderate: "七牛工程师", breakeven: "云存储经验", failure: "被 OSS/COS 抢" } },
+    { name: "PingCAP 库", real: "TiDB", sector: "数据库", rate: 0.15, mult: 10, hint: "2015 开源 NewSQL", outs: { huge: "2015 入 PingCAP,2022 升 P8,10x", moderate: "TiDB 工程师", breakeven: "数据库经验", failure: "未学 NewSQL" } },
+    { name: "Docker 容器", real: "Docker", sector: "云原生", rate: 0.30, mult: 4, hint: "2013 开源,容器革命", outs: { huge: "2014 学 Docker,2020 升 SRE,4x", moderate: "Docker 工程师", breakeven: "DevOps 经验", failure: "容器学习曲线" } },
+    { name: "K8s 编排", real: "Kubernetes", sector: "云原生", rate: 0.25, mult: 5, hint: "Google 开源容器编排", outs: { huge: "2015 学 K8s,2020 升架构,5x", moderate: "K8s 工程师", breakeven: "云原生经验", failure: "未及时学 K8s" } }
+  ],
+  5: [
+    { name: "AI 鹰眼", real: "Anthropic Claude", sector: "LLM", rate: 0.20, mult: 20, hint: "Claude 系列大模型,2024 逆袭", outs: { huge: "2023 学 Claude,2025 升P9,20x", moderate: "Claude 工程师", breakeven: "LLM 应用", failure: "未及时学 LLM" } },
+    { name: "深度求索", real: "DeepSeek", sector: "LLM", rate: 0.15, mult: 15, hint: "DeepSeek 横空出世,2025 出圈", outs: { huge: "2024 学 DeepSeek,2025 升总监,15x", moderate: "DeepSeek 工程师", breakeven: "LLM 开源", failure: "错过开源 LLM" } },
+    { name: "月之暗面", real: "Moonshot", sector: "LLM", rate: 0.10, mult: 10, hint: "Kimi 长文本", outs: { huge: "2024 学 Kimi,2025 转,10x", moderate: "月暗工程师", breakeven: "LLM 经验", failure: "错过 LLM" } },
+    { name: "讯飞智能", real: "iFlytek", sector: "AI", rate: 0.25, mult: 6, hint: "语音 AI 龙头,大模型", outs: { huge: "2018 入讯飞,2024 升总监,6x", moderate: "讯飞工程师", breakeven: "AI 开发", failure: "错过大模型" } },
+    { name: "商汤视觉", real: "SenseTime", sector: "AI", rate: 0.10, mult: 2, hint: "CV 四小龙,2021 上市,被美国制裁", outs: { huge: "2018 入商汤,2021 上市,2x", moderate: "商汤工程师", breakeven: "CV 开发", failure: "被美国制裁" } },
+    { name: "寒武纪芯", real: "Cambricon", sector: "AI 芯片", rate: 0.10, mult: 8, hint: "AI 芯片独角兽,大起大落", outs: { huge: "2020 上市,2024 升总监,8x", moderate: "寒武纪工程师", breakeven: "芯片开发", failure: "寒武纪大起大落" } },
+    { name: "地平线车", real: "Horizon", sector: "AI 芯片", rate: 0.15, mult: 5, hint: "自动驾驶芯片,车规级", outs: { huge: "2018 入地平线,2024 升P9,5x", moderate: "地平线工程师", breakeven: "芯片开发", failure: "车规级难" } },
+    { name: "通义千问", real: "Tongyi Qianwen", sector: "LLM", rate: 0.20, mult: 8, hint: "阿里通义大模型", outs: { huge: "2023 学通义,2025 升P9,8x", moderate: "通义工程师", breakeven: "LLM 应用", failure: "阿里内卷" } },
+    { name: "混元大模型", real: "Tencent Hunyuan", sector: "LLM", rate: 0.20, mult: 6, hint: "腾讯混元大模型,节奏慢", outs: { huge: "2023 学混元,2025 升总监,6x", moderate: "混元工程师", breakeven: "LLM 经验", failure: "腾讯节奏慢" } },
+    { name: "字节豆包", real: "Doubao", sector: "LLM", rate: 0.15, mult: 10, hint: "字节豆包大模型,加班严重", outs: { huge: "2024 入豆包,2025 升P8,10x", moderate: "豆包工程师", breakeven: "LLM 应用", failure: "字节加班" } },
+    { name: "智能体框架", real: "AutoGPT/Agent", sector: "AI Agent", rate: 0.20, mult: 5, hint: "2023 Agent 革命", outs: { huge: "2024 学 Agent,2025 升架构,5x", moderate: "Agent 开发", breakeven: "LLM 经验", failure: "未学 Agent" } },
+    { name: "Cursor IDE", real: "Cursor", sector: "AI 工具", rate: 0.20, mult: 8, hint: "AI 代码编辑器,提效神器", outs: { huge: "2024 学 Cursor,2025 升效率,8x", moderate: "Cursor 用户", breakeven: "Copilot 用户", failure: "未及时用 AI IDE" } },
+    { name: "LangChain 链", real: "LangChain", sector: "LLM 框架", rate: 0.25, mult: 4, hint: "LLM 应用框架", outs: { huge: "2023 学 LangChain,2025 转,4x", moderate: "LangChain 开发", breakeven: "LLM 应用", failure: "未学 LLM 框架" } },
+    { name: "开源 LLM", real: "Llama/Qwen", sector: "LLM 开源", rate: 0.30, mult: 6, hint: "开源大模型生态", outs: { huge: "2024 学开源 LLM,2025 升P9,6x", moderate: "开源 LLM 用户", breakeven: "LLM 经验", failure: "未及时学开源 LLM" } },
+    { name: "旷视科技", real: "Megvii", sector: "AI", rate: 0.10, mult: 2, hint: "Face++,上市失败", outs: { huge: "2018 入旷视,2022 转,2x", moderate: "旷视工程师", breakeven: "CV 经验", failure: "上市失败" } },
+    { name: "依图医疗", real: "YITU", sector: "AI", rate: 0.10, mult: 2, hint: "CV + 医疗,2023 大裁员", outs: { huge: "2018 入依图,2023 转,2x", moderate: "依图工程师", breakeven: "AI 经验", failure: "依图裁员" } }
+  ]
+};
+
+const EVENTS = {
+  1: [
+    { desc: "1995 毕业方向:浪潮软件 vs 华为?",
+      a: { text: "留浪潮做 IDE 开发", eff: "Coding+10, Health-5", coding: 10, health: -5 },
+      b: { text: "加入华为做嵌入式", eff: "Reputation+5, Net Worth+3万", reputation: 5, networth: 3 } },
+    { desc: "1996 浪潮领导让你选:主攻 C++ 还是学 Java?",
+      a: { text: "死守 C++ (Borland 路线)", eff: "Coding+5, Insight-3", coding: 5, insight: -3 },
+      b: { text: "提前学 Java", eff: "Coding+8, Insight+5, Health-5", coding: 8, insight: 5, health: -5 } },
+    { desc: "1998 IBM/微软 vs Sun 招聘,你选?",
+      a: { text: "去大厂(IBM/微软)", eff: "Net Worth+10万, Reputation+8", networth: 10, reputation: 8 },
+      b: { text: "去 Sun 学 Java", eff: "Coding+10, Insight+5, Net Worth+5万", coding: 10, insight: 5, networth: 5 } },
+    { desc: "1999 Sun 给你期权,2000 互联网泡沫来袭",
+      a: { text: "All-in Java + 期权", eff: "Coding+12, Health-8", coding: 12, health: -8 },
+      b: { text: "考 IBM/微软稳饭碗", eff: "Net Worth+8万, Health-2", networth: 8, health: -2 } }
+  ],
+  2: [
+    { desc: "2001 互联网泡沫破裂,浪潮裁员",
+      a: { text: "加入创业公司(阿里/腾讯)", eff: "Insight+10, Coding+5, Net Worth-5万", insight: 10, coding: 5, networth: -5 },
+      b: { text: "跳到大厂稳", eff: "Net Worth+8万, Health-5", networth: 8, health: -5 } },
+    { desc: "2003 淘宝/当当/eBay 中国 招聘,你选?",
+      a: { text: "All-in 淘宝", eff: "Insight+8, Coding+5, Health-10", insight: 8, coding: 5, health: -10 },
+      b: { text: "去当当/eBay 求稳", eff: "Net Worth+5万, Reputation+3", networth: 5, reputation: 3 } },
+    { desc: "2004 盛大/网易/腾讯 给你 offer",
+      a: { text: "去盛大(赌游戏)", eff: "Net Worth+10万, Insight+5", networth: 10, insight: 5 },
+      b: { text: "去网易(门户稳)", eff: "Reputation+5, Net Worth+5万, Health-3", reputation: 5, networth: 5, health: -3 } },
+    { desc: "2005 你 32 岁,有人劝你考研/读 MBA",
+      a: { text: "读 MBA", eff: "Reputation+10, Net Worth-15万", reputation: 10, networth: -15 },
+      b: { text: "继续搬砖", eff: "Coding+5, Net Worth+8万", coding: 5, networth: 8 } }
+  ],
+  3: [
+    { desc: "2006 360/瑞星/金山 招聘",
+      a: { text: "去 360 赌免费模式", eff: "Insight+10, Coding+5, Health-8", insight: 10, coding: 5, health: -8 },
+      b: { text: "去瑞星/金山求稳", eff: "Net Worth+5万, Reputation+3", networth: 5, reputation: 3 } },
+    { desc: "2007 校内/豆瓣/CSDN 邀请你加入",
+      a: { text: "去校内(赌社交)", eff: "Insight+8, Coding+5, Health-5", insight: 8, coding: 5, health: -5 },
+      b: { text: "去豆瓣/CSDN(求文化)", eff: "Reputation+5, Net Worth+3万", reputation: 5, networth: 3 } },
+    { desc: "2008 金融危机,你被裁,新 offer 选择",
+      a: { text: "All-in 淘宝双 11 前夜", eff: "Coding+10, Health-12, Net Worth+10万", coding: 10, health: -12, networth: 10 },
+      b: { text: "去携程/网易稳", eff: "Net Worth+5万, Reputation+5", networth: 5, reputation: 5 } },
+    { desc: "2009 3G 来了!移动 App 萌芽",
+      a: { text: "All-in 移动 App", eff: "Insight+10, Coding+8, Health-8", insight: 10, coding: 8, health: -8 },
+      b: { text: "继续 Web 2.0", eff: "Net Worth+5万, Reputation+3", networth: 5, reputation: 3 } }
+  ],
+  4: [
+    { desc: "2011 微信发布,腾讯给你 offer",
+      a: { text: "去微信团队", eff: "Coding+10, Insight+8, Health-5", coding: 10, insight: 8, health: -5 },
+      b: { text: "去 BAT 其他稳", eff: "Net Worth+10万, Reputation+5", networth: 10, reputation: 5 } },
+    { desc: "2013 移动互联网 O2O 大战",
+      a: { text: "All-in 美团/滴滴", eff: "Insight+10, Coding+5, Health-12", insight: 10, coding: 5, health: -12 },
+      b: { text: "继续 PC Web 业务", eff: "Net Worth+5万, Reputation-5", networth: 5, reputation: -5 } },
+    { desc: "2015 拼多多/字节跳动 招聘",
+      a: { text: "All-in 字节/拼多多(赌)", eff: "Insight+12, Coding+5, Health-15", insight: 12, coding: 5, health: -15 },
+      b: { text: "去阿里/腾讯稳", eff: "Net Worth+15万, Reputation+8", networth: 15, reputation: 8 } },
+    { desc: "2017 小程序发布,云原生起步",
+      a: { text: "学 K8s/Docker 云原生", eff: "Coding+10, Insight+8, Health-8", coding: 10, insight: 8, health: -8 },
+      b: { text: "继续传统架构", eff: "Net Worth+8万, Coding-5", networth: 8, coding: -5 } }
+  ],
+  5: [
+    { desc: "2019 35 岁危机前夜,你已经 P7/P8",
+      a: { text: "All-in AI/LLM 转型", eff: "Insight+15, Coding+10, Health-10", insight: 15, coding: 10, health: -10 },
+      b: { text: "继续做传统业务", eff: "Net Worth+10万, Reputation-5", networth: 10, reputation: -5 } },
+    { desc: "2022 ChatGPT 发布,技术地震",
+      a: { text: "All-in LLM/Agent", eff: "Coding+15, Insight+10, Health-10", coding: 15, insight: 10, health: -10 },
+      b: { text: "观望", eff: "Net Worth+5万, Coding-10", networth: 5, coding: -10 } },
+    { desc: "2023 Cursor/Claude 横空出世",
+      a: { text: "All-in AI IDE 提效", eff: "Coding+12, Reputation+5, Health-5", coding: 12, reputation: 5, health: -5 },
+      b: { text: "继续传统开发", eff: "Net Worth+5万, Coding-5", networth: 5, coding: -5 } },
+    { desc: "2024 DeepSeek/开源 LLM 革命",
+      a: { text: "All-in 开源 LLM", eff: "Coding+10, Reputation+10, Health-8", coding: 10, reputation: 10, health: -8 },
+      b: { text: "继续闭源 API 调用", eff: "Net Worth+8万, Coding-3", networth: 8, coding: -3 } }
+  ]
+};
+
+// ==================== 游戏状态 ====================
+let state = {
+  era: 1, round: 0, year: 1995, age: 22,
+  coding: 30, insight: 20, reputation: 10, networth: 5,
+  health: 100, family: 100, social: 80,
+  log: [], projectResults: [], sideQuestsDone: [],
+  phase: "intro",  // intro / event / project / intensity / sidequest / result
+  pendingEvent: null, pendingProject: null, pendingSideQuest: null
+};
+
+function pick3(arr) {
+  const shuffled = [...arr].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, 3);
+}
+
+function updateState(changes) {
+  if (!changes) return;
+  if (changes.coding) state.coding = Math.max(0, Math.min(100, state.coding + changes.coding));
+  if (changes.insight) state.insight = Math.max(0, Math.min(100, state.insight + changes.insight));
+  if (changes.reputation) state.reputation = Math.max(0, Math.min(100, state.reputation + changes.reputation));
+  if (changes.networth) state.networth = Math.max(0, state.networth + changes.networth);
+  if (changes.health) state.health = Math.max(0, Math.min(100, state.health + changes.health));
+  if (changes.family) state.family = Math.max(0, Math.min(100, state.family + changes.family));
+  if (changes.social) state.social = Math.max(0, Math.min(100, state.social + changes.social));
+  renderStats();
+}
+
+function renderStats() {
+  document.getElementById("coding").textContent = state.coding;
+  document.getElementById("insight").textContent = state.insight;
+  document.getElementById("reputation").textContent = state.reputation;
+  document.getElementById("networth").textContent = state.networth.toFixed(0);
+  document.getElementById("health-val").textContent = state.health;
+  document.getElementById("family-val").textContent = state.family;
+  document.getElementById("social-val").textContent = state.social;
+  const setBar = (id, v) => {
+    const el = document.getElementById(id);
+    el.style.width = v + "%";
+    el.style.background = v > 60 ? "#64ffda" : v > 30 ? "#ffd54f" : "#ff5252";
+  };
+  setBar("health-bar", state.health);
+  setBar("family-bar", state.family);
+  setBar("social-bar", state.social);
+}
+
+function addLog(html, type = "") {
+  state.log.push({ year: state.year, html, type });
+  const logEl = document.getElementById("log");
+  const prefix = type === "sidequest" ? '<span class="log-sidequest">🌟</span> ' : '';
+  logEl.innerHTML = state.log.map(e => `<div class="log-entry"><span class="log-year">${e.year}</span> · ${e.type === 'sidequest' ? '<span class="log-sidequest">🌟</span> ' : ''}${e.html}</div>`).join("");
+  logEl.scrollTop = logEl.scrollHeight;
+}
+
+function rollOutcome(project) {
+  const r = Math.random();
+  if (r < project.rate * 0.4) return { key: "huge", label: "🟢 hugeSuccess", text: project.outs.huge };
+  if (r < project.rate) return { key: "moderate", label: "🔵 moderateSuccess", text: project.outs.moderate };
+  if (r < project.rate + 0.3) return { key: "breakeven", label: "🟡 breakeven", text: project.outs.breakeven };
+  return { key: "failure", label: "🔴 failure", text: project.outs.failure };
+}
+
+function applyOutcome(outcome, project) {
+  let mult, effStr = "";
+  if (outcome.key === "huge") { mult = project.mult; effStr = `💰 Net Worth x${mult}`; state.networth *= mult; }
+  else if (outcome.key === "moderate") { mult = project.mult * 0.5; effStr = `💰 Net Worth x${mult.toFixed(1)}`; state.networth *= mult; }
+  else if (outcome.key === "breakeven") { mult = 1; effStr = `💰 Net Worth 持平`; }
+  else { mult = 0.3; effStr = `💰 Net Worth x0.3 (亏损)`; state.networth *= 0.3; }
+  state.projectResults.push({ year: state.year, project: project.name, real: project.real, outcome: outcome.label, mult });
+  return effStr;
+}
+
+function renderEraBanner() {
+  const era = ERAS[state.era - 1];
+  return `<div class="era-banner">${era.name}<div class="year-text">${state.year} 年 · 你 ${state.age} 岁 · 第 ${state.round+1}/4 回合${state.sideQuestsDone.length > 0 ? ` · 支线 ${state.sideQuestsDone.length}/5` : ''}</div></div>`;
+}
+
+function renderStatsBar() {
+  return `
+    <div class="stats-bar">
+      <div class="stat"><div class="stat-label">Coding</div><div class="stat-value" id="coding">${state.coding}</div></div>
+      <div class="stat"><div class="stat-label">Insight</div><div class="stat-value" id="insight">${state.insight}</div></div>
+      <div class="stat"><div class="stat-label">Reputation</div><div class="stat-value" id="reputation">${state.reputation}</div></div>
+      <div class="stat"><div class="stat-label">Net Worth(万)</div><div class="stat-value" id="networth">${state.networth.toFixed(0)}</div></div>
+    </div>
+    <div class="soft-stats">
+      <div class="soft-stat">Health <span id="health-val">${state.health}</span><div class="soft-bar"><div class="soft-fill" id="health-bar" style="background:#64ffda;width:100%"></div></div></div>
+      <div class="soft-stat">Family <span id="family-val">${state.family}</span><div class="soft-bar"><div class="soft-fill" id="family-bar" style="background:#64ffda;width:100%"></div></div></div>
+      <div class="soft-stat">Social <span id="social-val">${state.social}</span><div class="soft-bar"><div class="soft-fill" id="social-bar" style="background:#64ffda;width:80%"></div></div></div>
+    </div>
+  `;
+}
+
+function renderEvent() {
+  const ev = state.pendingEvent;
+  document.getElementById("game-area").innerHTML = `
+    ${renderStatsBar()}
+    ${renderEraBanner()}
+    <div class="event-card">
+      <div class="card-title">📰 时代事件 · 2 选 1</div>
+      <div class="card-desc">${ev.desc}</div>
+      <div class="choices">
+        <button class="choice" onclick="chooseEvent('a')"><span class="choice-tag">A</span>${ev.a.text}<span class="choice-eff">${ev.a.eff}</span></button>
+        <button class="choice" onclick="chooseEvent('b')"><span class="choice-tag">B</span>${ev.b.text}<span class="choice-eff">${ev.b.eff}</span></button>
+      </div>
+    </div>
+  `;
+  renderStats();
+}
+
+function renderProject() {
+  const projects = state.pendingProject;
+  document.getElementById("game-area").innerHTML = `
+    ${renderStatsBar()}
+    ${renderEraBanner()}
+    <div class="project-card">
+      <div class="card-title">💼 项目选择 · 3 选 1</div>
+      <div class="card-desc">从 3 个化身项目中选 1 个:</div>
+      <div class="choices">
+        ${projects.map((p, i) => `
+          <button class="choice" onclick="chooseProject(${i})">
+            <span class="choice-tag">${String.fromCharCode(65+i)}</span><strong>${p.name}</strong> (${p.real})
+            <span class="choice-eff">赛道:${p.sector} · 成功率 ${(p.rate*100).toFixed(0)}% · 最高 ${p.mult}x</span>
+            <span class="choice-eff">⚠ ${p.hint}</span>
+          </button>
+        `).join("")}
+      </div>
+    </div>
+  `;
+  renderStats();
+}
+
+function renderIntensity() {
+  document.getElementById("game-area").innerHTML = `
+    ${renderStatsBar()}
+    ${renderEraBanner()}
+    <div class="intensity-card">
+      <div class="card-title">⚙️ 投入度 · 3 选 1</div>
+      <div class="card-desc">本回合你打算用多大劲?</div>
+      <div class="choices">
+        <button class="choice" onclick="chooseIntensity('a')"><span class="choice-tag">A</span>996 极限<span class="choice-eff">Coding+8, Health-8, Family-3, Social-3</span></button>
+        <button class="choice" onclick="chooseIntensity('b')"><span class="choice-tag">B</span>8h 平衡<span class="choice-eff">Coding+3, Health-2</span></button>
+        <button class="choice" onclick="chooseIntensity('c')"><span class="choice-tag">C</span>摆烂<span class="choice-eff">Coding+1, Health+5, Family+3, Reputation-2</span></button>
+      </div>
+    </div>
+  `;
+  renderStats();
+}
+
+function renderSideQuest() {
+  const sq = state.pendingSideQuest;
+  document.getElementById("game-area").innerHTML = `
+    ${renderStatsBar()}
+    ${renderEraBanner()}
+    <div class="sidequest-card">
+      <div class="card-title">${sq.title} <span class="side-quest-badge">🌟 支线 ${state.sideQuestsDone.length+1}/5</span></div>
+      <div class="card-desc">${sq.desc}</div>
+      <div class="choices">
+        ${sq.choices.map((c, i) => `
+          <button class="choice" onclick="chooseSideQuest(${i})">
+            <span class="choice-tag">${String.fromCharCode(65+i)}</span>${c.text}
+            <span class="choice-eff">${c.eff}</span>
+          </button>
+        `).join("")}
+      </div>
+    </div>
+  `;
+  renderStats();
+}
+
+function renderResult(outcome, project) {
+  document.getElementById("game-area").innerHTML = `
+    ${renderStatsBar()}
+    ${renderEraBanner()}
+    <div class="event-card">
+      <div class="card-title">📊 ${state.year} 年终结算</div>
+      <div class="card-desc">
+        <strong>${project.name} (${project.real})</strong> → ${outcome.label}<br>
+        <em>${outcome.text}</em>
+      </div>
+      <div style="margin: 12px 0; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 6px; font-size: 13px;">
+        <div>📈 Coding: ${state.coding} | Insight: ${state.insight} | Reputation: ${state.reputation}</div>
+        <div>💰 Net Worth: ${state.networth.toFixed(1)} 万</div>
+        <div>❤️ Health: ${state.health} | 👪 Family: ${state.family} | 🤝 Social: ${state.social}</div>
+      </div>
+      <button class="choice" onclick="nextRound()" style="text-align:center; background: rgba(100,255,218,0.2);">进入下一年 →</button>
+    </div>
+  `;
+  renderStats();
+}
+
+function renderEnding(ending) {
+  document.getElementById("game-area").innerHTML = `
+    <div class="ending-screen">
+      <div class="ending-title">${ending.title}</div>
+      <div class="ending-desc">${ending.desc}</div>
+      <div class="ending-stats">
+        <div>📅 ${state.year} 年 · ${state.age} 岁 · 穿越 30 年</div>
+        <div>📈 Coding: ${state.coding} | Insight: ${state.insight} | Reputation: ${state.reputation}</div>
+        <div>💰 最终 Net Worth: ${state.networth.toFixed(1)} 万</div>
+        <div>❤️ Health: ${state.health} | 👪 Family: ${state.family} | 🤝 Social: ${state.social}</div>
+        <div>🌟 完成支线: ${state.sideQuestsDone.length}/5</div>
+        <div style="margin-top:12px;">📜 30 年足迹:</div>
+        <div style="text-align:left; margin-top:8px; max-height:200px; overflow-y:auto; font-size:13px;">
+          ${state.projectResults.map(r => `<div>· ${r.year} ${r.project} (${r.real}) → ${r.outcome} x${r.mult.toFixed(1)}</div>`).join("")}
+        </div>
+      </div>
+      <button class="restart-btn" onclick="restart()">🔄 重新开始 30 年穿越</button>
+    </div>
+  `;
+}
+
+// ==================== 玩家选择处理 ====================
+window.startGame = function() {
+  document.getElementById("log").style.display = "block";
+  addLog("📜 <strong>1995 年</strong> · 你 22 岁,刚毕业,加入浪潮软件(Borland 映射)实习");
+  // 检查支线任务(1997 在 era 1 round 1)
+  checkSideQuest();
+  if (state.phase === "sidequest") {
+    renderSideQuest();
+  } else {
+    state.pendingEvent = EVENTS[1][0];
+    renderEvent();
+  }
+};
+
+window.chooseEvent = function(key) {
+  const ev = state.pendingEvent;
+  const choice = ev[key];
+  updateState({ coding: choice.coding, insight: choice.insight, reputation: choice.reputation, networth: choice.networth, health: choice.health, family: choice.family, social: choice.social });
+  addLog(`📰 时代事件 → <strong>${choice.text}</strong> (${choice.eff})`);
+  state.pendingProject = pick3(PROJECTS[state.era]);
+  renderProject();
+};
+
+window.chooseProject = function(idx) {
+  const project = state.pendingProject[idx];
+  state._currentProject = project;
+  addLog(`💼 选择了 <strong>${project.name}</strong> (${project.real})`);
+  renderIntensity();
+};
+
+window.chooseIntensity = function(key) {
+  let changes = {};
+  if (key === 'a') changes = { coding: 8, health: -8, family: -3, social: -3 };
+  if (key === 'b') changes = { coding: 3, health: -2 };
+  if (key === 'c') changes = { coding: 1, health: 5, family: 3, reputation: -2 };
+  updateState(changes);
+  addLog(`⚙️ 投入度: ${key === 'a' ? '996 极限' : key === 'b' ? '8h 平衡' : '摆烂'}`);
+  const project = state._currentProject;
+  const outcome = rollOutcome(project);
+  const effStr = applyOutcome(outcome, project);
+  addLog(`📊 <strong>${project.name}</strong> → ${outcome.label} · ${effStr}`);
+  renderResult(outcome, project);
+};
+
+window.chooseSideQuest = function(idx) {
+  const sq = state.pendingSideQuest;
+  const choice = sq.choices[idx];
+  // 处理赌博选项
+  if (choice.gamble) {
+    const won = Math.random() < 0.5;
+    if (won) {
+      addLog(`🌟 支线:${choice.text} <strong style="color:#64ffda;">【赌赢了!】</strong>`, "sidequest");
+      // 翻倍
+      const winChanges = {};
+      Object.keys(choice.changes).forEach(k => { winChanges[k] = choice.changes[k] * 2; });
+      updateState(winChanges);
+    } else {
+      addLog(`🌟 支线:${choice.text} <strong style="color:#ff5252;">【赌输了,血本无归】</strong>`, "sidequest");
+      // 损失翻倍
+      const loseChanges = {};
+      Object.keys(choice.changes).forEach(k => { loseChanges[k] = choice.changes[k] * 2; });
+      updateState(loseChanges);
+    }
+  } else {
+    updateState(choice.changes);
+    addLog(`🌟 支线:${choice.text} (${choice.eff})`, "sidequest");
+  }
+  state.sideQuestsDone.push({ year: state.year, title: sq.title });
+  state.pendingSideQuest = null;
+  // 支线完成后,进入当前时代事件(如果还没做)
+  if (state.pendingEvent) {
+    renderEvent();
+  } else {
+    nextRound();
+  }
+};
+
+function checkSideQuest() {
+  // 找到当前 year 对应的支线
+  const sq = SIDE_QUESTS.find(s => s.year === state.year && !state.sideQuestsDone.find(d => d.year === s.year));
+  if (sq) {
+    state.pendingSideQuest = sq;
+    state.phase = "sidequest";
+  }
+}
+
+window.nextRound = function() {
+  state.round += 1;
+  state.year += 1;
+  state.age += 1;
+  state._currentProject = null;
+  state.pendingEvent = null;
+
+  // 时代切换
+  if (state.round >= 4) {
+    state.era += 1;
+    state.round = 0;
+    if (state.era > 5) {
+      finishGame();
+      return;
+    }
+    updateState({ coding: -10 });
+    addLog(`🚪 <strong>时代切换 → ${ERAS[state.era-1].name}</strong> · Coding -10`);
+    const era = ERAS[state.era - 1];
+    if (era.gate) {
+      const stat = state[era.gate.stat];
+      if (stat < era.gate.min) {
+        addLog(`⚠ 门控失败:${era.gate.fail}`);
+        updateState({ reputation: -10, networth: -20 });
+      } else {
+        addLog(`✅ 门控通过:${era.gate.stat}=${stat} ≥ ${era.gate.min}`);
+      }
+    }
+  }
+  // 健康崩盘检查
+  if (state.health <= 30) { finishGame(); return; }
+  // 检查支线
+  checkSideQuest();
+  if (state.phase === "sidequest") {
+    renderSideQuest();
+  } else {
+    state.pendingEvent = EVENTS[state.era][state.round];
+    renderEvent();
+  }
+};
+
+function finishGame() {
+  let ending;
+  if (state.reputation >= 90 && state.coding >= 90) {
+    ending = { title: "🔒 隐藏结局:开源先驱", desc: "你成为顶级开源 maintainer,你的代码被全球开发者使用,被写进技术史。" };
+  } else if (state.projectResults.filter(r => r.outcome.includes("failure")).length >= 5) {
+    ending = { title: "🔒 隐藏结局:创业失败", desc: "5 次失败项目,52 岁还在打零工,同学们聚会时你总是提前离开。" };
+  } else if (state.health <= 30) {
+    ending = { title: "💔 过劳病退结局", desc: "你的 Health 撑不到 2025。40 岁那年,你被诊断出重度焦虑 + 失眠,提前退休了。" };
+  } else if (state.family <= 30) {
+    ending = { title: "💔 家人决裂结局", desc: "你错过了孩子的成长,错过了父母的最后时光。52 岁那年,你和家人形同陌路。" };
+  } else if (state.reputation >= 80 && state.networth >= 5000) {
+    ending = { title: "🏆 科技大佬结局", desc: "你是上市公司的 CTO,写了一本《我的 30 年技术人生》,被业内称为传奇。" };
+  } else if (state.reputation >= 70 && state.coding >= 80) {
+    ending = { title: "🌟 高级专家结局", desc: "你是阿里 P9 / Google L8,业内有名的技术专家,你的演讲场场爆满。" };
+  } else if (state.networth >= 500 && state.health >= 60) {
+    ending = { title: "🏠 稳定中产结局", desc: "你在大厂混到 P8,买房买车,孩子上国际学校,52 岁开始考虑提前退休。" };
+  } else if (state.reputation >= 50 && state.networth >= 200) {
+    ending = { title: "🛋 自由职业结局", desc: "你 40 岁那年离开大厂,做独立顾问,远程工作,周游世界。" };
+  } else if (state.coding < 40 && state.reputation < 40) {
+    ending = { title: "😢 35 岁被裁结局", desc: "2023 年互联网大裁员,你被优化。52 岁还在投简历,感叹时代抛弃你连招呼都不打。" };
+  } else {
+    ending = { title: "😐 平平无奇结局", desc: "30 年就这样过去了。你没有大富大贵,也没有跌入谷底,只是……普通。" };
+  }
+  renderEnding(ending);
+}
+
+window.restart = function() {
+  state = {
+    era: 1, round: 0, year: 1995, age: 22,
+    coding: 30, insight: 20, reputation: 10, networth: 5,
+    health: 100, family: 100, social: 80,
+    log: [], projectResults: [], sideQuestsDone: [],
+    phase: "intro", pendingEvent: null, pendingProject: null, pendingSideQuest: null
+  };
+  document.getElementById("log").innerHTML = "";
+  document.getElementById("log").style.display = "none";
+  showIntro();
+};
+
+function showIntro() {
+  document.getElementById("game-area").innerHTML = INTRO_HTML;
+}
+
+showIntro();
+</script>
+</body>
+</html>
