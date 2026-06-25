@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>30 年穿越系列 · 游戏说明文档</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #2d1b4e 100%);
+  color: #e6e6e6;
+  min-height: 100vh;
+  padding: 40px 20px;
+  line-height: 1.7;
+}
+.container { max-width: 1000px; margin: 0 auto; }
+h1 {
+  font-size: 2.4em;
+  text-align: center;
+  margin-bottom: 8px;
+  background: linear-gradient(90deg, #f5d76e, #ff8c42, #ff3c83);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.subtitle {
+  text-align: center;
+  color: #aaa;
+  margin-bottom: 50px;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 24px;
+  margin-bottom: 50px;
+}
+.card {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  padding: 28px 24px;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+}
+.card:hover {
+  transform: translateY(-4px);
+  border-color: var(--accent);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+}
+.emoji { font-size: 3em; margin-bottom: 10px; }
+.title {
+  font-size: 1.5em;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--accent);
+}
+.era {
+  font-size: 0.85em;
+  color: #888;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+.desc { font-size: 0.95em; color: #ccc; margin-bottom: 16px; flex-grow: 1; }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+.tag {
+  background: rgba(0,0,0,0.4);
+  padding: 3px 10px;
+  border-radius: 10px;
+  font-size: 0.75em;
+  color: #aaa;
+}
+.btn {
+  display: inline-block;
+  background: var(--accent);
+  color: #0a0e27;
+  padding: 8px 18px;
+  border-radius: 8px;
+  font-weight: 700;
+  text-align: center;
+  margin-top: 6px;
+  font-size: 0.9em;
+}
+.btn.outline {
+  background: transparent;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  margin-left: 8px;
+  font-weight: 500;
+}
+.card-yellow { --accent: #f5d76e; }
+.card-green  { --accent: #5ee0a0; }
+.card-blue   { --accent: #5db8ff; }
+.card-purple { --accent: #c084fc; }
+
+.readme-block {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  padding: 28px;
+  margin-bottom: 30px;
+}
+.readme-block h2 {
+  font-size: 1.4em;
+  margin-bottom: 14px;
+  color: var(--accent);
+  border-bottom: 1px dashed rgba(255,255,255,0.1);
+  padding-bottom: 8px;
+}
+.readme-block h3 {
+  font-size: 1.1em;
+  margin: 18px 0 8px;
+  color: #ddd;
+}
+.readme-block p, .readme-block li {
+  color: #ccc;
+  font-size: 0.95em;
+  line-height: 1.7;
+}
+.readme-block ul { padding-left: 22px; margin: 6px 0 14px; }
+.readme-block table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 14px 0;
+  font-size: 0.9em;
+}
+.readme-block th, .readme-block td {
+  text-align: left;
+  padding: 8px 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.readme-block th { color: #aaa; font-weight: 600; background: rgba(0,0,0,0.2); }
+.readme-block code {
+  background: rgba(0,0,0,0.4);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.9em;
+  color: #ffeb3b;
+}
+.readme-block pre {
+  background: rgba(0,0,0,0.4);
+  padding: 14px;
+  border-radius: 8px;
+  overflow-x: auto;
+  font-size: 0.85em;
+  margin: 10px 0;
+}
+.readme-block pre code { color: #b2dfdb; padding: 0; }
+.readme-block blockquote {
+  border-left: 3px solid var(--accent);
+  padding-left: 14px;
+  color: #aaa;
+  font-style: italic;
+  margin: 10px 0;
+}
+.section-yellow { --accent: #f5d76e; }
+.section-green  { --accent: #5ee0a0; }
+.section-blue   { --accent: #5db8ff; }
+.section-purple { --accent: #c084fc; }
+
+.footer {
+  text-align: center;
+  color: #666;
+  font-size: 0.9em;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  padding-top: 30px;
+  margin-top: 40px;
+}
+.footer a { color: #5db8ff; text-decoration: none; }
+.footer a:hover { text-decoration: underline; }
+.anchor { color: rgba(255,255,255,0.3); margin-left: 8px; font-size: 0.7em; text-decoration: none; }
+.anchor:hover { color: #5db8ff; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <h1>📚 30 年穿越系列 · 游戏说明</h1>
+  <p class="subtitle">4 款浏览器即玩游戏的完整文档 · 开局 · 数值体系 · 关键选择 · 隐藏结局</p>
+
+  <div class="grid">
+    <a href="#bank30" class="card card-yellow">
+      <div class="emoji">🟡</div>
+      <div class="title">银行行长 30 年</div>
+      <div class="era">1995 → 2025 · 30 年 · 银行/派系/反腐</div>
+      <div class="desc">从工行柜员到分行行长,走钢丝:存款 + 风控 + 派系。2018 反腐,被带走还是功成身退?</div>
+      <div class="tags">
+        <span class="tag">9 结局</span>
+        <span class="tag">2 隐藏</span>
+        <span class="tag">20 回合</span>
+        <span class="tag">30-45 分钟</span>
+      </div>
+      <div>
+        <span class="btn">开始游戏</span>
+        <span class="btn outline">📖 说明</span>
+      </div>
+    </a>
+
+    <a href="#fund30" class="card card-green">
+      <div class="emoji">🟢</div>
+      <div class="title">基金经理 30 年</div>
+      <div class="era">1995 → 2025 · 30 年 · 庄股→价值→公募→私募→量化</div>
+      <div class="desc">从君安研究员到百亿私募大佬,穿越中国资本市场五时代。AUM、收益、排名、老鼠仓四轴。</div>
+      <div class="tags">
+        <span class="tag">9 结局</span>
+        <span class="tag">2 隐藏</span>
+        <span class="tag">20 回合</span>
+        <span class="tag">30-45 分钟</span>
+      </div>
+      <div>
+        <span class="btn">开始游戏</span>
+        <span class="btn outline">📖 说明</span>
+      </div>
+    </a>
+
+    <a href="#journalist30" class="card card-blue">
+      <div class="emoji">🔵</div>
+      <div class="title">财经记者 30 年</div>
+      <div class="era">1995 → 2025 · 30 年 · 纸媒→调查→网媒→自媒体→短视频</div>
+      <div class="desc">从《财经》调查记者到抖音财经大 V,媒体生态变迁全纪录。Reputation、Scoops、Reach、Income 四轴。</div>
+      <div class="tags">
+        <span class="tag">9 结局</span>
+        <span class="tag">2 隐藏</span>
+        <span class="tag">20 回合</span>
+        <span class="tag">30-45 分钟</span>
+      </div>
+      <div>
+        <span class="btn">开始游戏</span>
+        <span class="btn outline">📖 说明</span>
+      </div>
+    </a>
+
+    <a href="#programmer20" class="card card-purple">
+      <div class="emoji">🟣</div>
+      <div class="title">程序员 20 年</div>
+      <div class="era">2005 → 2025 · 20 年 · BAT→移动互联→AI Agent</div>
+      <div class="desc">(经典作)从 BAT 创业潮到 AI Agent。技术、洞察、声誉、人脉——35 岁被裁还是技术合伙人?</div>
+      <div class="tags">
+        <span class="tag">9 结局</span>
+        <span class="tag">2 隐藏</span>
+        <span class="tag">20 回合</span>
+        <span class="tag">25-35 分钟</span>
+      </div>
+      <div>
+        <span class="btn">开始游戏</span>
+        <span class="btn outline">📖 说明</span>
+      </div>
+    </a>
+  </div>
+
+  <!-- ============== 银行行长 30 年 ============== -->
+  <div id="bank30" class="readme-block section-yellow">
+    <h2>🟡 银行行长 30 年 · 游戏说明 <a href="bank30.md" class="anchor">📄 Markdown 源文件</a> <a href="../games/bank30.html" class="anchor">🎮 玩游戏</a></h2>
+
+    <blockquote>玩家角色:1995 年 22 岁入行小柜员 · 基调:派系 + 监管 + 行业抉择 · 时长:30—45 分钟</blockquote>
+
+    <h3>🎬 开局状态(1995)</h3>
+    <pre><code>你 22 岁,刚毕业,父母 50 岁。
+分配到中国工商银行某市分行支行,做柜员。
+
+【硬指标】
+  存款规模       500 万
+  不良率         0%
+  监管评级       3A(顶级)
+  政治资本       20
+
+【软指标】
+  Health(健康)   100
+  Family(家庭)   100
+  Social(社交)   80</code></pre>
+
+    <h3>📊 数值体系</h3>
+    <table>
+      <tr><th>硬指标</th><th>起点</th><th>影响</th></tr>
+      <tr><td>存款规模</td><td>500 万</td><td>升职速度(行内排名)</td></tr>
+      <tr><td>不良率</td><td>0%</td><td>监管评级(越低越好)</td></tr>
+      <tr><td>监管评级</td><td>3A</td><td>能否升分行行长</td></tr>
+      <tr><td>政治资本</td><td>20</td><td>站队/派系生存</td></tr>
+    </table>
+    <p><strong>软指标致命线 = 30</strong>:Health 过劳病退 / Family 家人决裂 / Social 边缘化</p>
+
+    <h3>🕐 五个时代</h3>
+    <ul>
+      <li><strong>1995—2000 利率管制</strong>:四大行垄断 + 坏账隐现(WTO 谈判、央行高息揽存)</li>
+      <li><strong>2000—2005 股份制崛起</strong>:招商/民生/兴业 入世 + 坏账剥离 + 信用卡大战</li>
+      <li><strong>2005—2013 黄金十年</strong>:房地产 + 城投 + 表外(4 万亿、影子银行)</li>
+      <li><strong>2013—2018 互联网金融</strong>:余额宝/P2P/移动支付 + 资管新规</li>
+      <li><strong>2018—2025 监管周期</strong>:200+ 行长被查 + 数字人民币 + AI 风控</li>
+    </ul>
+
+    <h3>🎯 每回合 3 步决策</h3>
+    <ol>
+      <li><strong>时代事件(2 选 1)</strong>:影响软指标 + 政治资本(例:2001 跳股份制银行?)</li>
+      <li><strong>业务项目(3 选 1)</strong>:影响硬指标(例:2003 信用卡 / 代销基金 / 银保通)</li>
+      <li><strong>投入度(3 选 1)</strong>:A 996 极限 / B 8h 平衡 / C 摆烂</li>
+      <li><strong>派系站队(2 选 1,每 4 回合)</strong>:A 总行派(政治 +5, Family -3)/ B 地方派(Social +5, 政治 -3)</li>
+    </ol>
+
+    <h3>🚪 时代门控(升职硬指标)</h3>
+    <table>
+      <tr><th>过渡</th><th>硬要求</th><th>否则</th></tr>
+      <tr><td>1 → 2</td><td>存款 ≥ 5 亿</td><td>卡在客户经理</td></tr>
+      <tr><td>2 → 3</td><td>监管 ≥ 2A</td><td>下放郊区支行</td></tr>
+      <tr><td>3 → 4</td><td>政治 ≥ 50</td><td>2018 反腐第一批被查</td></tr>
+      <tr><td>4 → 5</td><td>存款 ≥ 100 亿</td><td>卡在支行行长退休</td></tr>
+    </table>
+
+    <h3>🏆 9 结局 + 2 隐藏</h3>
+    <ul>
+      <li>🏛 <strong>国有大行总行行长</strong>:监管 3A + 存款 1000 亿+ + 政治 80+</li>
+      <li>💼 <strong>股份制分行行长</strong>:监管 2A + 存款 500 亿+</li>
+      <li>🏙 <strong>城商行总行行长</strong>:监管 2A + 存款 100 亿+</li>
+      <li>🏡 <strong>稳定中产支行长</strong>:监管 1A + 存款 50 亿+</li>
+      <li>⚠️ <strong>35 岁被裁</strong>:监管 3C + 政治 &lt; 40</li>
+      <li>🚨 <strong>金融反腐被查</strong>:政治 ≤ 30(任意时代)</li>
+      <li>💔 <strong>家人决裂</strong>:Family ≤ 30</li>
+      <li>🔒 <strong>隐藏:民营银行 VP</strong>:时代 4 跳民营 + 存款 100 亿+</li>
+      <li>🔒 <strong>隐藏:逃过一劫</strong>:政治 ≥ 90 + 监管 3A</li>
+    </ul>
+
+    <h3>💡 关键选择提示</h3>
+    <p><strong>"功成身退"路线核心策略</strong>:</p>
+    <ol>
+      <li>存款是升职门票,投入度选 A 拉存款,但 Health 消耗快,需要 Family ≥ 60</li>
+      <li>政治资本是反查护身符,派系选"总行派"涨最快</li>
+      <li>时代 1 → 2 需要存款 5 亿,选揽存大战 / 政策性贷款</li>
+      <li>时代 3 → 4 需要政治 ≥ 50,否则 2018 第一批被查</li>
+      <li>不要站错队,时代 4 跳股份制政治会掉但存款涨,平衡</li>
+    </ol>
+
+    <p><strong>首玩推荐路径:稳定中产支行长</strong>(最容易达成):</p>
+    <ul>
+      <li>投入度基本选 B(8h 平衡)</li>
+      <li>派系看哪个 Family 高选哪个</li>
+      <li>业务:时代 1 揽存大战 / 时代 2 信用卡 / 时代 3 稳健项目 / 时代 4 合规优先</li>
+      <li>政治保持 30—50 之间</li>
+    </ul>
+  </div>
+
+  <!-- ============== 基金经理 30 年 ============== -->
+  <div id="fund30" class="readme-block section-green">
+    <h2>🟢 基金经理 30 年 · 游戏说明 <a href="fund30.md" class="anchor">📄 Markdown 源文件</a> <a href="../games/fund30.html" class="anchor">🎮 玩游戏</a></h2>
+
+    <blockquote>玩家角色:1995 年 22 岁入行基金研究员 · 基调:穿越中国资本市场五时代 · 时长:30—45 分钟</blockquote>
+
+    <h3>🎬 开局状态(1995)</h3>
+    <pre><code>你 22 岁,刚从复旦/清华金融系毕业。
+加入君安证券(还没和申银合并),做行业研究员。
+
+【硬指标】
+  AUM(管理规模)     0
+  收益率             0%
+  排名百分位         100%(垫底)
+  老鼠仓风险         0
+
+【软指标】
+  Health      100
+  Family      100
+  Social      80
+  Reputation  60</code></pre>
+
+    <h3>📊 硬指标</h3>
+    <table>
+      <tr><th>指标</th><th>影响</th></tr>
+      <tr><td>AUM(管理规模)</td><td>升职 / 跳槽筹码</td></tr>
+      <tr><td>收益率</td><td>业绩基准</td></tr>
+      <tr><td>排名百分位</td><td>业绩排名(越小越好)</td></tr>
+      <tr><td>老鼠仓风险</td><td>监管 / 牢狱风险</td></tr>
+    </table>
+
+    <h3>🕐 五个时代</h3>
+    <ul>
+      <li><strong>1995—2000 庄股时代</strong>:君安/申银/万科/吕梁/德隆</li>
+      <li><strong>2000—2005 价值投资启蒙</strong>:第一波价值派 + QFII + 熊市</li>
+      <li><strong>2005—2013 公募黄金期</strong>:6124 大牛市 + 王亚伟 + 余额宝</li>
+      <li><strong>2013—2018 私募崛起</strong>:公奔私 + 阳光私募 + 资管新规</li>
+      <li><strong>2018—2025 量化 AI</strong>:幻方/九坤/明汯/DeepSeek</li>
+    </ul>
+
+    <h3>🏆 9 结局 + 2 隐藏</h3>
+    <ul>
+      <li>🏛 <strong>公募基金总经理</strong>:AUM 500 亿+ + 排名 &lt; 30%</li>
+      <li>💼 <strong>私募大佬(百亿+)</strong>:AUM 100 亿+ + 收益 ≥ 20%</li>
+      <li>🌐 <strong>量化私募合伙人</strong>:时代 5 + 量化 + 收益 30%+</li>
+      <li>📚 <strong>价值投资大师</strong>:时代 2 起持续价值派 + 长期收益</li>
+      <li>⚠️ <strong>35 岁被淘汰</strong>:排名长期 &gt; 80%</li>
+      <li>🚨 <strong>老鼠仓案发</strong>:老鼠仓 ≥ 80(可能坐牢)</li>
+      <li>💔 <strong>家庭破裂</strong>:Family ≤ 30</li>
+      <li>🔒 <strong>隐藏:公奔私成功</strong>:时代 4 跳私募 + AUM 100 亿+</li>
+      <li>🔒 <strong>隐藏:AI 量化之神</strong>:时代 5 押注 AI + 收益 50%+</li>
+    </ul>
+
+    <h3>💡 关键选择提示</h3>
+    <p><strong>"公募基金总经理"路线</strong>(稳扎稳打):</p>
+    <ol>
+      <li>时代 1(庄股)选价值投资,为后续打好声誉基础</li>
+      <li>时代 2/3 不要追高,6124 大牛市前保持仓位灵活</li>
+      <li>时代 3(公募黄金期)全力扩 AUM,这是基金行业最容易做大的时代</li>
+      <li>老鼠仓风险控制在 30 以下,否则随时可能被查</li>
+      <li>Family 维持 60+,长期过劳容易导致家庭破裂</li>
+    </ol>
+
+    <p><strong>⚠️ 老鼠仓陷阱</strong>:老鼠仓 ≥ 60 进入被监管注意频发期,≥ 80 直接案发</p>
+  </div>
+
+  <!-- ============== 财经记者 30 年 ============== -->
+  <div id="journalist30" class="readme-block section-blue">
+    <h2>🔵 财经记者 30 年 · 游戏说明 <a href="journalist30.md" class="anchor">📄 Markdown 源文件</a> <a href="../games/journalist30.html" class="anchor">🎮 玩游戏</a></h2>
+
+    <blockquote>玩家角色:1995 年 22 岁的财经媒体新人 · 基调:从《财经》调查记者到抖音财经大 V · 时长:30—45 分钟</blockquote>
+
+    <h3>🎬 开局状态(1995)</h3>
+    <pre><code>你 22 岁,刚从新闻系毕业。
+进入《中华工商时报》做财经记者新人。
+
+【硬指标】
+  Reputation(声誉)   30
+  Scoops(独家)       0
+  Reach(触达)        1000
+  Income             2000 元/月
+
+【软指标】
+  Health      100
+  Family      100
+  Sources     50    ← 行业线人
+  Ethics      80    ← 操守</code></pre>
+
+    <h3>🕐 五个时代</h3>
+    <ul>
+      <li><strong>1995—2000 纸媒黄金</strong>:《财经》《中国经营报》</li>
+      <li><strong>2000—2005 调查报道</strong>:银广夏/蓝田/基金黑幕/胡舒立</li>
+      <li><strong>2005—2013 网媒崛起</strong>:财经网/和讯/微博</li>
+      <li><strong>2013—2018 自媒体</strong>:吴晓波/叶檀/格隆汇/微信公众号</li>
+      <li><strong>2018—2025 短视频</strong>:半佛仙人/巫师财经/小 Lin 谈 / 抖音财经</li>
+    </ul>
+
+    <h3>🏆 9 结局 + 2 隐藏</h3>
+    <ul>
+      <li>🏛 <strong>顶级调查记者</strong>:Reputation 80+ + Scoops 20+</li>
+      <li>📺 <strong>头部财经大 V</strong>:Reach 100 万+ + Income 50 万+/月</li>
+      <li>🏢 <strong>财经主编/总编</strong>:Reputation 70+ + Sources 80+</li>
+      <li>🌐 <strong>财经平台创始人</strong>:Reach 500 万+ + 时代 5 短视频</li>
+      <li>⚠️ <strong>被封号/封杀</strong>:Ethics ≤ 30(被利益交换反噬)</li>
+      <li>🚨 <strong>被起诉/威胁</strong>:报道上市公司重大负面未保护自己</li>
+      <li>💔 <strong>家庭破裂</strong>:Family ≤ 30</li>
+      <li>🔒 <strong>隐藏:胡舒立式传奇</strong>:时代 2 揭露大案 + 长期 Reputation 90+</li>
+      <li>🔒 <strong>隐藏:深耕产业</strong>:时代 4 选产业研究 + 30 年深耕一个赛道</li>
+    </ul>
+
+    <h3>💡 关键选择提示</h3>
+    <p><strong>"顶级调查记者"路线</strong>(高风险高回报):</p>
+    <ol>
+      <li>时代 2 调查报道黄金期,选大案调查</li>
+      <li>Sources 是关键,维护好线人</li>
+      <li>Ethics 不要低于 50,否则容易被公关收买</li>
+      <li>Reach 是变现基础,时代 4 起要把读者/粉丝做起来</li>
+      <li>时代 5 必须拥抱短视频,否则被时代抛弃</li>
+    </ol>
+  </div>
+
+  <!-- ============== 程序员 20 年 ============== -->
+  <div id="programmer20" class="readme-block section-purple">
+    <h2>🟣 程序员 20 年 · 游戏说明 <a href="programmer20.md" class="anchor">📄 Markdown 源文件</a> <a href="../games/programmer20_v2.html" class="anchor">🎮 玩游戏</a></h2>
+
+    <blockquote>玩家角色:2005 年 22 岁刚毕业的程序员 · 基调:BAT 创业潮到 AI Agent · 时长:25—35 分钟</blockquote>
+
+    <h3>🎬 开局状态(2005)</h3>
+    <pre><code>你 22 岁,刚从计算机系毕业。
+进入一家二线互联网公司做初级程序员,月薪 3500。
+
+【硬指标】
+  Coding(代码力)     50
+  Insight(洞察)      30
+  Rep(行业声誉)     20
+  Net(人脉)         40
+
+【软指标】
+  Health      100
+  Family      100
+  Social      80</code></pre>
+
+    <h3>🕐 四个时代</h3>
+    <ul>
+      <li><strong>2005—2010 BAT 创业潮</strong>:阿里 / 腾讯 / 百度</li>
+      <li><strong>2010—2015 移动互联网</strong>:iPhone / 安卓 / App 创业 / O2O</li>
+      <li><strong>2015—2020 资本寒冬</strong>:区块链泡沫 / 996 / P2P 崩盘</li>
+      <li><strong>2020—2025 AI Agent</strong>:GPT / Copilot / DeepSeek</li>
+    </ul>
+
+    <h3>🏆 7 结局 + 2 隐藏</h3>
+    <ul>
+      <li>🏛 <strong>顶级架构师</strong>:Coding 90+ + Rep 70+</li>
+      <li>💼 <strong>技术合伙人</strong>:Coding 70+ + Insight 80+ + 时代 4 AI</li>
+      <li>🚀 <strong>创业成功(独角兽)</strong>:Insight 90+ + Net 80+</li>
+      <li>🌐 <strong>大厂 P9/P10</strong>:Rep 80+ + Coding 80+</li>
+      <li>⚠️ <strong>35 岁被裁</strong>:时代 4 Coding ≤ 40 + Insight ≤ 40</li>
+      <li>🚨 <strong>过劳猝死</strong>:Health ≤ 30(最惨)</li>
+      <li>💔 <strong>家人决裂</strong>:Family ≤ 30</li>
+      <li>🔒 <strong>隐藏:开源大神</strong>:Rep 90+ + 开源项目主导</li>
+      <li>🔒 <strong>隐藏:AI 教父</strong>:时代 4 押注 AI Native + Insight 95+</li>
+    </ul>
+
+    <h3>💡 关键选择提示</h3>
+    <p><strong>"大厂 P9/P10"路线</strong>(稳扎稳打):</p>
+    <ol>
+      <li>时代 1 选加入大厂,Coding 涨得快,Rep 也涨</li>
+      <li>时代 2 选移动端,iOS/安卓 是 2010—2015 最吃香</li>
+      <li>时代 3 稳为主,别跳来跳去</li>
+      <li>时代 4 必须上车 AI,Coding + AI 是最优组合</li>
+      <li>Health 维持 60+,长期 996 容易跌到致命线</li>
+    </ol>
+
+    <p><strong>⚠️ 致命警示</strong>:Health ≤ 30 → 过劳猝死(最惨结局,务必避免)</p>
+  </div>
+
+  <div class="footer">
+    <p>📚 Markdown 源文件位于 <code>docs/*.md</code>(GitHub 自动渲染)</p>
+    <p>🎮 游戏入口在 <code>games/*.html</code>(GitHub Pages 直接玩)</p>
+    <p>源码: <a href="https://github.com/ivanyinjc-blip/30-year-series">github.com/ivanyinjc-blip/30-year-series</a></p>
+  </div>
+
+</div>
+</body>
+</html>
