@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>财经记者 30 年 · 调查记者穿越</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:linear-gradient(135deg,#0d1419 0%,#1a2530 100%);color:#e3f2fd;min-height:100vh;padding:20px}
+.container{max-width:900px;margin:0 auto}
+h1{text-align:center;font-size:30px;margin:20px 0 8px;background:linear-gradient(90deg,#42a5f5,#90caf9,#42a5f5);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.subtitle{text-align:center;color:#90caf9;margin-bottom:30px;font-size:14px}
+.intro-card{background:rgba(66,165,245,0.05);border:1px solid rgba(66,165,245,0.2);border-radius:12px;padding:24px;margin-bottom:16px}
+.intro-card h2{color:#42a5f5;font-size:18px;margin-bottom:12px;border-bottom:1px dashed rgba(66,165,245,0.3);padding-bottom:6px}
+.intro-card p{line-height:1.7;font-size:14px;margin-bottom:8px}
+.intro-card ul{margin-left:18px;font-size:13px;line-height:1.7}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}
+.stat-block{background:rgba(255,255,255,0.04);border:1px solid rgba(66,165,245,0.15);border-radius:8px;padding:12px;font-size:13px}
+.stat-block.soft{border-color:rgba(255,167,38,0.25)}
+.stat-block strong{color:#42a5f5;display:block;margin-bottom:6px}
+.stat-block.soft strong{color:#ffa726}
+.stats-bar{background:rgba(66,165,245,0.08);border:1px solid rgba(66,165,245,0.3);border-radius:10px;padding:12px;margin-bottom:14px;font-size:13px;line-height:1.7;position:sticky;top:8px;z-index:5}
+.stats-bar .year{color:#42a5f5;font-weight:bold;font-size:15px}
+.stats-bar .stat{color:#90caf9}
+.stats-bar .stat.warn{color:#ffa726}
+.stats-bar .stat.danger{color:#ef5350}
+.choice-card{background:rgba(255,255,255,0.04);border:1px solid rgba(66,165,245,0.2);border-radius:10px;padding:16px;margin-bottom:12px}
+.choice-card h3{color:#42a5f5;font-size:16px;margin-bottom:10px}
+.choice-card .desc{font-size:13px;line-height:1.7;color:#bbdefb;margin-bottom:12px}
+.btn{display:inline-block;background:rgba(66,165,245,0.15);border:1px solid #42a5f5;color:#42a5f5;padding:10px 18px;border-radius:6px;cursor:pointer;font-size:13px;margin:4px 4px 4px 0;transition:all .2s;font-family:inherit}
+.btn:hover{background:#42a5f5;color:#0d1419;font-weight:bold}
+.btn.b{border-color:#ffa726;color:#ffa726}
+.btn.b:hover{background:#ffa726;color:#0d1419}
+.btn.c{border-color:#90caf9;color:#90caf9}
+.btn.c:hover{background:#90caf9;color:#0d1419}
+.btn.danger{border-color:#ef5350;color:#ef5350}
+.btn.danger:hover{background:#ef5350;color:#fff}
+.btn.gold{border-color:#ffeb3b;color:#ffeb3b}
+.btn.gold:hover{background:#ffeb3b;color:#0d1419;font-weight:bold}
+.result-card{background:rgba(66,165,245,0.08);border:1px solid rgba(66,165,245,0.4);border-radius:10px;padding:16px;margin-bottom:12px}
+.result-card.warn{background:rgba(255,167,38,0.08);border-color:rgba(255,167,38,0.4)}
+.result-card.bad{background:rgba(239,83,80,0.08);border-color:rgba(239,83,80,0.4)}
+.result-card h3{color:#42a5f5;font-size:16px;margin-bottom:8px}
+.result-card.warn h3{color:#ffa726}
+.result-card.bad h3{color:#ef5350}
+.ending{background:rgba(66,165,245,0.08);border:2px solid #42a5f5;border-radius:14px;padding:24px;margin-top:16px;text-align:center}
+.ending h2{color:#42a5f5;font-size:24px;margin-bottom:14px}
+.ending p{font-size:14px;line-height:1.8;margin-bottom:8px}
+.ending .footer{font-size:12px;color:#90caf9;margin-top:14px}
+.log{background:rgba(0,0,0,0.3);border-radius:8px;padding:10px 14px;margin-top:12px;font-size:12px;line-height:1.6;max-height:280px;overflow-y:auto;color:#bbdefb}
+.log .l-side{color:#ffa726}
+.log .l-bad{color:#ef5350}
+.log .l-good{color:#42a5f5}
+.log .l-gold{color:#ffeb3b}
+hr{border:none;border-top:1px dashed rgba(66,165,245,0.2);margin:16px 0}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>财经记者 30 年</h1>
+  <div class="subtitle">— 一位调查记者的 30 年 (1995-2025) —</div>
+  <div id="game-area"></div>
+  <div class="log" id="log" style="display:none;"></div>
+</div>
+<script>
+const INTRO_HTML = `
+  <div class="intro-card">
+    <h2>📖 故事背景</h2>
+    <p>1995 年,你 22 岁,人大新闻系毕业,被分配到<strong style="color:#42a5f5;">《财经时报》</strong>做编辑助理。你爸是县教育局科长,你妈是纺织厂会计——家里给你铺好了路,但要在财经圈混出来,还得靠你自己一篇一篇写。</p>
+    <p>接下来 <strong style="color:#42a5f5;">30 年</strong>(1995-2025),你要经历 5 个时代:纸媒黄金 → 调查记者 → 网络媒体 → 自媒体 → 短视频财经。每一年都可能决定你升副主编还是被公关发律师函,甚至决定你 2021 年是不是被全平台封号。</p>
+    <p>30 年后 52 岁的你,会变成半佛/吴晓波级 IP、财新主编级大记者,还是被公关逼到退场的"前媒体人"?一切,取决于你接下来 20 个回合的每一个选择。</p>
+  </div>
+  <div class="intro-card">
+    <h2>📊 你有 7 项数值(双轴)</h2>
+    <div class="stat-grid">
+      <div class="stat-block">
+        <strong>硬指标(累积型)</strong>
+        <span>· Reputation 圈内声誉(0-100) — 决定选题 / 跳槽</span><br>
+        <span>· Scoops 独家调查数 — 决定行业地位</span><br>
+        <span>· Reach 触达(千万) — 决定流量 / 议价</span><br>
+        <span>· Income 收入(万) — 决定生活方式</span>
+      </div>
+      <div class="stat-block soft">
+        <strong>软指标(衰减型)</strong>
+        <span>· Health 健康(0-100) — 低于 30 触发过劳猝死</span><br>
+        <span>· Family 家庭(0-100) — 低于 30 触发离婚</span><br>
+        <span>· Sources 线人网络(0-100) — 决定选题能力</span>
+      </div>
+    </div>
+  </div>
+  <div class="intro-card">
+    <h2>🎯 每回合 3 步决策</h2>
+    <p>① <strong style="color:#42a5f5;">时代事件(2 选 1)</strong> — 派系 / 伦理选择,影响软指标 + Sources</p>
+    <p>例:1998 时代事件 = "上市公司塞 5 万红包求不发稿"</p>
+    <p>② <strong style="color:#42a5f5;">业务选择(3 选 1)</strong> — 化身媒体 / 选题,影响硬指标</p>
+    <p>例:2003 业务 = "基金黑幕 / 银广夏 / 山西煤矿"</p>
+    <p>③ <strong style="color:#42a5f5;">投入度(3 选 1)</strong> — 工作方式,影响双轴</p>
+    <p>A 996 极限 / B 8h 平衡 / C 摆烂</p>
+  </div>
+  <div class="intro-card">
+    <h2>🎁 5 个支线任务</h2>
+    <p>主线之外,30 年里会有 5 个支线任务穿插出现:</p>
+    <p>💰 <strong>1998 第一次公关费</strong> — 上市公司塞 5 万红包求不发稿</p>
+    <p>📰 <strong>2003 银广夏后续</strong> — 追查到底 vs 收手做保险选题</p>
+    <p>📱 <strong>2010 微博开不开</strong> — 实名开账号 vs 坚守纸媒</p>
+    <p>💼 <strong>2016 内容创业</strong> — 辞职做自媒体 vs 留守机构</p>
+    <p>🚫 <strong>2021 跨平台被封</strong> — 换阵地 vs 退场 / 转行</p>
+  </div>
+  <div class="intro-card">
+    <h2>🚪 4 个时代门控</h2>
+    <p>时代切换时会检查你的硬指标:</p>
+    <p>进入 <strong style="color:#42a5f5;">调查记者</strong>(2000):需 Scoops ≥ 2</p>
+    <p>进入 <strong style="color:#42a5f5;">网络媒体</strong>(2005):需 Reputation ≥ 50</p>
+    <p>进入 <strong style="color:#42a5f5;">自媒体</strong>(2013):需 Reach ≥ 10</p>
+    <p>进入 <strong style="color:#42a5f5;">短视频财经</strong>(2018):需 Income ≥ 100 万/年</p>
+    <p>⚠ 时代 5 监管严打,Sources ≤ 20 有 30% 概率触发"被公关"事件</p>
+  </div>
+  <div class="intro-card">
+    <h2>🏆 9 种结局</h2>
+    <p>🏆 <strong>头部财经 IP</strong>:Reputation ≥ 80 + Reach ≥ 50 + 时代 5 短视频 — 半佛/吴晓波级</p>
+    <p>🌟 <strong>顶级财经记者</strong>:Reputation ≥ 90 + Scoops ≥ 20 — 财新主编级</p>
+    <p>🏠 <strong>财经作家</strong>:Income ≥ 100 + Scoops ≥ 10 — 出书+专栏</p>
+    <p>🛋 <strong>财经公关 / PR</strong>:Reputation ≥ 30 + Sources ≥ 50 — 转行公司 PR</p>
+    <p>😢 <strong>内容创业者没起来</strong>:Reach ≤ 5 + Income ≤ 30</p>
+    <p>💔 <strong>被公关</strong>:任意时代 Reputation ≤ 30 — 律师函 + 公关稿</p>
+    <p>💔 <strong>跨平台被封</strong>:任意时代 Reach ≤ 5 — 全网封杀</p>
+    <p>🔒 <strong>隐藏:转型带货主播</strong>:时代 4→5 切直播 + Reach ≥ 30</p>
+    <p>🔒 <strong>隐藏:经济学家智库</strong>:时代 4→5 转型 + Reputation ≥ 70</p>
+  </div>
+  <button class="btn gold" onclick="window.startGame()">🚀 开始 30 年新闻路</button>
+`;
+
+const SIDE_QUESTS = [
+  { year: 1998, title: "💰 支线:第一次公关费", desc: "1998 年你 25 岁,你写了一篇某上市公司财务疑点的稿子。对方派公关总监塞 5 万红包,求不发。家里刚买房子,缺钱。① 收 — 改善生活但职业污点;② 拒 — 守住底线但短期紧。",
+    choices: [
+      { text: "A. 收红包(灰色)", eff: "Income+5万, Reputation-15, Sources-3, Family+5", changes: { income: 5, reputation: -15, sources: -3, family: 5 } },
+      { text: "B. 拒, 发稿(守规)", eff: "Reputation+15, Scoops+1, Family-3, Sources+3", changes: { reputation: 15, scoops: 1, family: -3, sources: 3 } }
+    ]
+  },
+  { year: 2003, title: "📰 支线:银广夏后续", desc: "2003 年你 30 岁,银广夏造假你跟了一年,马上可以挖出核心证据。但主编叫你去写保险公司的软文,收入翻倍。① 继续追查 — 可能出 Sorkin 奖;② 收手写软文 — 收入暴涨但断线索。",
+    choices: [
+      { text: "A. 继续追查", eff: "Scoops+1, Reputation+15, Sources+5, Health-10, Income-10", changes: { scoops: 1, reputation: 15, sources: 5, health: -10, income: -10 } },
+      { text: "B. 收手写软文", eff: "Income+30万, Scoops-1, Reputation-10, Sources-5", changes: { income: 30, scoops: -1, reputation: -10, sources: -5 } }
+    ]
+  },
+  { year: 2010, title: "📱 支线:微博开不开", desc: "2010 年你 37 岁,微博崛起,同事开账号都涨了 10 万粉。主编暗示不要跟平台抢风头。① 开账号实名 — 个人 IP 涨但可能跟机构冲突;② 坚守纸媒 — 稳定但错过流量红利。",
+    choices: [
+      { text: "A. 开账号(实名)", eff: "Reach+5, Income+30万, 但 Family-5(加班)", changes: { reach: 5, income: 30, family: -5 } },
+      { text: "B. 坚守纸媒", eff: "Reputation+10, Sources+3, 但错过流量", changes: { reputation: 10, sources: 3 } }
+    ]
+  },
+  { year: 2016, title: "💼 支线:内容创业", desc: "2016 年你 43 岁,自媒体创业潮,吴晓波 / 叶檀 / 格隆汇都起来了。你在机构副总位置,但年薪只有 50 万。① 辞职创业 — 高风险高回报;② 留守机构 — 稳定但错过。",
+    choices: [
+      { text: "A. 辞职创业", eff: "Reach+10, Income+100万, Health-15, Sources-10(断关系)", changes: { reach: 10, income: 100, health: -15, sources: -10 } },
+      { text: "B. 留守机构", eff: "Family+10, Sources+5, 但错过流量红利", changes: { family: 10, sources: 5 } },
+      { text: "C. 兼职创业", eff: "Reach+3, Income+30万, Sources-3, 平衡但累", changes: { reach: 3, income: 30, sources: -3 } }
+    ]
+  },
+  { year: 2021, title: "🚫 支线:跨平台被封", desc: "2021 年你 48 岁,你 2020 年的 9.24 直播预言了政策反转,引来证监会关注。微博 / 公众号 / 抖音全平台被封。① 换阵地 — 出海 / 小号继续;② 退场转行 — 做公关 / 智库;③ 死磕 — 律师维权。",
+    choices: [
+      { text: "A. 换阵地(小号)", eff: "Reach-10, Income-30万, 但保住线人", changes: { reach: -10, income: -30, sources: 3 } },
+      { text: "B. 退场转行(公关)", eff: "Income+50万, Reputation-20, Sources-30", changes: { income: 50, reputation: -20, sources: -30 } },
+      { text: "C. 死磕维权", eff: "Reputation+10, Reach-15, Family-10, Sources+5", changes: { reputation: 10, reach: -15, family: -10, sources: 5 } }
+    ]
+  }
+];
+
+const ERAS = [
+  { name: "纸媒黄金时代", yearStart: 1995, yearEnd: 2000, gate: { stat: "scoops", min: 2, fail: "独家不足 2 篇,卡在编辑助理,2000 还在跑部委" }, desc: "胡舒立《财经》/ 财经人物特稿" },
+  { name: "调查记者时代", yearStart: 2000, yearEnd: 2005, gate: { stat: "reputation", min: 50, fail: "声誉不足 50,进不了财新 / FT 中文网级别" }, desc: "银广夏 / 蓝田 / 山西煤矿" },
+  { name: "网络媒体时代", yearStart: 2005, yearEnd: 2013, gate: { stat: "reach", min: 10, fail: "触达不足 10,2013 公众号浪潮没赶上" }, desc: "财新 / 雷曼 / 余额宝" },
+  { name: "自媒体时代", yearStart: 2013, yearEnd: 2018, gate: { stat: "income", min: 100, fail: "年收入不足 100 万,2018 短视频浪潮没钱买设备" }, desc: "格隆汇 / 吴晓波 / 叶檀" },
+  { name: "短视频财经时代", yearStart: 2018, yearEnd: 2025, gate: null, desc: "半佛 / 巫师财经 / 9.24" }
+];
+
+const PROJECTS = {
+  1: [
+    { name: "《财经》杂志", real: "胡舒立", sector: "调查旗舰", rate: 0.25, mult: 15.0, hint: "1998 创刊,2002 出走", outs: { huge: "1998 入《财经》,2002 走之前升副总编,15x", moderate: "《财经》资深,6x", breakeven: "《财经》编辑,2x", failure: "1999 君安事件后被迫辞职" } },
+    { name: "《中国企业家》", real: "刘东华", sector: "商业人物", rate: 0.30, mult: 8.0, hint: "刘东华 + 牛文文", outs: { huge: "1995 入中企,2000 升主编,8x", moderate: "中企记者,4x", breakeven: "中企编辑,2x", failure: "1998 业绩压力被裁" } },
+    { name: "《财经时报》", real: "杨浪", sector: "综合财经", rate: 0.25, mult: 4.0, hint: "杨浪创办", outs: { huge: "1995 入财时,2000 升副总编,4x", moderate: "财时记者,2.5x", breakeven: "财时编辑,1.5x", failure: "1998 业绩下滑" } },
+    { name: "《中国经营报》", real: "金碚", sector: "市场调查", rate: 0.30, mult: 6.0, hint: "金碚 / 吕本富", outs: { huge: "1995 入中经,2000 升主编,6x", moderate: "中经记者,3x", breakeven: "中经编辑,2x", failure: "1997 业绩压力" } },
+    { name: "《证券时报》", real: "证监会系", sector: "证券市场", rate: 0.30, mult: 5.0, hint: "证监会主管", outs: { huge: "1995 入证时,2000 升部门主任,5x", moderate: "证时记者,3x", breakeven: "证时编辑,1.5x", failure: "1997 业绩中等" } },
+    { name: "《上海证券报》", real: "新华系", sector: "上证报道", rate: 0.30, mult: 5.0, hint: "新华社系", outs: { huge: "1995 入上证,2000 升副总编,5x", moderate: "上证记者,3x", breakeven: "上证编辑,1.5x", failure: "1997 业绩中等" } },
+    { name: "《中国证券报》", real: "新华系", sector: "中证报道", rate: 0.30, mult: 5.0, hint: "新华社系", outs: { huge: "1995 入中证,2000 升部门主任,5x", moderate: "中证记者,3x", breakeven: "中证编辑,1.5x", failure: "1997 业绩中等" } },
+    { name: "《21 世纪经济报道》", real: "南方报业", sector: "21 世经", rate: 0.25, mult: 7.0, hint: "2001 创刊", outs: { huge: "2001 入 21,2010 升主编,7x", moderate: "21 世经记者,3x", breakeven: "21 世经编辑,1.5x", failure: "2005 业绩压力" } },
+    { name: "《经济观察报》", real: "何力", sector: "经观", rate: 0.25, mult: 6.0, hint: "2001 创刊", outs: { huge: "2001 入经观,2010 升主编,6x", moderate: "经观记者,3x", breakeven: "经观编辑,1.5x", failure: "2005 业绩中等" } },
+    { name: "《南方周末》经济版", real: "向熹", sector: "调查 + 人物", rate: 0.30, mult: 7.0, hint: "向熹 / 江艺平", outs: { huge: "1995 入南周,2005 升主任,7x", moderate: "南周记者,3x", breakeven: "南周编辑,2x", failure: "2003 报庆事件被调离" } },
+    { name: "君安事件", real: "1998 调查", sector: "调查", rate: 0.20, mult: 8.0, hint: "1998 君安-万科", outs: { huge: "1998 跟君安,2000 中国新闻奖,8x", moderate: "君安深度稿,4x", breakeven: "持平", failure: "1998 被杨骏公关" } },
+    { name: "德隆系调查", real: "2000-2004", sector: "调查", rate: 0.20, mult: 9.0, hint: "唐万新", outs: { huge: "2001 跟德隆,2004 顶刊头条,9x", moderate: "德隆系列稿,4x", breakeven: "持平", failure: "2002 被德隆公关" } },
+    { name: "朱镕基时期", real: "政策报道", sector: "宏观", rate: 0.40, mult: 5.0, hint: "1998-2003 朱镕基", outs: { huge: "1998 跟朱镕基,2003 升副主编,5x", moderate: "朱镕基系列,3x", breakeven: "持平", failure: "2001 政策风险" } },
+    { name: "银广夏调查", real: "2001 调查", sector: "调查", rate: 0.20, mult: 10.0, hint: "2001 银广夏造假", outs: { huge: "2000 跟银广夏,2001 顶刊头条,10x", moderate: "银广夏深度,4x", breakeven: "持平", failure: "2001 被起诉" } },
+    { name: "财经人物特稿", real: "王石 / 柳传志", sector: "人物", rate: 0.35, mult: 5.0, hint: "王石 / 柳传志 / 史玉柱", outs: { huge: "1995 写王石/柳传志,2000 金牌记者,5x", moderate: "人物稿,3x", breakeven: "持平", failure: "1998 受冷遇" } },
+    { name: "入世 WTO", real: "2001 报道", sector: "宏观", rate: 0.40, mult: 3.0, hint: "2001 中国入世", outs: { huge: "2001 跟入世,2002 升副主任,3x", moderate: "入世稿,2x", breakeven: "持平", failure: "2001 错过热点" } }
+  ],
+  2: [
+    { name: "银广夏系列", real: "2001 调查", sector: "调查", rate: 0.25, mult: 10.0, hint: "2001 银广夏造假", outs: { huge: "2001 跟银广夏,2002 获 Sorkin,10x", moderate: "银广夏系列,4x", breakeven: "持平", failure: "2001 被起诉" } },
+    { name: "蓝田股份", real: "2002 调查", sector: "调查", rate: 0.25, mult: 8.0, hint: "2002 刘姝威", outs: { huge: "2001 跟蓝田,2002 顶刊头条,8x", moderate: "蓝田系列,4x", breakeven: "持平", failure: "2002 被起诉" } },
+    { name: "基金黑幕", real: "2000 经典", sector: "调查", rate: 0.20, mult: 12.0, hint: "2000 基金黑幕(《财经》)", outs: { huge: "2000 跟基金黑幕,2001 升副总编,12x", moderate: "基金黑幕系列,5x", breakeven: "持平", failure: "2000 被起诉" } },
+    { name: "鸿仪系", real: "2004 调查", sector: "调查", rate: 0.20, mult: 7.0, hint: "2004 鸿仪崩盘", outs: { huge: "2002 跟鸿仪,2004 顶刊头条,7x", moderate: "鸿仪系列,3x", breakeven: "持平", failure: "2003 被公关" } },
+    { name: "凯恩系", real: "2004 调查", sector: "调查", rate: 0.20, mult: 7.0, hint: "2004 凯恩系", outs: { huge: "2002 跟凯恩,2004 顶刊,7x", moderate: "凯恩系列,3x", breakeven: "持平", failure: "2003 被公关" } },
+    { name: "斯威特系", real: "2004 调查", sector: "调查", rate: 0.20, mult: 6.0, hint: "2004 斯威特", outs: { huge: "2002 跟斯威特,2004 顶刊,6x", moderate: "斯威特系列,3x", breakeven: "持平", failure: "2003 被公关" } },
+    { name: "揭黑潮", real: "2000-2005", sector: "调查", rate: 0.25, mult: 6.0, hint: "揭黑潮", outs: { huge: "2000 入揭黑,2005 升部门主任,6x", moderate: "揭黑稿,3x", breakeven: "持平", failure: "2003 被公关" } },
+    { name: "中经报调查部", real: "金碚", sector: "调查", rate: 0.30, mult: 5.0, hint: "中经报调查部", outs: { huge: "2002 入中经调查,2005 升主任,5x", moderate: "中经调查记者,3x", breakeven: "持平", failure: "2003 被公关" } },
+    { name: "财经调查部", real: "胡舒立", sector: "调查", rate: 0.20, mult: 7.0, hint: "《财经》调查部", outs: { huge: "2000 入财经调查,2004 升主任,7x", moderate: "财经调查记者,4x", breakeven: "持平", failure: "2002 被起诉" } },
+    { name: "新华经济条线", real: "新华社", sector: "官方", rate: 0.35, mult: 4.0, hint: "官方 + 内部", outs: { huge: "2000 入新华,2005 升部门主任,4x", moderate: "新华记者,2.5x", breakeven: "持平", failure: "2003 退党" } },
+    { name: "央视《经济半小时》", real: "任学安", sector: "电视调查", rate: 0.30, mult: 5.0, hint: "任学安 / 曲向东", outs: { huge: "2000 入央视,2005 升制片人,5x", moderate: "央视记者,3x", breakeven: "持平", failure: "2003 被公关" } },
+    { name: "财经人物专访", real: "人物", sector: "人物", rate: 0.30, mult: 3.0, hint: "王石 / 柳传志", outs: { huge: "2001 写柳/王,2005 升人物栏主编,3x", moderate: "人物稿,2x", breakeven: "持平", failure: "2003 业绩中等" } },
+    { name: "房地产行业", real: "2003-2005", sector: "行业", rate: 0.30, mult: 4.0, hint: "2003-2005 起飞", outs: { huge: "2003 跟地产,2005 升部门主任,4x", moderate: "地产稿,2.5x", breakeven: "持平", failure: "2004 业绩中等" } },
+    { name: "普华永道观察", real: "四大", sector: "专业", rate: 0.30, mult: 3.0, hint: "四大会计师事务所", outs: { huge: "2000 跟普华,2005 升部门主任,3x", moderate: "普华报道,2x", breakeven: "持平", failure: "2003 业绩中等" } },
+    { name: "国资委调查", real: "2003", sector: "官方", rate: 0.25, mult: 4.0, hint: "2003 国资委成立", outs: { huge: "2003 跟国资委,2005 升部门主任,4x", moderate: "国资委报道,2.5x", breakeven: "持平", failure: "2004 业绩中等" } },
+    { name: "山西煤矿", real: "2000-2005", sector: "调查", rate: 0.20, mult: 7.0, hint: "山西黑煤矿", outs: { huge: "2003 跟山西,2005 顶刊头条,7x", moderate: "山西系列,3x", breakeven: "持平", failure: "2004 被公关" } }
+  ],
+  3: [
+    { name: "和讯网", real: "老牌", sector: "财经网", rate: 0.25, mult: 5.0, hint: "2000 起步", outs: { huge: "2005 入和讯,2010 升总编,5x", moderate: "和讯编辑主任,3x", breakeven: "持平", failure: "2008 业绩下滑" } },
+    { name: "东方财富网", real: "其实", sector: "财经门户", rate: 0.30, mult: 6.0, hint: "2004 起步,2010 上市", outs: { huge: "2005 入东财,2010 升副总编,6x", moderate: "东财编辑主任,3x", breakeven: "持平", failure: "2008 业绩中等" } },
+    { name: "金融界", real: "老牌", sector: "财经网", rate: 0.25, mult: 4.0, hint: "2000 起步", outs: { huge: "2005 入金融界,2010 升总编,4x", moderate: "金融界编辑,2.5x", breakeven: "持平", failure: "2008 业绩下滑" } },
+    { name: "财经网", real: "中经报系", sector: "财经门户", rate: 0.25, mult: 5.0, hint: "中经报系", outs: { huge: "2005 入财经网,2010 升总编,5x", moderate: "财经网编辑,3x", breakeven: "持平", failure: "2008 业绩中等" } },
+    { name: "雪球起步", real: "方三文", sector: "投资者社区", rate: 0.30, mult: 3.0, hint: "2010 起步", outs: { huge: "2010 入雪球,2013 涨 3x", moderate: "雪球编辑,2x", breakeven: "持平", failure: "2012 业绩中等" } },
+    { name: "新浪财经", real: "门户系", sector: "门户财经", rate: 0.30, mult: 6.0, hint: "门户系", outs: { huge: "2005 入新浪,2010 升副总编,6x", moderate: "新浪编辑,3x", breakeven: "持平", failure: "2008 业绩中等" } },
+    { name: "网易财经", real: "门户系", sector: "门户财经", rate: 0.25, mult: 4.0, hint: "门户系", outs: { huge: "2005 入网易,2010 升总编,4x", moderate: "网易编辑,2.5x", breakeven: "持平", failure: "2008 业绩中等" } },
+    { name: "搜狐财经", real: "门户系", sector: "门户财经", rate: 0.25, mult: 3.0, hint: "门户系", outs: { huge: "2005 入搜狐,2010 升总编,3x", moderate: "搜狐编辑,2x", breakeven: "持平", failure: "2008 业绩中等" } },
+    { name: "FT 中文网", real: "外媒系", sector: "外媒中文", rate: 0.20, mult: 7.0, hint: "外媒系", outs: { huge: "2005 入 FT,2010 升副总编,7x", moderate: "FT 编辑,3x", breakeven: "持平", failure: "2008 业绩中等" } },
+    { name: "财新 2009", real: "胡舒立", sector: "调查旗舰", rate: 0.25, mult: 10.0, hint: "胡舒立 2009 创办", outs: { huge: "2009 入财新,2013 升副总编,10x", moderate: "财新记者,4x", breakeven: "持平", failure: "2011 被公关" } },
+    { name: "财经国家周刊", real: "新华系", sector: "新华系", rate: 0.25, mult: 4.0, hint: "新华社背景", outs: { huge: "2005 入财经国周,2010 升副总编,4x", moderate: "财经国周记者,2.5x", breakeven: "持平", failure: "2008 业绩中等" } },
+    { name: "财新王烁", real: "王烁", sector: "调查 + 评论", rate: 0.25, mult: 4.0, hint: "王烁个人 IP", outs: { huge: "2005 跟王烁,2010 升评论部,4x", moderate: "财新评论员,2.5x", breakeven: "持平", failure: "2008 业绩中等" } },
+    { name: "2008 雷曼", real: "调查", sector: "调查", rate: 0.30, mult: 8.0, hint: "2008 雷曼", outs: { huge: "2008 跟雷曼,2009 顶刊头条,8x", moderate: "雷曼系列,4x", breakeven: "持平", failure: "2008 错过" } },
+    { name: "2010 4 万亿", real: "调查", sector: "调查", rate: 0.30, mult: 4.0, hint: "4 万亿复盘", outs: { huge: "2010 跟 4 万亿,2011 顶刊,4x", moderate: "4 万亿系列,2.5x", breakeven: "持平", failure: "2010 错过" } },
+    { name: "2012 王亚伟", real: "人物", sector: "人物", rate: 0.30, mult: 5.0, hint: "2012 王亚伟离任", outs: { huge: "2012 跟王亚伟,2013 顶刊,5x", moderate: "王亚伟系列,3x", breakeven: "持平", failure: "2012 错过" } },
+    { name: "2013 余额宝", real: "互联网金融", sector: "新物种", rate: 0.40, mult: 5.0, hint: "2013.6 上线", outs: { huge: "2013 跟余额宝,2014 顶刊,5x", moderate: "余额宝系列,3x", breakeven: "持平", failure: "2013 错过" } }
+  ],
+  4: [
+    { name: "格隆汇", real: "陈守红", sector: "港股 + 财经", rate: 0.30, mult: 8.0, hint: "陈守红 / 洪灏", outs: { huge: "2013 入格隆汇,2018 升合伙人,8x", moderate: "格隆汇编辑,4x", breakeven: "持平", failure: "2016 业绩中等" } },
+    { name: "叶檀财经", real: "叶檀", sector: "财经自媒体", rate: 0.30, mult: 7.0, hint: "叶檀个人 IP", outs: { huge: "2013 跟叶檀,2018 升合伙人,7x", moderate: "叶檀编辑,4x", breakeven: "持平", failure: "2016 业绩中等" } },
+    { name: "秦朔朋友圈", real: "秦朔", sector: "财经自媒体", rate: 0.25, mult: 6.0, hint: "秦朔个人 IP", outs: { huge: "2014 跟秦朔,2018 升合伙人,6x", moderate: "秦朔编辑,3x", breakeven: "持平", failure: "2016 业绩中等" } },
+    { name: "吴晓波频道", real: "吴晓波", sector: "作家 + 频道", rate: 0.30, mult: 8.0, hint: "吴晓波 + 蓝狮子", outs: { huge: "2014 跟吴晓波,2018 升合伙人,8x", moderate: "吴晓波编辑,4x", breakeven: "持平", failure: "2016 业绩中等" } },
+    { name: "蓝鲸财经", real: "新媒体系", sector: "财经媒体", rate: 0.30, mult: 5.0, hint: "新媒体系", outs: { huge: "2013 入蓝鲸,2018 升总编,5x", moderate: "蓝鲸编辑,3x", breakeven: "持平", failure: "2016 业绩中等" } },
+    { name: "功夫财经", real: "王牧笛", sector: "泛财经 IP", rate: 0.25, mult: 5.0, hint: "王牧笛 / 裘伯纯", outs: { huge: "2014 跟功夫财经,2018 升合伙人,5x", moderate: "功夫财经编辑,3x", breakeven: "持平", failure: "2016 业绩中等" } },
+    { name: "港股那点事", real: "格隆汇前传", sector: "港股自媒体", rate: 0.30, mult: 6.0, hint: "格隆汇前传", outs: { huge: "2013 入港股那点事,2015 顶峰,6x", moderate: "港股编辑,3x", breakeven: "持平", failure: "2016 业绩中等" } },
+    { name: "智通财经", real: "港股系", sector: "港股财经", rate: 0.25, mult: 5.0, hint: "港股系", outs: { huge: "2013 入智通,2018 升总编,5x", moderate: "智通编辑,3x", breakeven: "持平", failure: "2016 业绩中等" } },
+    { name: "i 港股", real: "老牌", sector: "港股自媒体", rate: 0.25, mult: 4.0, hint: "老牌", outs: { huge: "2013 入 i 港股,2015 顶峰,4x", moderate: "i 港股编辑,2.5x", breakeven: "持平", failure: "2016 业绩中等" } },
+    { name: "微信公号", real: "公众号", sector: "公众号", rate: 0.30, mult: 5.0, hint: "2012 上线", outs: { huge: "2013 开财经号,2018 涨 5x", moderate: "财经号,3x", breakeven: "持平", failure: "2016 阅读量下滑" } },
+    { name: "微博大 V", real: "微博", sector: "微博", rate: 0.30, mult: 5.0, hint: "2010 崛起", outs: { huge: "2010 入微博,2015 涨 5x", moderate: "微博大 V,3x", breakeven: "持平", failure: "2016 限流" } },
+    { name: "知识星球", real: "知识付费", sector: "知识付费", rate: 0.25, mult: 3.0, hint: "2016 起步", outs: { huge: "2016 入知识星球,2018 涨 3x", moderate: "知识星球,2x", breakeven: "持平", failure: "2017 业绩中等" } },
+    { name: "黑马社群", real: "创业家系", sector: "创业 + 财经", rate: 0.25, mult: 3.0, hint: "创业家系", outs: { huge: "2014 跟黑马,2018 升合伙人,3x", moderate: "黑马编辑,2x", breakeven: "持平", failure: "2016 业绩中等" } },
+    { name: "2015 股灾报道", real: "调查", sector: "调查", rate: 0.30, mult: 7.0, hint: "2015 杠杆牛", outs: { huge: "2015 跟股灾,2016 顶刊头条,7x", moderate: "股灾系列,3x", breakeven: "持平", failure: "2015 错过" } },
+    { name: "2016 宝万之争", real: "调查", sector: "调查", rate: 0.30, mult: 8.0, hint: "2015-2016 宝万", outs: { huge: "2015 跟宝万,2016 顶刊头条,8x", moderate: "宝万系列,4x", breakeven: "持平", failure: "2015 错过" } },
+    { name: "2017 现金贷", real: "调查", sector: "调查", rate: 0.25, mult: 7.0, hint: "2017 现金贷", outs: { huge: "2016 跟现金贷,2017 顶刊头条,7x", moderate: "现金贷系列,3x", breakeven: "持平", failure: "2016 错过" } }
+  ],
+  5: [
+    { name: "半佛仙人", real: "半佛", sector: "泛财经短视频", rate: 0.25, mult: 10.0, hint: "半佛 IP 神话", outs: { huge: "2018 跟半佛,2024 涨 10x", moderate: "半佛团队,5x", breakeven: "持平", failure: "2021 业绩下滑" } },
+    { name: "巫师财经", real: "B 站", sector: "财经短视频", rate: 0.20, mult: 8.0, hint: "B 站起家", outs: { huge: "2019 跟巫师,2022 涨 8x", moderate: "巫师团队,4x", breakeven: "持平", failure: "2021 巫师被封" } },
+    { name: "饭圈化财经", real: "饭圈", sector: "饭圈 + 财经", rate: 0.25, mult: 5.0, hint: "饭圈入财经", outs: { huge: "2018 跟饭圈财经,2024 涨 5x", moderate: "饭圈财经编辑,3x", breakeven: "持平", failure: "2022 业绩中等" } },
+    { name: "抖音财经", real: "抖音", sector: "抖音财经", rate: 0.30, mult: 6.0, hint: "抖音崛起", outs: { huge: "2018 入抖音,2024 涨 6x", moderate: "抖音编辑,3x", breakeven: "持平", failure: "2022 业绩下滑" } },
+    { name: "视频号财经", real: "视频号", sector: "视频号", rate: 0.30, mult: 5.0, hint: "2020 起步", outs: { huge: "2020 入视频号,2024 涨 5x", moderate: "视频号编辑,3x", breakeven: "持平", failure: "2022 业绩下滑" } },
+    { name: "B 站财经", real: "大牛猫", sector: "B 站财经", rate: 0.25, mult: 6.0, hint: "B 站生态", outs: { huge: "2019 入 B 站,2024 涨 6x", moderate: "B 站编辑,3x", breakeven: "持平", failure: "2022 业绩下滑" } },
+    { name: "小 Lin 说", real: "小 Lin", sector: "财经短视频", rate: 0.25, mult: 7.0, hint: "小 Lin 个人 IP", outs: { huge: "2020 跟小 Lin,2024 涨 7x", moderate: "小 Lin 团队,4x", breakeven: "持平", failure: "2022 业绩下滑" } },
+    { name: "珍大户", real: "珍大户", sector: "财经短视频", rate: 0.25, mult: 5.0, hint: "珍大户 IP", outs: { huge: "2020 跟珍大户,2024 涨 5x", moderate: "珍大户团队,3x", breakeven: "持平", failure: "2022 业绩下滑" } },
+    { name: "卫斯理观察", real: "老牌", sector: "财经自媒体", rate: 0.25, mult: 4.0, hint: "老牌自媒体", outs: { huge: "2018 跟卫斯理,2024 涨 4x", moderate: "卫斯理编辑,2.5x", breakeven: "持平", failure: "2022 业绩下滑" } },
+    { name: "付鹏说", real: "付鹏", sector: "宏观财经", rate: 0.30, mult: 6.0, hint: "付鹏 + 东北证券", outs: { huge: "2018 跟付鹏,2024 涨 6x", moderate: "付鹏团队,3x", breakeven: "持平", failure: "2022 业绩下滑" } },
+    { name: "向松祚", real: "向松祚", sector: "宏观 + 财经", rate: 0.25, mult: 5.0, hint: "向松祚 IP", outs: { huge: "2018 跟向松祚,2024 涨 5x", moderate: "向松祚团队,3x", breakeven: "持平", failure: "2022 业绩下滑" } },
+    { name: "管清友", real: "管清友", sector: "宏观 + 财经", rate: 0.25, mult: 4.0, hint: "管清友 IP", outs: { huge: "2018 跟管清友,2024 涨 4x", moderate: "管清友团队,2.5x", breakeven: "持平", failure: "2022 业绩下滑" } },
+    { name: "泽平宏观", real: "任泽平", sector: "宏观 + 财经", rate: 0.25, mult: 4.0, hint: "任泽平 IP", outs: { huge: "2018 跟任泽平,2024 涨 4x", moderate: "任泽平团队,2.5x", breakeven: "持平", failure: "2022 业绩下滑" } },
+    { name: "香帅", real: "香帅", sector: "金融学者", rate: 0.30, mult: 5.0, hint: "香帅 + 北大", outs: { huge: "2018 跟香帅,2024 涨 5x", moderate: "香帅团队,3x", breakeven: "持平", failure: "2022 业绩下滑" } },
+    { name: "2024 9.24 直播", real: "政策反转", sector: "反转", rate: 0.50, mult: 8.0, hint: "9.24 政策反转", outs: { huge: "2024.9 跟直播,2024.10 顶峰,8x", moderate: "9.24 系列,4x", breakeven: "持平", failure: "2024.10 错过顶峰" } },
+    { name: "DeepSeek 解读", real: "AI 财经", sector: "AI 时代", rate: 0.35, mult: 4.0, hint: "2024 之后 AI", outs: { huge: "2024 入 DeepSeek,2025 涨 4x", moderate: "DeepSeek,2.5x", breakeven: "持平", failure: "2025 AI 失效" } }
+  ]
+};
+
+const EVENTS = {
+  1: [
+    { desc: "1995 毕业分配:纸媒《财经时报》vs 电视台?",
+      a: { text: "留《财经时报》(稳定)", eff: "Sources+5, Health-2", sources: 5, health: -2 },
+      b: { text: "跳央视《经济半小时》(高曝光)", eff: "Reputation+5, Reach+1, Sources-2", reputation: 5, reach: 1, sources: -2 } },
+    { desc: "1996 君安-万科事件,你主编让你跟,你要不要接?",
+      a: { text: "接(高曝光高风险)", eff: "Scoops+1, Reputation+10, Sources+3, 但 1998 被公关风险", scoops: 1, reputation: 10, sources: 3 },
+      b: { text: "不接(求稳)", eff: "Family+3, Sources-3", family: 3, sources: -3 } },
+    { desc: "1997 央行查处违规揽存,财经媒体配合,你同事写了篇假稿,你怎么办?",
+      a: { text: "举报同事(讲原则)", eff: "Reputation+5, Sources+2, 但 Social-10", reputation: 5, sources: 2, social: -10 },
+      b: { text: "不举报(讲义气)", eff: "Social+10, 但 Reputation-5, Sources-3", social: 10, reputation: -5, sources: -3 } },
+    { desc: "1998 朱镕基改革报道任务,你跟的是哪个方向?",
+      a: { text: "跟财税改革", eff: "Reputation+10, Sources+5, 但 Income-5(被冷落)", reputation: 10, sources: 5, income: -5 },
+      b: { text: "跟国企改革", eff: "Reputation+5, Income+10, Sources+3", reputation: 5, income: 10, sources: 3 } }
+  ],
+  2: [
+    { desc: "2001 基金黑幕选题,你主编想做,你有机会跟吗?",
+      a: { text: "全力跟(顶刊机会)", eff: "Scoops+1, Reputation+15, Sources+5, Health-10", scoops: 1, reputation: 15, sources: 5, health: -10 },
+      b: { text: "跟一半(留后路)", eff: "Reputation+5, Sources+2, 但错过升职", reputation: 5, sources: 2 } },
+    { desc: "2002 银广夏造假曝光,你手里有没有独家?",
+      a: { text: "有, 立刻发(赌一把)", eff: "Scoops+1, Reputation+10, Sources+5, 但 2003 被起诉风险", scoops: 1, reputation: 10, sources: 5 },
+      b: { text: "有, 等核实", eff: "Reputation+5, Sources+3, 但错过首发", reputation: 5, sources: 3 } },
+    { desc: "2003 山西煤矿黑幕,你跟组做了 3 个月,马上可以出稿,要不要做?",
+      a: { text: "立刻出稿(高风险)", eff: "Scoops+1, Reputation+15, Sources+5, 但 Health-10, Family-5", scoops: 1, reputation: 15, sources: 5, health: -10, family: -5 },
+      b: { text: "等时机", eff: "Reputation+5, 但错过独家", reputation: 5 } },
+    { desc: "2004 国九条 + 股权分置改革,你要不要做财经政策深度稿?",
+      a: { text: "做政策深度(高价值)", eff: "Reputation+10, Sources+5, Income+10, Health-5", reputation: 10, sources: 5, income: 10, health: -5 },
+      b: { text: "继续做行业稿", eff: "Income+5, Reputation+3", income: 5, reputation: 3 } }
+  ],
+  3: [
+    { desc: "2006 大牛市报道潮,纸媒 vs 网络媒体,你要不要跳网?",
+      a: { text: "跳东方财富网", eff: "Reach+5, Income+15, Sources+5, 但 Reputation-3", reach: 5, income: 15, sources: 5, reputation: -3 },
+      b: { text: "坚守纸媒", eff: "Reputation+5, Sources+3, 但错过流量", reputation: 5, sources: 3 } },
+    { desc: "2008 雷曼报道,你跟不跟?",
+      a: { text: "All-in 跟雷曼", eff: "Scoops+1, Reputation+15, Sources+5, Reach+2, Health-10", scoops: 1, reputation: 15, sources: 5, reach: 2, health: -10 },
+      b: { text: "跟一半", eff: "Reputation+5, Reach+1", reputation: 5, reach: 1 } },
+    { desc: "2010 4 万亿复盘,你跟哪个角度?",
+      a: { text: "宏观角度", eff: "Reputation+10, Reach+2, Sources+3", reputation: 10, reach: 2, sources: 3 },
+      b: { text: "微观角度(地方政府债务)", eff: "Scoops+1, Sources+5, 但 Family-3", scoops: 1, sources: 5, family: -3 } },
+    { desc: "2013 余额宝冲击,要不要做深度?",
+      a: { text: "做余额宝深度", eff: "Reach+5, Scoops+1, Reputation+5, Income+10", reach: 5, scoops: 1, reputation: 5, income: 10 },
+      b: { text: "不做", eff: "Health+5", health: 5 } }
+  ],
+  4: [
+    { desc: "2013 自媒体浪潮,要不要辞职做公众号?",
+      a: { text: "辞职做公众号", eff: "Reach+5, Income+30万, Health-10, Sources-5(断机构线)", reach: 5, income: 30, health: -10, sources: -5 },
+      b: { text: "留守机构", eff: "Family+5, Sources+5", family: 5, sources: 5 } },
+    { desc: "2015 杠杆牛 + 股灾,你要不要发系列稿?",
+      a: { text: "发系列稿", eff: "Scoops+1, Reputation+10, Reach+5, Sources+5, Health-10", scoops: 1, reputation: 10, reach: 5, sources: 5, health: -10 },
+      b: { text: "保守观察", eff: "Reputation+3, Reach+1", reputation: 3, reach: 1 } },
+    { desc: "2016 宝万之争,你要不要深度介入?",
+      a: { text: "深度跟宝万", eff: "Scoops+1, Reputation+15, Reach+3, Sources+5, 但 Health-10, Family-5", scoops: 1, reputation: 15, reach: 3, sources: 5, health: -10, family: -5 },
+      b: { text: "不跟", eff: "Family+3, 但错过独家", family: 3 } },
+    { desc: "2017 现金贷乱象,要不要做调查?",
+      a: { text: "做现金贷调查", eff: "Scoops+1, Reputation+15, Sources+5, Reach+2, 但 Health-10", scoops: 1, reputation: 15, sources: 5, reach: 2, health: -10 },
+      b: { text: "保守", eff: "Family+3", family: 3 } }
+  ],
+  5: [
+    { desc: "2018 短视频浪潮,要不要入局?",
+      a: { text: "入局短视频(抖音/B站)", eff: "Reach+10, Income+50万, Health-15, Sources-3", reach: 10, income: 50, health: -15, sources: -3 },
+      b: { text: "继续图文", eff: "Sources+3, Family+3", sources: 3, family: 3 } },
+    { desc: "2020 疫情牛 + 流动性泛滥,要不要做直播?",
+      a: { text: "做直播带货 / 解盘", eff: "Reach+10, Income+50万, Health-10", reach: 10, income: 50, health: -10 },
+      b: { text: "继续图文", eff: "Family+3", family: 3 } },
+    { desc: "2022 熊市,要不要做敏感话题?",
+      a: { text: "做敏感话题(高风险)", eff: "Reach+5, Sources+5, 但 Reputation-10, Reach 后续-10", reach: 5, sources: 5, reputation: -10 },
+      b: { text: "保守观察", eff: "Family+3, Reputation+3", family: 3, reputation: 3 } },
+    { desc: "2024 9.24 + DeepSeek 出圈,你要不要 All-in 直播?",
+      a: { text: "All-in 直播 AI 解读", eff: "Reach+15, Income+100万, Reputation+10, Sources+5, Health-10", reach: 15, income: 100, reputation: 10, sources: 5, health: -10 },
+      b: { text: "继续图文", eff: "Family+3, Sources+3", family: 3, sources: 3 } }
+  ]
+};
+
+function initState() {
+  return {
+    year: 1995, age: 22, round: 0, era: 1,
+    reputation: 10, scoops: 0, reach: 0.5, income: 5,
+    health: 100, family: 100, sources: 80,
+    sideQuestsDone: [], projectResults: [],
+    pendingEvent: null, pendingProject: null, _currentProject: null,
+    pendingSideQuest: null, phase: "intro"
+  };
+}
+let state = initState();
+
+function updateState(changes) {
+  Object.keys(changes).forEach(k => {
+    state[k] = (state[k] || 0) + changes[k];
+  });
+  ['health','family','sources'].forEach(k => {
+    if (state[k] > 100) state[k] = 100;
+    if (state[k] < 0) state[k] = 0;
+  });
+  if (state.reputation < 0) state.reputation = 0;
+  if (state.reputation > 100) state.reputation = 100;
+  if (state.scoops < 0) state.scoops = 0;
+  if (state.reach < 0) state.reach = 0;
+  if (state.income < 0) state.income = 0;
+}
+
+function addLog(msg, cls) {
+  const log = document.getElementById("log");
+  log.style.display = "block";
+  const div = document.createElement("div");
+  if (cls) div.className = cls;
+  div.innerHTML = msg;
+  log.appendChild(div);
+  log.scrollTop = log.scrollHeight;
+}
+
+function pick3(arr) {
+  const copy = [...arr];
+  const picked = [];
+  for (let i = 0; i < 3 && copy.length; i++) {
+    const idx = Math.floor(Math.random() * copy.length);
+    picked.push(copy.splice(idx, 1)[0]);
+  }
+  return picked;
+}
+
+function rollOutcome(project) {
+  const r = Math.random();
+  if (r < project.rate) return { label: '🟢 huge', mult: project.mult };
+  if (r < project.rate + 0.3) return { label: '🔵 moderate', mult: project.mult * 0.5 };
+  if (r < project.rate + 0.55) return { label: '🟡 breakeven', mult: 1 };
+  return { label: '🔴 failure', mult: 0.3 };
+}
+
+function applyOutcome(outcome, project) {
+  const out = project.outs;
+  if (outcome.label === '🟢 huge') return out.huge;
+  if (outcome.label === '🔵 moderate') return out.moderate;
+  if (outcome.label === '🟡 breakeven') return out.breakeven;
+  return out.failure;
+}
+
+function repLabel(rep) {
+  if (rep >= 80) return `🥇顶流(${rep})`;
+  if (rep >= 60) return `🥈明星(${rep})`;
+  if (rep >= 40) return `🥉中等(${rep})`;
+  if (rep >= 20) return `⚠️中下(${rep})`;
+  return `💀垫底(${rep})`;
+}
+
+function renderStats() {
+  const statsHtml = `
+    <div class="stats-bar">
+      <span class="year">📅 ${state.year} 年 · ${state.age} 岁 · 时代 ${state.era}/5 · 回合 ${state.round+1}/4</span><br>
+      <span class="stat">📰 Reputation: <strong>${repLabel(state.reputation)}</strong></span> |
+      <span class="stat">📚 Scoops: <strong>${state.scoops}</strong></span> |
+      <span class="stat">📡 Reach: <strong>${state.reach.toFixed(1)}</strong> 千万</span> |
+      <span class="stat">💰 Income: <strong>${state.income.toFixed(0)}</strong> 万/年</span><br>
+      <span class="stat">❤️ Health: <strong>${state.health}</strong></span> |
+      <span class="stat">👪 Family: <strong>${state.family}</strong></span> |
+      <span class="${state.sources >= 50 ? 'stat' : state.sources >= 20 ? 'stat warn' : 'stat danger'}">🕸️ Sources: <strong>${state.sources}</strong></span>
+    </div>`;
+  const gameArea = document.getElementById("game-area");
+  const existing = gameArea.querySelector('.stats-bar');
+  if (existing) existing.outerHTML = statsHtml;
+  else gameArea.insertAdjacentHTML("afterbegin", statsHtml);
+}
+
+function renderEvent() {
+  renderStats();
+  const ev = state.pendingEvent;
+  document.getElementById("game-area").insertAdjacentHTML("beforeend", `
+    <div class="choice-card">
+      <h3>📰 时代事件</h3>
+      <p class="desc">${ev.desc}</p>
+      <button class="btn" onclick="window.chooseEvent('a')">${ev.a.text}</button>
+      <button class="btn" onclick="window.chooseEvent('b')">${ev.b.text}</button>
+      <div class="footer" style="font-size:11px;color:#90caf9;margin-top:6px">A: ${ev.a.eff} | B: ${ev.b.eff}</div>
+    </div>
+  `);
+}
+
+function renderProject() {
+  renderStats();
+  const projects = state.pendingProject;
+  document.getElementById("game-area").insertAdjacentHTML("beforeend", `
+    <div class="choice-card">
+      <h3>💼 业务选择 — 3 选 1</h3>
+      ${projects.map((p, i) => `
+        <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(66,165,245,0.2);border-radius:8px;padding:10px;margin-bottom:8px">
+          <strong style="color:#42a5f5">${String.fromCharCode(65+i)}. ${p.name}</strong>
+          <span style="color:#90caf9;font-size:12px"> · ${p.real} · ${p.sector}</span><br>
+          <span style="font-size:12px;color:#bbdefb">成功率 ${(p.rate*100).toFixed(0)}% · 最高 ${p.mult}x · ${p.hint}</span>
+        </div>
+      `).join("")}
+      ${projects.map((p, i) => `
+        <button class="btn" onclick="window.chooseProject(${i})">${String.fromCharCode(65+i)}. 选 ${p.name}</button>
+      `).join("")}
+    </div>
+  `);
+}
+
+function renderIntensity() {
+  renderStats();
+  const p = state._currentProject;
+  document.getElementById("game-area").insertAdjacentHTML("beforeend", `
+    <div class="choice-card">
+      <h3>⚙️ 投入度 — 决定硬指标变化幅度</h3>
+      <p style="color:#90caf9;font-size:13px">项目: ${p.name} (${p.real}) · 成功率 ${(p.rate*100).toFixed(0)}%</p>
+      <button class="btn" onclick="window.chooseIntensity('a')">A. 996 极限 — Reach+30%, Health-10, Family-5</button><br>
+      <button class="btn b" onclick="window.chooseIntensity('b')">B. 8h 平衡 — Reach+10%, Health-3, Family-2</button><br>
+      <button class="btn c" onclick="window.chooseIntensity('c')">C. 摆烂 — Reach-20%, Health+5, Family+3</button>
+    </div>
+  `);
+}
+
+function renderResult(outcome, project) {
+  renderStats();
+  const cls = outcome.label === '🟢 huge' ? '' : outcome.label === '🔵 moderate' ? '' : outcome.label === '🟡 breakeven' ? 'warn' : 'bad';
+  document.getElementById("game-area").insertAdjacentHTML("beforeend", `
+    <div class="result-card ${cls}">
+      <h3>${outcome.label} · ${outcome.mult.toFixed(1)}x</h3>
+      <p><strong>${project.name}</strong> (${project.real})</p>
+      <p style="font-size:13px;color:#bbdefb">${applyOutcome(outcome, project)}</p>
+      <button class="btn" onclick="window.nextRound()">下一回合 →</button>
+    </div>
+  `);
+}
+
+function renderSideQuest() {
+  renderStats();
+  const sq = state.pendingSideQuest;
+  document.getElementById("game-area").insertAdjacentHTML("beforeend", `
+    <div class="choice-card">
+      <h3>${sq.title}</h3>
+      <p class="desc">${sq.desc}</p>
+      ${sq.choices.map((c, i) => `<button class="btn" onclick="window.chooseSideQuest(${i})">${c.text}</button>`).join("")}
+      <div class="footer" style="font-size:11px;color:#90caf9;margin-top:6px">
+        ${sq.choices.map(c => `${c.text}: ${c.eff}`).join(" | ")}
+      </div>
+    </div>
+  `);
+}
+
+function checkSideQuest() {
+  const sq = SIDE_QUESTS.find(s => s.year === state.year && !state.sideQuestsDone.find(d => d.year === s.year));
+  if (sq) {
+    state.pendingSideQuest = sq;
+    state.phase = "sidequest";
+    return true;
+  }
+  return false;
+}
+
+window.startGame = function() {
+  state = initState();
+  document.getElementById("log").innerHTML = "";
+  addLog("📜 1995 年 · 你 22 岁,人大新闻系毕业,入《财经时报》");
+  checkSideQuest();
+  if (state.phase === "sidequest") {
+    document.getElementById("game-area").innerHTML = "";
+    renderSideQuest();
+  } else {
+    document.getElementById("game-area").innerHTML = "";
+    state.pendingEvent = EVENTS[1][0];
+    renderEvent();
+  }
+};
+
+window.chooseEvent = function(key) {
+  const ev = state.pendingEvent;
+  const choice = ev[key];
+  updateState({ reputation: choice.reputation||0, scoops: choice.scoops||0, reach: choice.reach||0, income: choice.income||0, health: choice.health||0, family: choice.family||0, sources: choice.sources||0 });
+  addLog(`📰 时代事件 → ${choice.text} (${choice.eff})`);
+  state.pendingProject = pick3(PROJECTS[state.era]);
+  renderProject();
+};
+
+window.chooseProject = function(idx) {
+  const project = state.pendingProject[idx];
+  state._currentProject = project;
+  addLog(`💼 选择了 ${project.name} (${project.real})`);
+  renderIntensity();
+};
+
+window.chooseIntensity = function(key) {
+  let changes = {};
+  if (key === 'a') changes = { reach: state.reach * 0.3, health: -10, family: -5 };
+  else if (key === 'b') changes = { reach: state.reach * 0.1, health: -3, family: -2 };
+  else changes = { reach: state.reach * -0.2, health: 5, family: 3 };
+  updateState(changes);
+  addLog(`⚙️ 投入度: ${key === 'a' ? '996 极限' : key === 'b' ? '8h 平衡' : '摆烂'}`);
+  const project = state._currentProject;
+  const outcome = rollOutcome(project);
+  applyOutcomeToState(outcome, project);
+  addLog(`📊 ${project.name} → ${outcome.label} · ${outcome.mult.toFixed(1)}x`, outcome.label === '🟢 huge' ? 'l-good' : outcome.label === '🔴 failure' ? 'l-bad' : '');
+  state.projectResults.push({ year: state.year, project: project.name, real: project.real, outcome: outcome.label, mult: outcome.mult });
+  renderResult(outcome, project);
+};
+
+function applyOutcomeToState(outcome, project) {
+  const factor = outcome.mult / 5;
+  updateState({ reach: state.reach * factor * 0.3, reputation: outcome.mult / 2 });
+  if (outcome.label === '🟢 huge') {
+    updateState({ scoops: 1, reputation: 10, sources: 3 });
+  } else if (outcome.label === '🔵 moderate') {
+    updateState({ reputation: 5 });
+  } else if (outcome.label === '🟡 breakeven') {
+    updateState({ reputation: -3 });
+  } else {
+    updateState({ reputation: -10, sources: -5 });
+  }
+}
+
+window.chooseSideQuest = function(idx) {
+  const sq = state.pendingSideQuest;
+  const choice = sq.choices[idx];
+  updateState({ reputation: choice.changes.reputation||0, scoops: choice.changes.scoops||0, reach: choice.changes.reach||0, income: choice.changes.income||0, health: choice.changes.health||0, family: choice.changes.family||0, sources: choice.changes.sources||0 });
+  addLog(`🌟 支线:${choice.text} (${choice.eff})`, "l-side");
+  state.sideQuestsDone.push({ year: state.year, title: sq.title });
+  state.pendingSideQuest = null;
+  document.getElementById("game-area").innerHTML = "";
+  if (state.pendingEvent) {
+    renderEvent();
+  } else {
+    nextRound();
+  }
+};
+
+window.nextRound = function() {
+  state.round += 1;
+  state.year += 1;
+  state.age += 1;
+  state._currentProject = null;
+  state.pendingEvent = null;
+  state.pendingProject = null;
+  document.getElementById("game-area").innerHTML = "";
+
+  if (state.round >= 4) {
+    state.era += 1;
+    state.round = 0;
+    if (state.era > 5) {
+      finishGame();
+      return;
+    }
+    addLog(`🚪 时代切换 → ${ERAS[state.era-1].name}`, "l-gold");
+    const era = ERAS[state.era - 1];
+    if (era.gate) {
+      const stat = state[era.gate.stat];
+      const isRank = era.gate.stat === 'rank';
+      const fail = isRank ? stat > era.gate.min : stat < era.gate.min;
+      if (fail) {
+        addLog(`⚠ 门控失败:${era.gate.fail}`, "l-bad");
+        updateState({ social: -5, family: -3 });
+      } else {
+        addLog(`✅ 门控通过:${era.gate.stat} 达标`, "l-good");
+      }
+    }
+  }
+
+  // 时代 5 监管严打 - Sources 过低 + Reach 过高有被公关风险
+  if (state.era === 5 && state.sources <= 20 && state.reputation >= 60 && Math.random() < 0.3) {
+    addLog(`💼 【被公关!】上市公司发律师函,你的核心信源被反查`, "l-bad");
+    updateState({ reputation: -15, sources: -10, reach: -5 });
+  }
+
+  if (state.health <= 30) { finishGame(); return; }
+  if (state.family <= 30) { finishGame(); return; }
+  if (state.reputation <= 5) { finishGame(); return; }
+  if (state.reach <= 0.5 && state.income <= 5) { finishGame(); return; }
+
+  checkSideQuest();
+  if (state.phase === "sidequest") {
+    renderSideQuest();
+  } else {
+    state.pendingEvent = EVENTS[state.era][state.round];
+    renderEvent();
+  }
+};
+
+function finishGame() {
+  let ending;
+  if (state.reputation <= 5) {
+    ending = { title: "💔 被公关退场", desc: "上市公司发律师函 + 微博公关稿,你被迫退场。50 岁的你去了一家小公司做 PR 顾问,月薪 8000。" };
+  } else if (state.health <= 30) {
+    ending = { title: "💔 过劳猝死", desc: "你的 Health 撑不到 2025。48 岁那年你突发心梗倒在编辑部。同事发现你电脑还亮着,屏幕上是今日稿件。" };
+  } else if (state.family <= 30) {
+    ending = { title: "💔 家人决裂", desc: "你错过了孩子的家长会,错过了父母的最后时光。52 岁那年你发现妻子已经签好了离婚协议,孩子跟了她姓。" };
+  } else if (state.era === 5 && state.reputation >= 80 && state.reach >= 50) {
+    ending = { title: "🏆 头部财经 IP", desc: "你是半佛/吴晓波级头部 IP,千万粉丝。2024 年你登上《财富》中国 40 位商界领袖榜单,千万佣金 + 投资亿万身家。" };
+  } else if (state.reputation >= 90 && state.scoops >= 20) {
+    ending = { title: "🌟 顶级财经记者", desc: "你是财新主编级大记者,行业顶尖。2024 年你依然在一线写稿,获中国新闻奖一等奖。圈内传说你某篇稿改过 17 遍。" };
+  } else if (state.income >= 100 && state.scoops >= 10) {
+    ending = { title: "🏠 财经作家", desc: "你转型财经作家,出书+专栏,影响一代读者。2024 年你的新书《30 年财经观察》销量破 50 万册。" };
+  } else if (state.reputation >= 30 && state.sources >= 50) {
+    ending = { title: "🛋 财经公关 / PR", desc: "你从记者转行做了大公司 IR/PR。年薪 80 万,52 岁退休,行业协会理事。" };
+  } else if (state.reach <= 5 && state.income <= 30) {
+    ending = { title: "😢 内容创业者没起来", desc: "2016 年辞职后公众号 / 视频号都没起来,50 岁的你还在接软文维持生计,月入 1-2 万。" };
+  } else {
+    ending = { title: "🌟 财经圈中坚", desc: `30 年里你从编辑助理做到机构副总。Reputation ${state.reputation},Scoops ${state.scoops},Reach ${state.reach.toFixed(0)} 千万。52 岁的你正考虑退休还是二次创业。` };
+  }
+  renderEnding(ending);
+}
+
+function renderEnding(ending) {
+  document.getElementById("game-area").innerHTML = `
+    <div class="ending">
+      <h2>${ending.title}</h2>
+      <p>${ending.desc}</p>
+      <hr>
+      <p style="color:#90caf9;font-size:13px">📅 ${state.year} 年 · ${state.age} 岁 · 30 年新闻路</p>
+      <p style="color:#90caf9;font-size:13px">📰 Reputation: ${repLabel(state.reputation)} · 📚 Scoops: ${state.scoops}</p>
+      <p style="color:#90caf9;font-size:13px">📡 Reach: ${state.reach.toFixed(1)} 千万 · 💰 Income: ${state.income.toFixed(0)} 万/年</p>
+      <p style="color:#90caf9;font-size:13px">❤️ Health: ${state.health} · 👪 Family: ${state.family} · 🕸️ Sources: ${state.sources}</p>
+      <p style="color:#90caf9;font-size:13px">🌟 完成支线: ${state.sideQuestsDone.length}/5</p>
+      <p style="font-size:12px;color:#90caf9;margin-top:10px">📜 30 年足迹:<br>${state.projectResults.map(r => ` · ${r.year} ${r.project} (${r.real}) → ${r.outcome} x${r.mult.toFixed(1)} `).join("<br>")}</p>
+      <button class="btn gold" onclick="window.startGame()">🔄 重新开始 30 年新闻路</button>
+    </div>
+  `);
+}
+
+document.getElementById("game-area").innerHTML = INTRO_HTML;
+</script>
+</body>
+</html>
