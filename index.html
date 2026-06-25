@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>30 年穿越系列 · 4 款浏览器即玩游戏</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #2d1b4e 100%);
+      color: #e6e6e6;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+    .container { max-width: 1100px; margin: 0 auto; }
+    h1 {
+      font-size: 2.8em;
+      text-align: center;
+      margin-bottom: 8px;
+      background: linear-gradient(90deg, #f5d76e, #ff8c42, #ff3c83);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .subtitle {
+      text-align: center;
+      color: #aaa;
+      font-size: 1.1em;
+      margin-bottom: 8px;
+    }
+    .era {
+      text-align: center;
+      color: #888;
+      font-size: 0.95em;
+      margin-bottom: 50px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 24px;
+      margin-bottom: 60px;
+    }
+    .card {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 32px 24px;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, var(--accent), transparent);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .card:hover {
+      transform: translateY(-4px);
+      border-color: var(--accent);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+    }
+    .card:hover::before { opacity: 0.1; }
+    .emoji {
+      font-size: 3em;
+      margin-bottom: 12px;
+      position: relative;
+    }
+    .title {
+      font-size: 1.4em;
+      font-weight: 700;
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .era-tag {
+      display: inline-block;
+      font-size: 0.75em;
+      color: var(--accent);
+      padding: 2px 10px;
+      border: 1px solid var(--accent);
+      border-radius: 12px;
+      margin-bottom: 12px;
+      position: relative;
+      width: fit-content;
+    }
+    .desc {
+      color: #aaa;
+      line-height: 1.6;
+      font-size: 0.95em;
+      position: relative;
+    }
+    .stats {
+      display: flex;
+      gap: 12px;
+      margin-top: 16px;
+      font-size: 0.8em;
+      color: #888;
+      position: relative;
+      flex-wrap: wrap;
+    }
+    .stat {
+      background: rgba(0,0,0,0.3);
+      padding: 4px 10px;
+      border-radius: 8px;
+    }
+    .card-yellow { --accent: #f5d76e; }
+    .card-green  { --accent: #5ee0a0; }
+    .card-blue   { --accent: #5db8ff; }
+    .card-purple { --accent: #c084fc; }
+
+    .footer {
+      text-align: center;
+      color: #666;
+      font-size: 0.9em;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      padding-top: 30px;
+    }
+    .footer a { color: #5db8ff; text-decoration: none; }
+    .footer a:hover { text-decoration: underline; }
+    .meta {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>30 年穿越系列</h1>
+    <p class="subtitle">4 款浏览器即玩的 30 年人生模拟器 · 1995 → 2025</p>
+    <p class="era">🏛 银行 · 💰 基金 · 📰 媒体 · 💻 互联网 · 每个选择都决定你的 30 年后</p>
+
+    <div class="grid">
+      <a href="games/bank30.html" class="card card-yellow">
+        <div class="emoji">🟡</div>
+        <div class="era-tag">1995 — 2025</div>
+        <div class="title">银行行长 30 年</div>
+        <div class="desc">从工行柜员到分行行长,走钢丝:业绩(存款) + 风控(不良率) + 派系(政治)。2018 金融反腐,被带走还是功成身退?</div>
+        <div class="stats">
+          <span class="stat">9 结局</span>
+          <span class="stat">2 隐藏</span>
+          <span class="stat">30-45 分钟</span>
+        </div>
+      </a>
+
+      <a href="games/fund30.html" class="card card-green">
+        <div class="emoji">🟢</div>
+        <div class="era-tag">1995 — 2025</div>
+        <div class="title">基金经理 30 年</div>
+        <div class="desc">从君安万国到 DeepSeek,穿越庄股→价值→公募→私募→量化 AI 五时代。AUM、收益、排名、老鼠仓——四轴平衡。</div>
+        <div class="stats">
+          <span class="stat">9 结局</span>
+          <span class="stat">2 隐藏</span>
+          <span class="stat">30-45 分钟</span>
+        </div>
+      </a>
+
+      <a href="games/journalist30.html" class="card card-blue">
+        <div class="emoji">🔵</div>
+        <div class="era-tag">1995 — 2025</div>
+        <div class="title">财经记者 30 年</div>
+        <div class="desc">从《财经》到抖音财经大 V,纸媒→调查→网媒→自媒体→短视频。Reputation、Scoops、Reach、Income 四轴。</div>
+        <div class="stats">
+          <span class="stat">9 结局</span>
+          <span class="stat">2 隐藏</span>
+          <span class="stat">30-45 分钟</span>
+        </div>
+      </a>
+
+      <a href="games/programmer20_v2.html" class="card card-purple">
+        <div class="emoji">🟣</div>
+        <div class="era-tag">2005 — 2025</div>
+        <div class="title">程序员 20 年</div>
+        <div class="desc">(经典作)从 BAT 创业到 AI Agent。技术、洞察、声誉、人脉——35 岁被裁还是技术合伙人?</div>
+        <div class="stats">
+          <span class="stat">多结局</span>
+          <span class="stat">2 隐藏</span>
+          <span class="stat">25-35 分钟</span>
+        </div>
+      </a>
+    </div>
+
+    <div class="footer">
+      <div class="meta">
+        <span>📂 全部开源</span>
+        <span>🚫 无登录 / 无后端</span>
+        <span>📦 单文件 HTML</span>
+        <span>🎯 真实历史彩蛋</span>
+      </div>
+      <p>源码 · 80 项目数据库 · 飞书云文档 · 公众号深度文<br>
+      → 仓库: <a href="https://github.com/ivanyinjc-blip/30-year-series">github.com/ivanyinjc-blip/30-year-series</a></p>
+    </div>
+  </div>
+</body>
+</html>
