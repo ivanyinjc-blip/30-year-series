@@ -166,10 +166,10 @@ const SIDE_QUESTS = [
 ];
 
 const ERAS = [
-  { name: "纸媒黄金时代", yearStart: 1995, yearEnd: 2000, gate: { stat: "scoops", min: 2, fail: "独家不足 2 篇,卡在编辑助理,2000 还在跑部委" }, desc: "胡舒立《财经》/ 财经人物特稿" },
-  { name: "调查记者时代", yearStart: 2000, yearEnd: 2005, gate: { stat: "reputation", min: 50, fail: "声誉不足 50,进不了财新 / FT 中文网级别" }, desc: "银广夏 / 蓝田 / 山西煤矿" },
-  { name: "网络媒体时代", yearStart: 2005, yearEnd: 2013, gate: { stat: "reach", min: 10, fail: "触达不足 10,2013 公众号浪潮没赶上" }, desc: "财新 / 雷曼 / 余额宝" },
-  { name: "自媒体时代", yearStart: 2013, yearEnd: 2018, gate: { stat: "income", min: 100, fail: "年收入不足 100 万,2018 短视频浪潮没钱买设备" }, desc: "格隆汇 / 吴晓波 / 叶檀" },
+  { name: "纸媒黄金时代", yearStart: 1995, yearEnd: 2000, gate: { stat: "scoops", min: 1, fail: "独家不足 1 篇,卡在编辑助理,2000 还在跑部委" }, desc: "胡舒立《财经》/ 财经人物特稿" },
+  { name: "调查记者时代", yearStart: 2000, yearEnd: 2005, gate: { stat: "reputation", min: 30, fail: "声誉不足 30,进不了财新 / FT 中文网级别" }, desc: "银广夏 / 蓝田 / 山西煤矿" },
+  { name: "网络媒体时代", yearStart: 2005, yearEnd: 2013, gate: { stat: "reach", min: 5, fail: "触达不足 5,2013 公众号浪潮没赶上" }, desc: "财新 / 雷曼 / 余额宝" },
+  { name: "自媒体时代", yearStart: 2013, yearEnd: 2018, gate: { stat: "income", min: 20, fail: "年收入不足 20 万,2018 短视频浪潮没钱买设备" }, desc: "格隆汇 / 吴晓波 / 叶檀" },
   { name: "短视频财经时代", yearStart: 2018, yearEnd: 2025, gate: null, desc: "半佛 / 巫师财经 / 9.24" }
 ];
 
@@ -338,25 +338,29 @@ const EVENTS = {
       b: { text: "继续图文", eff: "Family+3, Sources+3", family: 3, sources: 3 } }
   ]
 };
-
 function initState() {
   return {
     year: 1995, age: 22, round: 0, era: 1,
-    reputation: 10, scoops: 0, reach: 0.5, income: 5,
-    health: 100, family: 100, sources: 80,
+    reputation: 30, scoops: 0, reach: 1, income: 5,
+    health: 500, family: 300, sources: 200,
     sideQuestsDone: [], projectResults: [],
     pendingEvent: null, pendingProject: null, _currentProject: null,
-    pendingSideQuest: null, phase: "intro"
+    pendingSideQuest: null,
+    phase: "intro",
+    _mainDone: false
   };
 }
 let state = initState();
+window.state = state;
 
 function updateState(changes) {
+  if (!changes) return;
   Object.keys(changes).forEach(k => {
+    if (changes[k] === undefined || changes[k] === null) return;
     state[k] = (state[k] || 0) + changes[k];
   });
   ['health','family','sources'].forEach(k => {
-    if (state[k] > 100) state[k] = 100;
+    if (state[k] > 500) state[k] = 500;
     if (state[k] < 0) state[k] = 0;
   });
   if (state.reputation < 0) state.reputation = 0;
@@ -402,50 +406,52 @@ function applyOutcome(outcome, project) {
   return out.failure;
 }
 
-function repLabel(rep) {
-  if (rep >= 80) return `🥇顶流(${rep})`;
-  if (rep >= 60) return `🥈明星(${rep})`;
-  if (rep >= 40) return `🥉中等(${rep})`;
-  if (rep >= 20) return `⚠️中下(${rep})`;
-  return `💀垫底(${rep})`;
+function repLabel(r) {
+  if (r >= 80) return "🏆顶流";
+  if (r >= 60) return "🌟明星";
+  if (r >= 40) return "📰知名";
+  if (r >= 20) return "✍️活跃";
+  return "🌱新人";
 }
 
-function renderStats() {
-  const statsHtml = `
+function renderStatsHtml() {
+  return `
     <div class="stats-bar">
-      <span class="year">📅 ${state.year} 年 · ${state.age} 岁 · 时代 ${state.era}/5 · 回合 ${state.round+1}/4</span><br>
-      <span class="stat">📰 Reputation: <strong>${repLabel(state.reputation)}</strong></span> |
+      <span class="year">📅 ${state.year} 年 · ${state.age} 岁 · 时代 ${state.era}/5 · 回合 ${state.round+1}/4${state.sideQuestsDone.length > 0 ? ' · 支线 ' + state.sideQuestsDone.length + '/5' : ''}</span><br>
+      <span class="stat">📰 Reputation: <strong>${state.reputation}</strong> (${repLabel(state.reputation)})</span> |
       <span class="stat">📚 Scoops: <strong>${state.scoops}</strong></span> |
       <span class="stat">📡 Reach: <strong>${state.reach.toFixed(1)}</strong> 千万</span> |
       <span class="stat">💰 Income: <strong>${state.income.toFixed(0)}</strong> 万/年</span><br>
       <span class="stat">❤️ Health: <strong>${state.health}</strong></span> |
       <span class="stat">👪 Family: <strong>${state.family}</strong></span> |
-      <span class="${state.sources >= 50 ? 'stat' : state.sources >= 20 ? 'stat warn' : 'stat danger'}">🕸️ Sources: <strong>${state.sources}</strong></span>
+      <span class="stat">🕸️ Sources: <strong>${state.sources}</strong></span>
     </div>`;
-  const gameArea = document.getElementById("game-area");
-  const existing = gameArea.querySelector('.stats-bar');
-  if (existing) existing.outerHTML = statsHtml;
-  else gameArea.insertAdjacentHTML("afterbegin", statsHtml);
+}
+
+function clearGameArea() {
+  document.getElementById("game-area").innerHTML = "";
 }
 
 function renderEvent() {
-  renderStats();
+  clearGameArea();
   const ev = state.pendingEvent;
-  document.getElementById("game-area").insertAdjacentHTML("beforeend", `
+  document.getElementById("game-area").innerHTML = `
+    ${renderStatsHtml()}
     <div class="choice-card">
-      <h3>📰 时代事件</h3>
+      <h3>📰 时代事件 · 2 选 1</h3>
       <p class="desc">${ev.desc}</p>
-      <button class="btn" onclick="window.chooseEvent('a')">${ev.a.text}</button>
-      <button class="btn" onclick="window.chooseEvent('b')">${ev.b.text}</button>
+      <button class="btn" onclick="window.chooseEvent('a')">A. ${ev.a.text}</button>
+      <button class="btn" onclick="window.chooseEvent('b')">B. ${ev.b.text}</button>
       <div class="footer" style="font-size:11px;color:#90caf9;margin-top:6px">A: ${ev.a.eff} | B: ${ev.b.eff}</div>
     </div>
-  `);
+  `;
 }
 
 function renderProject() {
-  renderStats();
+  clearGameArea();
   const projects = state.pendingProject;
-  document.getElementById("game-area").insertAdjacentHTML("beforeend", `
+  document.getElementById("game-area").innerHTML = `
+    ${renderStatsHtml()}
     <div class="choice-card">
       <h3>💼 业务选择 — 3 选 1</h3>
       ${projects.map((p, i) => `
@@ -455,53 +461,60 @@ function renderProject() {
           <span style="font-size:12px;color:#bbdefb">成功率 ${(p.rate*100).toFixed(0)}% · 最高 ${p.mult}x · ${p.hint}</span>
         </div>
       `).join("")}
-      ${projects.map((p, i) => `
-        <button class="btn" onclick="window.chooseProject(${i})">${String.fromCharCode(65+i)}. 选 ${p.name}</button>
-      `).join("")}
+      <div style="display:flex;flex-direction:column;gap:6px;margin-top:8px">
+        ${projects.map((p, i) => `
+          <button class="btn" onclick="window.chooseProject(${i})">${String.fromCharCode(65+i)}. 选 ${p.name}</button>
+        `).join("")}
+      </div>
     </div>
-  `);
+  `;
 }
 
 function renderIntensity() {
-  renderStats();
+  clearGameArea();
   const p = state._currentProject;
-  document.getElementById("game-area").insertAdjacentHTML("beforeend", `
+  document.getElementById("game-area").innerHTML = `
+    ${renderStatsHtml()}
     <div class="choice-card">
       <h3>⚙️ 投入度 — 决定硬指标变化幅度</h3>
       <p style="color:#90caf9;font-size:13px">项目: ${p.name} (${p.real}) · 成功率 ${(p.rate*100).toFixed(0)}%</p>
-      <button class="btn" onclick="window.chooseIntensity('a')">A. 996 极限 — Reach+30%, Health-10, Family-5</button><br>
-      <button class="btn b" onclick="window.chooseIntensity('b')">B. 8h 平衡 — Reach+10%, Health-3, Family-2</button><br>
-      <button class="btn c" onclick="window.chooseIntensity('c')">C. 摆烂 — Reach-20%, Health+5, Family+3</button>
+      <button class="btn" onclick="window.chooseIntensity('a')">A. 996 极限 — Reach+1.5, Health-5, Family-2</button>
+      <button class="btn b" onclick="window.chooseIntensity('b')">B. 8h 平衡 — Reach+0.5, Health-2</button>
+      <button class="btn c" onclick="window.chooseIntensity('c')">C. 摆烂 — Reach-1, Health+5, Family+3</button>
     </div>
-  `);
+  `;
 }
 
 function renderResult(outcome, project) {
-  renderStats();
-  const cls = outcome.label === '🟢 huge' ? '' : outcome.label === '🔵 moderate' ? '' : outcome.label === '🟡 breakeven' ? 'warn' : 'bad';
-  document.getElementById("game-area").insertAdjacentHTML("beforeend", `
+  clearGameArea();
+  const cls = outcome.label === '🟢 huge' ? 'good' : outcome.label === '🔵 moderate' ? '' : outcome.label === '🟡 breakeven' ? 'warn' : 'bad';
+  document.getElementById("game-area").innerHTML = `
+    ${renderStatsHtml()}
     <div class="result-card ${cls}">
       <h3>${outcome.label} · ${outcome.mult.toFixed(1)}x</h3>
       <p><strong>${project.name}</strong> (${project.real})</p>
       <p style="font-size:13px;color:#bbdefb">${applyOutcome(outcome, project)}</p>
-      <button class="btn" onclick="window.nextRound()">下一回合 →</button>
+      <button class="btn" onclick="window.nextRound()" style="margin-top:12px">下一回合 →</button>
     </div>
-  `);
+  `;
 }
 
 function renderSideQuest() {
-  renderStats();
+  clearGameArea();
   const sq = state.pendingSideQuest;
-  document.getElementById("game-area").insertAdjacentHTML("beforeend", `
+  document.getElementById("game-area").innerHTML = `
+    ${renderStatsHtml()}
     <div class="choice-card">
-      <h3>${sq.title}</h3>
+      <h3>${sq.title} <span style="font-size:11px;color:#ce93d8">🌟 支线 ${state.sideQuestsDone.length+1}/5</span></h3>
       <p class="desc">${sq.desc}</p>
-      ${sq.choices.map((c, i) => `<button class="btn" onclick="window.chooseSideQuest(${i})">${c.text}</button>`).join("")}
-      <div class="footer" style="font-size:11px;color:#90caf9;margin-top:6px">
+      <div style="display:flex;flex-direction:column;gap:6px">
+        ${sq.choices.map((c, i) => `<button class="btn" onclick="window.chooseSideQuest(${i})">${c.text}</button>`).join("")}
+      </div>
+      <div class="footer" style="font-size:11px;color:#90caf9;margin-top:8px">
         ${sq.choices.map(c => `${c.text}: ${c.eff}`).join(" | ")}
       </div>
     </div>
-  `);
+  `;
 }
 
 function checkSideQuest() {
@@ -511,20 +524,22 @@ function checkSideQuest() {
     state.phase = "sidequest";
     return true;
   }
+  state.phase = "event";
   return false;
 }
 
 window.startGame = function() {
   state = initState();
+  window.state = state;
   document.getElementById("log").innerHTML = "";
+  document.getElementById("log").style.display = "block";
   addLog("📜 1995 年 · 你 22 岁,人大新闻系毕业,入《财经时报》");
   checkSideQuest();
   if (state.phase === "sidequest") {
-    document.getElementById("game-area").innerHTML = "";
     renderSideQuest();
   } else {
-    document.getElementById("game-area").innerHTML = "";
     state.pendingEvent = EVENTS[1][0];
+    state._mainDone = false;
     renderEvent();
   }
 };
@@ -532,24 +547,35 @@ window.startGame = function() {
 window.chooseEvent = function(key) {
   const ev = state.pendingEvent;
   const choice = ev[key];
-  updateState({ reputation: choice.reputation||0, scoops: choice.scoops||0, reach: choice.reach||0, income: choice.income||0, health: choice.health||0, family: choice.family||0, sources: choice.sources||0 });
+  updateState({
+    reputation: choice.reputation||0,
+    scoops: choice.scoops||0,
+    reach: choice.reach||0,
+    income: choice.income||0,
+    health: choice.health||0,
+    family: choice.family||0,
+    sources: choice.sources||0
+  });
   addLog(`📰 时代事件 → ${choice.text} (${choice.eff})`);
   state.pendingProject = pick3(PROJECTS[state.era]);
+  state.phase = "project";
   renderProject();
 };
 
 window.chooseProject = function(idx) {
   const project = state.pendingProject[idx];
   state._currentProject = project;
+  state.phase = "intensity";
   addLog(`💼 选择了 ${project.name} (${project.real})`);
   renderIntensity();
 };
 
 window.chooseIntensity = function(key) {
+  // 修复:用绝对增长 (Reach 起始 1, 用绝对值)
   let changes = {};
-  if (key === 'a') changes = { reach: state.reach * 0.3, health: -10, family: -5 };
-  else if (key === 'b') changes = { reach: state.reach * 0.1, health: -3, family: -2 };
-  else changes = { reach: state.reach * -0.2, health: 5, family: 3 };
+  if (key === 'a') changes = { reach: 1.5, health: -3, family: -1 };
+  else if (key === 'b') changes = { reach: 0.5, health: -1 };
+  else changes = { reach: -1, health: 5, family: 3 };
   updateState(changes);
   addLog(`⚙️ 投入度: ${key === 'a' ? '996 极限' : key === 'b' ? '8h 平衡' : '摆烂'}`);
   const project = state._currentProject;
@@ -557,32 +583,44 @@ window.chooseIntensity = function(key) {
   applyOutcomeToState(outcome, project);
   addLog(`📊 ${project.name} → ${outcome.label} · ${outcome.mult.toFixed(1)}x`, outcome.label === '🟢 huge' ? 'l-good' : outcome.label === '🔴 failure' ? 'l-bad' : '');
   state.projectResults.push({ year: state.year, project: project.name, real: project.real, outcome: outcome.label, mult: outcome.mult });
+  state._mainDone = true;
+  state.phase = "result";
   renderResult(outcome, project);
 };
 
 function applyOutcomeToState(outcome, project) {
+  // 修复:用 max(1, reach) 避免 0 乘
   const factor = outcome.mult / 5;
-  updateState({ reach: state.reach * factor * 0.3, reputation: outcome.mult / 2 });
-  if (outcome.label === '🟢 huge') {
-    updateState({ scoops: 1, reputation: 10, sources: 3 });
-  } else if (outcome.label === '🔵 moderate') {
-    updateState({ reputation: 5 });
-  } else if (outcome.label === '🟡 breakeven') {
-    updateState({ reputation: -3 });
-  } else {
-    updateState({ reputation: -10, sources: -5 });
-  }
+  const reachDelta = Math.max(1, state.reach) * factor * 0.3;
+  updateState({ reach: reachDelta });
+  updateState({ reputation: outcome.mult / 2 });
+  if (outcome.label === '🟢 huge') updateState({ scoops: 1, reputation: 10, sources: 3 });
+  else if (outcome.label === '🔵 moderate') updateState({ reputation: 5 });
+  else if (outcome.label === '🟡 breakeven') updateState({ reputation: -3 });
+  else updateState({ reputation: -10, sources: -5 });
 }
 
 window.chooseSideQuest = function(idx) {
   const sq = state.pendingSideQuest;
   const choice = sq.choices[idx];
-  updateState({ reputation: choice.changes.reputation||0, scoops: choice.changes.scoops||0, reach: choice.changes.reach||0, income: choice.changes.income||0, health: choice.changes.health||0, family: choice.changes.family||0, sources: choice.changes.sources||0 });
+  state.phase = "event";
+  const c = choice.changes || {};
+  updateState({
+    reputation: c.reputation||0,
+    scoops: c.scoops||0,
+    reach: c.reach||0,
+    income: c.income||0,
+    health: c.health||0,
+    family: c.family||0,
+    sources: c.sources||0
+  });
   addLog(`🌟 支线:${choice.text} (${choice.eff})`, "l-side");
   state.sideQuestsDone.push({ year: state.year, title: sq.title });
   state.pendingSideQuest = null;
-  document.getElementById("game-area").innerHTML = "";
-  if (state.pendingEvent) {
+  // 修复:支线完成后,如果本年主流程还没做,继续做
+  if (!state._mainDone) {
+    state.phase = "event";
+    state.pendingEvent = EVENTS[state.era][state.round];
     renderEvent();
   } else {
     nextRound();
@@ -596,38 +634,41 @@ window.nextRound = function() {
   state._currentProject = null;
   state.pendingEvent = null;
   state.pendingProject = null;
-  document.getElementById("game-area").innerHTML = "";
+  state._mainDone = false;
+  clearGameArea();
 
   if (state.round >= 4) {
     state.era += 1;
     state.round = 0;
-    if (state.era > 5) {
-      finishGame();
-      return;
-    }
-    addLog(`🚪 时代切换 → ${ERAS[state.era-1].name}`, "l-gold");
+    if (state.era > 5) { finishGame(); return; }
+    addLog(`🚪 <strong>时代切换 → ${ERAS[state.era-1].name}</strong>`, "l-gold");
     const era = ERAS[state.era - 1];
     if (era.gate) {
       const stat = state[era.gate.stat];
-      const isRank = era.gate.stat === 'rank';
-      const fail = isRank ? stat > era.gate.min : stat < era.gate.min;
+      // scoops/reputation/reach/income 越高越好
+      const fail = stat < era.gate.min;
       if (fail) {
         addLog(`⚠ 门控失败:${era.gate.fail}`, "l-bad");
-        updateState({ social: -5, family: -3 });
+        updateState({ reputation: -10, sources: -5 });
+        // 修复:门控失败 → 触发结局
+        renderEnding({
+          title: "🚪 时代门控失败",
+          desc: era.gate.fail + "。你的 30 年新闻路提前画上句号。52 岁的你回头看,这是当年最关键的一个数字没达标。"
+        });
+        return;
       } else {
         addLog(`✅ 门控通过:${era.gate.stat} 达标`, "l-good");
       }
     }
   }
 
-  // 时代 5 监管严打 - Sources 过低 + Reach 过高有被公关风险
   if (state.era === 5 && state.sources <= 20 && state.reputation >= 60 && Math.random() < 0.3) {
-    addLog(`💼 【被公关!】上市公司发律师函,你的核心信源被反查`, "l-bad");
+    addLog(`💼 <strong style="color:#ff5252;">【被公关!】</strong>上市公司发律师函,你的核心信源被反查`, "l-bad");
     updateState({ reputation: -15, sources: -10, reach: -5 });
   }
 
-  if (state.health <= 30) { finishGame(); return; }
-  if (state.family <= 30) { finishGame(); return; }
+  if (state.health <= 20) { finishGame(); return; }
+  if (state.family <= 20) { finishGame(); return; }
   if (state.reputation <= 5) { finishGame(); return; }
   if (state.reach <= 0.5 && state.income <= 5) { finishGame(); return; }
 
@@ -644,9 +685,9 @@ function finishGame() {
   let ending;
   if (state.reputation <= 5) {
     ending = { title: "💔 被公关退场", desc: "上市公司发律师函 + 微博公关稿,你被迫退场。50 岁的你去了一家小公司做 PR 顾问,月薪 8000。" };
-  } else if (state.health <= 30) {
+  } else if (state.health <= 20) {
     ending = { title: "💔 过劳猝死", desc: "你的 Health 撑不到 2025。48 岁那年你突发心梗倒在编辑部。同事发现你电脑还亮着,屏幕上是今日稿件。" };
-  } else if (state.family <= 30) {
+  } else if (state.family <= 20) {
     ending = { title: "💔 家人决裂", desc: "你错过了孩子的家长会,错过了父母的最后时光。52 岁那年你发现妻子已经签好了离婚协议,孩子跟了她姓。" };
   } else if (state.era === 5 && state.reputation >= 80 && state.reach >= 50) {
     ending = { title: "🏆 头部财经 IP", desc: "你是半佛/吴晓波级头部 IP,千万粉丝。2024 年你登上《财富》中国 40 位商界领袖榜单,千万佣金 + 投资亿万身家。" };
@@ -665,6 +706,7 @@ function finishGame() {
 }
 
 function renderEnding(ending) {
+  state.phase = "ending";
   document.getElementById("game-area").innerHTML = `
     <div class="ending">
       <h2>${ending.title}</h2>
@@ -678,7 +720,7 @@ function renderEnding(ending) {
       <p style="font-size:12px;color:#90caf9;margin-top:10px">📜 30 年足迹:<br>${state.projectResults.map(r => ` · ${r.year} ${r.project} (${r.real}) → ${r.outcome} x${r.mult.toFixed(1)} `).join("<br>")}</p>
       <button class="btn gold" onclick="window.startGame()">🔄 重新开始 30 年新闻路</button>
     </div>
-  `);
+  `;
 }
 
 document.getElementById("game-area").innerHTML = INTRO_HTML;
