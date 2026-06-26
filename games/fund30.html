@@ -362,6 +362,7 @@ function initState() {
   };
 }
 let state = initState();
+window.state = state;
 
 function updateState(changes) {
   if (!changes) return;
@@ -554,6 +555,7 @@ function checkSideQuest() {
 
 window.startGame = function() {
   state = initState();
+  window.state = state;
   document.getElementById("log").innerHTML = "";
   document.getElementById("log").style.display = "block";
   addLog("\u{1F4DC} 1995 年 · 你 22 岁,北大经院毕业,入申银万国研究部");
@@ -581,12 +583,14 @@ window.chooseEvent = function(key) {
   });
   addLog(`\u{1F4F0} 时代事件 → ${choice.text} (${choice.eff})`);
   state.pendingProject = pick3(PROJECTS[state.era]);
+  state.phase = "project";
   renderProject();
 };
 
 window.chooseProject = function(idx) {
   const project = state.pendingProject[idx];
   state._currentProject = project;
+  state.phase = "intensity";
   addLog(`\u{1F4BC} 选择了 ${project.name} (${project.real})`);
   renderIntensity();
 };
@@ -605,6 +609,7 @@ window.chooseIntensity = function(key) {
   addLog(`\u{1F4CA} ${project.name} → ${outcome.label} · ${outcome.mult.toFixed(1)}x`, outcome.label === '\u{1F7E2} huge' ? 'l-good' : outcome.label === '\u{1F534} failure' ? 'l-bad' : '');
   state.projectResults.push({ year: state.year, project: project.name, real: project.real, outcome: outcome.label, mult: outcome.mult });
   state._mainDone = true;
+  state.phase = "result";
   renderResult(outcome, project);
 };
 
@@ -730,10 +735,12 @@ function finishGame() {
   } else {
     ending = { title: "\u{1F31F} 投资圈中坚", desc: `30 年里你从研究员焖到了明星基金经理。AUM ${state.aum.toFixed(0)} 亿,排名 ${state.rank},健康 ${state.health}。52 岁的你正考虑退休还是二次创业。` };
   }
+  state.phase = "ending";
   renderEnding(ending);
 }
 
 function renderEnding(ending) {
+  state.phase = "ending";
   document.getElementById("game-area").innerHTML = `
     <div class="ending">
       <h2>${ending.title}</h2>
