@@ -334,8 +334,8 @@ const SIDE_QUESTS = [
 const ERAS = [
   { name: "利率管制时代", yearStart: 1995, yearEnd: 2000, gate: { stat: "deposits", min: 5, fail: "存款规模不足 5 亿,卡在客户经理 5 年,2005 才升副行长" }, desc: "四大行垄断 + 央行管制" },
   { name: "股份制崛起时代", yearStart: 2000, yearEnd: 2005, gate: { stat: "rating", min: 2, fail: "监管评级低于 2A,被分流到郊区支行" }, desc: "招商/民生/兴业 + WTO 入世" },
-  { name: "黄金十年时代", yearStart: 2005, yearEnd: 2013, gate: { stat: "political", min: 50, fail: "政治资本不足 50,2018 监管严打第一批被查" }, desc: "房地产 + 城投 + 表外" },
-  { name: "互联网金融时代", yearStart: 2013, yearEnd: 2018, gate: { stat: "deposits", min: 100, fail: "存款不足 100 亿,没资格接分行行长" }, desc: "余额宝/P2P/移动支付" },
+  { name: "黄金十年时代", yearStart: 2005, yearEnd: 2013, gate: { stat: "political", min: 25, fail: "政治资本不足 25,2018 监管严打第一批被查" }, desc: "房地产 + 城投 + 表外" },
+  { name: "互联网金融时代", yearStart: 2013, yearEnd: 2018, gate: { stat: "deposits", min: 50, fail: "存款不足 50 亿,没资格接分行行长" }, desc: "余额宝/P2P/移动支付" },
   { name: "监管周期时代", yearStart: 2018, yearEnd: 2025, gate: null, desc: "资管新规/金融反腐/数字人民币" }
 ];
 
@@ -505,13 +505,20 @@ const EVENTS = {
   ]
 };
 
-let state = {
-  era: 1, round: 0, year: 1995, age: 22,
-  deposits: 0.5, npl: 0, rating: 3, political: 20,
-  health: 100, family: 100, social: 80,
-  log: [], projectResults: [], sideQuestsDone: [],
-  phase: "intro", pendingEvent: null, pendingProject: null, pendingSideQuest: null
-};
+function initState() {
+  return {
+    year: 1995, age: 22, round: 0, era: 1,
+    deposits: 1.0, npl: 0, rating: 0, political: 50,
+    health: 150, family: 150, social: 80,
+    log: [], projectResults: [], sideQuestsDone: [],
+    pendingEvent: null, pendingProject: null, _currentProject: null,
+    pendingSideQuest: null,
+    phase: "intro",
+    _mainDone: false
+  };
+}
+let state = initState();
+window.state = state;
 
 function pick3(arr) {
   const shuffled = [...arr].sort(() => Math.random() - 0.5);
@@ -520,41 +527,38 @@ function pick3(arr) {
 
 function updateState(changes) {
   if (!changes) return;
-  if (changes.deposits) state.deposits = Math.max(0, state.deposits + changes.deposits);
-  if (changes.npl) state.npl = Math.max(0, Math.min(5, state.npl + changes.npl));
-  if (changes.political) state.political = Math.max(0, Math.min(100, state.political + changes.political));
-  if (changes.health) state.health = Math.max(0, Math.min(100, state.health + changes.health));
-  if (changes.family) state.family = Math.max(0, Math.min(100, state.family + changes.family));
-  if (changes.social) state.social = Math.max(0, Math.min(100, state.social + changes.social));
-  if (state.deposits >= 100 && state.npl < 1) state.rating = 3;
-  else if (state.deposits >= 50 && state.npl < 2) state.rating = 2;
-  else if (state.deposits >= 10) state.rating = 1;
-  else state.rating = 3;
-  renderStats();
+  Object.keys(changes).forEach(k => {
+    if (changes[k] === undefined || changes[k] === null) return;
+    state[k] = (state[k] || 0) + changes[k];
+  });
+  // 软指标 clamp 0-150
+  ['health','family','social'].forEach(k => {
+    if (state[k] > 150) state[k] = 150;
+    if (state[k] < 0) state[k] = 0;
+  });
+  // 硬指标 clamp
+  if (state.deposits < 0) state.deposits = 0;
+  if (state.npl < 0) state.npl = 0;
+  if (state.npl > 5) state.npl = 5;
+  if (state.political < 0) state.political = 0;
+  if (state.political > 100) state.political = 100;
+  // 评级重算:0=3C, 1=3B, 2=1A, 3=2B, 4=2A, 5=3A
+  // 评级越高数字越大
+  let newRating;
+  if (state.deposits >= 1000 && state.npl < 1) newRating = 6;
+  else if (state.deposits >= 500 && state.npl < 1.5) newRating = 5;
+  else if (state.deposits >= 100 && state.npl < 2) newRating = 4;
+  else if (state.deposits >= 50 && state.npl < 2.5) newRating = 3;
+  else if (state.deposits >= 10 && state.npl < 3) newRating = 2;
+  else if (state.deposits >= 3) newRating = 1;
+  else newRating = 0;
+  state.rating = newRating;
+  if (typeof renderStats === 'function') renderStats();
 }
 
 function ratingLabel(r) {
-  return ['3C', '3B', '2C', '2B', '2A', '1A', '3A'][r] || '3A';
-}
-
-function renderStats() {
-  document.getElementById("deposits").textContent = state.deposits.toFixed(0) + " 亿";
-  document.getElementById("npl").textContent = state.npl.toFixed(1) + "%";
-  document.getElementById("rating").textContent = ratingLabel(state.rating);
-  document.getElementById("political").textContent = state.political;
-  document.getElementById("health-val").textContent = state.health;
-  document.getElementById("family-val").textContent = state.family;
-  document.getElementById("social-val").textContent = state.social;
-  const setBar = (id, v) => {
-    const el = document.getElementById(id);
-    el.style.width = v + "%";
-    el.style.background = v > 60 ? "#ffd54f" : v > 30 ? "#ff8a65" : "#ff5252";
-  };
-  setBar("health-bar", state.health);
-  setBar("family-bar", state.family);
-  setBar("social-bar", state.social);
-  const pol = document.getElementById("political");
-  pol.className = "stat-value " + (state.political < 30 ? "bad" : state.political < 60 ? "warn" : "");
+  const labels = ['3C 客户经理', '3B 部门经理', '1A 支行长', '2B 省分行副总', '2A 省分行行长', '3A 总行 VP', '3A+ 总行行长'];
+  return labels[r] || '3C 客户经理';
 }
 
 function addLog(html, type) {
@@ -573,24 +577,23 @@ function rollOutcome(project) {
 }
 
 function applyOutcome(outcome, project) {
-  let mult, effStr = "";
-  if (outcome.key === "huge") { mult = project.mult; effStr = "💰 存款 x" + mult; state.deposits *= mult; }
-  else if (outcome.key === "moderate") { mult = project.mult * 0.5; effStr = "💰 存款 x" + mult.toFixed(1); state.deposits *= mult; }
-  else if (outcome.key === "breakeven") { mult = 1; effStr = "💰 存款 持平"; }
-  else { mult = 0.5; effStr = "💰 存款 x0.5 (损失)"; state.deposits *= 0.5; state.npl += 0.5; }
-  state.projectResults.push({ year: state.year, project: project.name, real: project.real, outcome: outcome.label, mult });
+  let effStr = "";
+  if (outcome.key === "huge") { effStr = "💰 存款 x" + project.mult; state.deposits *= project.mult; }
+  else if (outcome.key === "moderate") { effStr = "💰 存款 x" + (project.mult * 0.5).toFixed(1); state.deposits *= (project.mult * 0.5); }
+  else if (outcome.key === "breakeven") { effStr = "💰 存款 持平"; }
+  else { effStr = "💰 存款 x0.5 (损失)"; state.deposits *= 0.5; state.npl += 0.5; }
+  state.projectResults.push({ year: state.year, project: project.name, real: project.real, outcome: outcome.label, mult: outcome.key === "huge" ? project.mult : outcome.key === "moderate" ? project.mult * 0.5 : outcome.key === "breakeven" ? 1 : 0.5 });
   return effStr;
 }
 
-function renderEraBanner() {
-  const era = ERAS[state.era - 1];
-  return `<div class="era-banner">${era.name}<div class="year-text">${state.year} 年 · 你 ${state.age} 岁 · 第 ${state.round+1}/4 回合${state.sideQuestsDone.length > 0 ? " · 支线 " + state.sideQuestsDone.length + "/5" : ""}</div></div>`;
+function clearGameArea() {
+  document.getElementById("game-area").innerHTML = "";
 }
 
 function renderStatsBar() {
   return `
     <div class="stats-bar">
-      <div class="stat"><div class="stat-label">存款(亿)</div><div class="stat-value" id="deposits">${state.deposits.toFixed(0)} 亿</div></div>
+      <div class="stat"><div class="stat-label">存款(亿)</div><div class="stat-value" id="deposits">${state.deposits.toFixed(1)} 亿</div></div>
       <div class="stat"><div class="stat-label">不良率</div><div class="stat-value" id="npl">${state.npl.toFixed(1)}%</div></div>
       <div class="stat"><div class="stat-label">监管评级</div><div class="stat-value" id="rating">${ratingLabel(state.rating)}</div></div>
       <div class="stat"><div class="stat-label">政治资本</div><div class="stat-value" id="political">${state.political}</div></div>
@@ -603,8 +606,36 @@ function renderStatsBar() {
   `;
 }
 
+function renderEraBanner() {
+  const era = ERAS[state.era - 1];
+  return `<div class="era-banner">${era.name}<div class="year-text">${state.year} 年 · 你 ${state.age} 岁 · 第 ${state.round+1}/4 回合${state.sideQuestsDone.length > 0 ? " · 支线 " + state.sideQuestsDone.length + "/5" : ""}</div></div>`;
+}
+
+function renderStats() {
+  const safeSet = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  safeSet("deposits", state.deposits.toFixed(1) + " 亿");
+  safeSet("npl", state.npl.toFixed(1) + "%");
+  safeSet("rating", ratingLabel(state.rating));
+  safeSet("political", state.political);
+  safeSet("health-val", state.health);
+  safeSet("family-val", state.family);
+  safeSet("social-val", state.social);
+  const setBar = (id, v) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.style.width = Math.min(100, v * 0.67) + "%";
+    el.style.background = v > 90 ? "#ffd54f" : v > 60 ? "#ff8a65" : "#ff5252";
+  };
+  setBar("health-bar", state.health);
+  setBar("family-bar", state.family);
+  setBar("social-bar", state.social);
+  const pol = document.getElementById("political");
+  if (pol) pol.className = "stat-value " + (state.political < 30 ? "bad" : state.political < 60 ? "warn" : "");
+}
+
 function renderEvent() {
   const ev = state.pendingEvent;
+  clearGameArea();
   document.getElementById("game-area").innerHTML = `
     ${renderStatsBar()}
     ${renderEraBanner()}
@@ -617,11 +648,11 @@ function renderEvent() {
       </div>
     </div>
   `;
-  renderStats();
 }
 
 function renderProject() {
   const projects = state.pendingProject;
+  clearGameArea();
   document.getElementById("game-area").innerHTML = `
     ${renderStatsBar()}
     ${renderEraBanner()}
@@ -639,10 +670,10 @@ function renderProject() {
       </div>
     </div>
   `;
-  renderStats();
 }
 
 function renderIntensity() {
+  clearGameArea();
   document.getElementById("game-area").innerHTML = `
     ${renderStatsBar()}
     ${renderEraBanner()}
@@ -650,17 +681,17 @@ function renderIntensity() {
       <div class="card-title">⚙️ 投入度 · 3 选 1</div>
       <div class="card-desc">本回合你打算多拼?</div>
       <div class="choices">
-        <button class="choice" onclick="chooseIntensity('a')"><span class="choice-tag">A</span>996 极限<span class="choice-eff">存款+20%, Health-10, 不良率+0.5%, Family-3</span></button>
-        <button class="choice" onclick="chooseIntensity('b')"><span class="choice-tag">B</span>8h 平衡<span class="choice-eff">存款+5%, Health-3</span></button>
-        <button class="choice" onclick="chooseIntensity('c')"><span class="choice-tag">C</span>摆烂<span class="choice-eff">存款-5%, Health+5, 政治资本-5, Family+3</span></button>
+        <button class="choice" onclick="chooseIntensity('a')"><span class="choice-tag">A</span>996 极限<span class="choice-eff">存款+10%, Health-5, 不良率+0.3%, Family-3</span></button>
+        <button class="choice" onclick="chooseIntensity('b')"><span class="choice-tag">B</span>8h 平衡<span class="choice-eff">存款+3%, Health-2</span></button>
+        <button class="choice" onclick="chooseIntensity('c')"><span class="choice-tag">C</span>摆烂<span class="choice-eff">存款-3%, Health+5, 政治资本-3, Family+3</span></button>
       </div>
     </div>
   `;
-  renderStats();
 }
 
 function renderSideQuest() {
   const sq = state.pendingSideQuest;
+  clearGameArea();
   document.getElementById("game-area").innerHTML = `
     ${renderStatsBar()}
     ${renderEraBanner()}
@@ -677,10 +708,10 @@ function renderSideQuest() {
       </div>
     </div>
   `;
-  renderStats();
 }
 
 function renderResult(outcome, project) {
+  clearGameArea();
   document.getElementById("game-area").innerHTML = `
     ${renderStatsBar()}
     ${renderEraBanner()}
@@ -698,10 +729,10 @@ function renderResult(outcome, project) {
       <button class="choice" onclick="nextRound()" style="text-align:center; background: rgba(255,213,79,0.2);">进入下一年 →</button>
     </div>
   `;
-  renderStats();
 }
 
 function renderEnding(ending) {
+  clearGameArea();
   document.getElementById("game-area").innerHTML = `
     <div class="ending-screen">
       <div class="ending-title">${ending.title}</div>
@@ -722,14 +753,28 @@ function renderEnding(ending) {
   `;
 }
 
+function checkSideQuest() {
+  const sq = SIDE_QUESTS.find(s => s.year === state.year && !state.sideQuestsDone.find(d => d.year === s.year));
+  if (sq) {
+    state.pendingSideQuest = sq;
+    state.phase = "sidequest";
+    return true;
+  }
+  state.phase = "event";
+  return false;
+}
+
 window.startGame = function() {
   document.getElementById("log").style.display = "block";
+  state = initState();
+  window.state = state;
   addLog("📜 <strong>1995 年</strong> · 你 22 岁,入行工行某支行做柜员");
   checkSideQuest();
   if (state.phase === "sidequest") {
     renderSideQuest();
   } else {
     state.pendingEvent = EVENTS[1][0];
+    state._mainDone = false;
     renderEvent();
   }
 };
@@ -737,30 +782,41 @@ window.startGame = function() {
 window.chooseEvent = function(key) {
   const ev = state.pendingEvent;
   const choice = ev[key];
-  updateState({ deposits: choice.deposits, npl: choice.npl, political: choice.political, health: choice.health, family: choice.family, social: choice.social });
+  updateState({
+    deposits: choice.deposits||0,
+    npl: choice.npl||0,
+    political: choice.political||0,
+    health: choice.health||0,
+    family: choice.family||0,
+    social: choice.social||0
+  });
   addLog(`📰 时代事件 → <strong>${choice.text}</strong> (${choice.eff})`);
   state.pendingProject = pick3(PROJECTS[state.era]);
+  state.phase = "project";
   renderProject();
 };
 
 window.chooseProject = function(idx) {
   const project = state.pendingProject[idx];
   state._currentProject = project;
+  state.phase = "intensity";
   addLog(`💼 选择了 <strong>${project.name}</strong> (${project.real})`);
   renderIntensity();
 };
 
 window.chooseIntensity = function(key) {
   let changes = {};
-  if (key === 'a') changes = { deposits: state.deposits * 0.2, health: -10, npl: 0.5, family: -3 };
-  if (key === 'b') changes = { deposits: state.deposits * 0.05, health: -3 };
-  if (key === 'c') changes = { deposits: state.deposits * -0.05, health: 5, family: 3, political: -5 };
+  if (key === 'a') changes = { deposits: state.deposits * 0.1, health: -5, npl: 0.3, family: -3 };
+  else if (key === 'b') changes = { deposits: state.deposits * 0.03, health: -2 };
+  else changes = { deposits: state.deposits * -0.03, health: 5, political: -3, family: 3 };
   updateState(changes);
   addLog(`⚙️ 投入度: ${key === 'a' ? '996 极限' : key === 'b' ? '8h 平衡' : '摆烂'}`);
   const project = state._currentProject;
   const outcome = rollOutcome(project);
   const effStr = applyOutcome(outcome, project);
   addLog(`📊 <strong>${project.name}</strong> → ${outcome.label} · ${effStr}`);
+  state._mainDone = true;
+  state.phase = "result";
   renderResult(outcome, project);
 };
 
@@ -786,20 +842,15 @@ window.chooseSideQuest = function(idx) {
   }
   state.sideQuestsDone.push({ year: state.year, title: sq.title });
   state.pendingSideQuest = null;
-  if (state.pendingEvent) {
+  // 修复:支线完成后,如果本年主流程还没做,继续做
+  if (!state._mainDone) {
+    state.phase = "event";
+    state.pendingEvent = EVENTS[state.era][state.round];
     renderEvent();
   } else {
     nextRound();
   }
 };
-
-function checkSideQuest() {
-  const sq = SIDE_QUESTS.find(s => s.year === state.year && !state.sideQuestsDone.find(d => d.year === s.year));
-  if (sq) {
-    state.pendingSideQuest = sq;
-    state.phase = "sidequest";
-  }
-}
 
 window.nextRound = function() {
   state.round += 1;
@@ -807,6 +858,9 @@ window.nextRound = function() {
   state.age += 1;
   state._currentProject = null;
   state.pendingEvent = null;
+  state._mainDone = false;
+  clearGameArea();
+
   if (state.round >= 4) {
     state.era += 1;
     state.round = 0;
@@ -815,22 +869,31 @@ window.nextRound = function() {
     const era = ERAS[state.era - 1];
     if (era.gate) {
       const stat = state[era.gate.stat];
-      const check = era.gate.stat === "rating" ? ratingLabel(stat) : stat;
-      if ((era.gate.stat === "rating" && stat < era.gate.min) || (era.gate.stat !== "rating" && stat < era.gate.min)) {
+      // rating 数字越大越好 (新设计), political/aum 越大越好
+      const isLowGood = (era.gate.stat === 'npl');
+      const fail = isLowGood ? stat > era.gate.min : stat < era.gate.min;
+      if (fail) {
         addLog(`⚠ 门控失败:${era.gate.fail}`);
         updateState({ political: -10, social: -5 });
+        // 修复:门控失败 → 触发结局
+        renderEnding({
+          title: "🚪 时代门控失败",
+          desc: era.gate.fail + "。你的 30 年银行路提前画上句号。52 岁的你回头看,这是当年最关键的一个数字没达标。"
+        });
+        return;
       } else {
-        addLog(`✅ 门控通过:${era.gate.stat}=${check} ≥ ${era.gate.min}`);
+        addLog(`✅ 门控通过:${era.gate.stat} 达标`);
       }
     }
   }
+  // 时代 5 反腐
   if (state.era === 5 && state.political < 50 && Math.random() < 0.3) {
     addLog(`⚖️ <strong style="color:#ff5252;">【被查!】</strong>中纪委调查你,你被双规`, "sidequest");
     state.political = Math.max(0, state.political - 20);
   }
-  if (state.health <= 30) { finishGame(); return; }
-  if (state.political <= 30) { finishGame(); return; }
-  if (state.family <= 30) { finishGame(); return; }
+  if (state.health <= 20) { finishGame(); return; }
+  if (state.political <= 10) { finishGame(); return; }
+  if (state.family <= 20) { finishGame(); return; }
   checkSideQuest();
   if (state.phase === "sidequest") {
     renderSideQuest();
@@ -842,18 +905,18 @@ window.nextRound = function() {
 
 function finishGame() {
   let ending;
-  if (state.political <= 30) {
+  if (state.political <= 10) {
     ending = { title: "💔 金融反腐被查", desc: "2024 年你被中纪委带走。10 年间你贪了 500 万,现在写《忏悔录》。老婆跟你离了婚,孩子在同学面前抬不起头。" };
-  } else if (state.health <= 30) {
+  } else if (state.health <= 20) {
     ending = { title: "💔 过劳病退", desc: "你的 Health 撑不到 2025。48 岁那年你突发心梗,提前病退。退休金 8000/月,医保报不完 ICU 费。" };
-  } else if (state.family <= 30) {
+  } else if (state.family <= 20) {
     ending = { title: "💔 家人决裂", desc: "你错过了孩子的家长会,错过了父母的最后时光。52 岁那年你发现妻子已经签好了离婚协议。" };
-  } else if (state.rating >= 3 && state.deposits >= 1000 && state.political >= 80) {
-    ending = { title: "🏆 国有大行总行行长", desc: "你是国有大行总行 VP/行长,金融街大佬。你的名字出现在《财富》中国 50 位商界领袖榜单上。" };
-  } else if (state.rating >= 2 && state.deposits >= 500) {
-    ending = { title: "🌟 股份制分行行长", desc: "你是招行/兴业/民生某省分行行长,身价 5000 万+,圈内有名。2024 年安全退休。" };
-  } else if (state.deposits >= 100 && state.political >= 60) {
-    ending = { title: "🏠 城商行总行行长", desc: "你是宁波/南京/北京银行总行行长,地方金融王。52 岁退休,本地政协委员。" };
+  } else if (state.rating >= 6 && state.deposits >= 1000 && state.political >= 80) {
+    ending = { title: "🏆 国有大行总行行长", desc: "你是国有大行总行行长,金融街大佬。你的名字出现在《财富》中国 50 位商界领袖榜单上。" };
+  } else if (state.rating >= 5 && state.deposits >= 500) {
+    ending = { title: "🌟 总行 VP", desc: "你是国有大行总行副总裁,身价 5000 万+,圈内有名。2024 年安全退休。" };
+  } else if (state.rating >= 4 && state.deposits >= 100) {
+    ending = { title: "🏠 股份制分行行长", desc: "你是招行/兴业/民生某省分行行长,地方金融王。52 岁退休,本地政协委员。" };
   } else if (state.deposits >= 50) {
     ending = { title: "🛋 稳定支行长", desc: "你一直在支行长位置,2025 退休,退休金 1.5 万/月。平凡而安全。" };
   } else if (state.rating <= 1 && state.political < 40) {
@@ -867,13 +930,7 @@ function finishGame() {
 }
 
 window.restart = function() {
-  state = {
-    era: 1, round: 0, year: 1995, age: 22,
-    deposits: 0.5, npl: 0, rating: 3, political: 20,
-    health: 100, family: 100, social: 80,
-    log: [], projectResults: [], sideQuestsDone: [],
-    phase: "intro", pendingEvent: null, pendingProject: null, pendingSideQuest: null
-  };
+  state = initState();
   document.getElementById("log").innerHTML = "";
   document.getElementById("log").style.display = "none";
   showIntro();
