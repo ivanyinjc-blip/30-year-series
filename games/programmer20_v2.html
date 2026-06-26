@@ -395,10 +395,10 @@ const SIDE_QUESTS = [
 // ==================== 游戏数据(同 v1) ====================
 const ERAS = [
   { name: "DOS/Windows 时代", yearStart: 1995, yearEnd: 2000, gate: null, desc: "桌面软件、PC 起步,C/C++/汇编/单片机" },
-  { name: "互联网泡沫时代", yearStart: 2000, yearEnd: 2005, gate: { stat: "coding", min: 40, fail: "你 Coding 不足 40,Java 时代的大门对你关闭,继续在旧赛道龟速发展" }, desc: "门户、电商、SP,ASP/JSP/Java" },
-  { name: "Web 2.0 时代", yearStart: 2005, yearEnd: 2010, gate: { stat: "insight", min: 50, fail: "你 Insight 不足 50,看不清社交/视频红利,错过 Web 2.0 浪潮" }, desc: "社交、视频、安全,Java/Struts/Spring" },
-  { name: "移动 + 云 时代", yearStart: 2010, yearEnd: 2018, gate: { stat: "reputation", min: 40, fail: "你 Reputation 不足 40,没拿到移动 App offer,2008 行业下行时先被裁" }, desc: "移动 App、O2O,iOS/Android/AWS" },
-  { name: "AI 时代", yearStart: 2018, yearEnd: 2025, gate: { stat: "coding", min: 50, fail: "你 Coding 不足 50,学不动 Python/Transformer,35 岁危机 + 没赶上 AI" }, desc: "LLM、Agent、Cursor,Python/Transformer" }
+  { name: "互联网泡沫时代", yearStart: 2000, yearEnd: 2005, gate: { stat: "coding", min: 25, fail: "你 Coding 不足 25,Java 时代的大门对你关闭,继续在旧赛道龟速发展" }, desc: "门户、电商、SP,ASP/JSP/Java" },
+  { name: "Web 2.0 时代", yearStart: 2005, yearEnd: 2010, gate: { stat: "insight", min: 30, fail: "你 Insight 不足 30,看不清社交/视频红利,错过 Web 2.0 浪潮" }, desc: "社交、视频、安全,Java/Struts/Spring" },
+  { name: "移动 + 云 时代", yearStart: 2010, yearEnd: 2018, gate: { stat: "reputation", min: 25, fail: "你 Reputation 不足 25,没拿到移动 App offer,2008 行业下行时先被裁" }, desc: "移动 App、O2O,iOS/Android/AWS" },
+  { name: "AI 时代", yearStart: 2018, yearEnd: 2025, gate: { stat: "coding", min: 30, fail: "你 Coding 不足 30,学不动 Python/Transformer,35 岁危机 + 没赶上 AI" }, desc: "LLM、Agent、Cursor,Python/Transformer" }
 ];
 
 const PROJECTS = {
@@ -628,6 +628,14 @@ function rollOutcome(project) {
   return { key: "failure", label: "🔴 failure", text: project.outs.failure };
 }
 
+function checkSideQuest() {
+  const sq = SIDE_QUESTS.find(s => s.year === state.year && !state.sideQuestsDone.find(d => d.year === s.year));
+  if (sq) {
+    state.pendingSideQuest = sq;
+    state.phase = "sidequest";
+  }
+}
+
 function applyOutcome(outcome, project) {
   let mult, effStr = "";
   if (outcome.key === "huge") { mult = project.mult; effStr = `💰 Net Worth x${mult}`; state.networth *= mult; }
@@ -757,7 +765,187 @@ function renderResult(outcome, project) {
   renderStats();
 }
 
+// ==================== 修复版 startGame ====================
+window.startGame = function() {
+  document.getElementById("log").style.display = "block";
+  document.getElementById("log").innerHTML = "";
+  state = {
+    era: 1, round: 0, year: 1995, age: 22,
+    coding: 30, insight: 30, reputation: 20, networth: 5,
+    health: 250, family: 200, social: 120,
+    log: [], projectResults: [], sideQuestsDone: [],
+    phase: "intro",
+    pendingEvent: null, pendingProject: null, pendingSideQuest: null,
+    _currentProject: null, _mainDone: false
+  };
+  window.state = state;
+  addLog("📜 <strong>1995 年</strong> · 你 22 岁,刚毕业,加入浪潮软件(Borland 映射)实习");
+  checkSideQuest();
+  if (state.phase === "sidequest") {
+    renderSideQuest();
+  } else {
+    state.pendingEvent = EVENTS[1][0];
+    state.phase = "event";
+    renderEvent();
+  }
+};
+
+// ==================== 修复版 updateState ====================
+function updateState(changes) {
+  if (!changes) return;
+  Object.keys(changes).forEach(k => {
+    if (changes[k] === undefined || changes[k] === null) return;
+    if (k === 'networth') {
+      state.networth = Math.max(0, (state.networth || 0) + changes[k]);
+    } else {
+      const cap = (k === 'coding' || k === 'insight' || k === 'reputation' || k === 'social') ? 100 : 200;
+      state[k] = Math.max(0, Math.min(cap, (state[k] || 0) + changes[k]));
+    }
+  });
+  renderStats();
+}
+
+window.chooseEvent = function(key) {
+  const ev = state.pendingEvent;
+  const choice = ev[key];
+  updateState({ coding: choice.coding, insight: choice.insight, reputation: choice.reputation, networth: choice.networth, health: choice.health, family: choice.family, social: choice.social });
+  addLog(`📰 时代事件 → <strong>${choice.text}</strong> (${choice.eff})`);
+  state.pendingProject = pick3(PROJECTS[state.era]);
+  state.phase = "project";
+  renderProject();
+};
+
+window.chooseProject = function(idx) {
+  const project = state.pendingProject[idx];
+  state._currentProject = project;
+  state.phase = "intensity";
+  addLog(`💼 选择了 <strong>${project.name}</strong> (${project.real})`);
+  renderIntensity();
+};
+
+window.chooseIntensity = function(key) {
+  let changes = {};
+  if (key === 'a') changes = { coding: 5, health: -4, family: -2, social: -2 };
+  if (key === 'b') changes = { coding: 3, health: -1 };
+  if (key === 'c') changes = { coding: 1, health: 5, family: 3, reputation: -2 };
+  updateState(changes);
+  addLog(`⚙️ 投入度: ${key === 'a' ? '996 极限' : key === 'b' ? '8h 平衡' : '摆烂'}`);
+  const project = state._currentProject;
+  const outcome = rollOutcome(project);
+  const effStr = applyOutcome(outcome, project);
+  addLog(`📊 <strong>${project.name}</strong> → ${outcome.label} · ${effStr}`);
+  state._mainDone = true;
+  state.phase = "result";
+  renderResult(outcome, project);
+};
+
+window.chooseSideQuest = function(idx) {
+  const sq = state.pendingSideQuest;
+  const choice = sq.choices[idx];
+  if (choice.gamble) {
+    const won = Math.random() < 0.5;
+    if (won) {
+      addLog(`🌟 支线:${choice.text} <strong style="color:#64ffda;">【赌赢了!】</strong>`, "sidequest");
+      const winChanges = {};
+      Object.keys(choice.changes).forEach(k => { winChanges[k] = choice.changes[k] * 2; });
+      updateState(winChanges);
+    } else {
+      addLog(`🌟 支线:${choice.text} <strong style="color:#ff5252;">【赌输了,血本无归】</strong>`, "sidequest");
+      const loseChanges = {};
+      Object.keys(choice.changes).forEach(k => { loseChanges[k] = choice.changes[k] * 2; });
+      updateState(loseChanges);
+    }
+  } else {
+    updateState(choice.changes);
+    addLog(`🌟 支线:${choice.text} (${choice.eff})`, "sidequest");
+  }
+  state.sideQuestsDone.push({ year: state.year, title: sq.title });
+  state.pendingSideQuest = null;
+  if (state._mainDone) {
+    nextRound();
+  } else {
+    state.phase = "event";
+    state.pendingEvent = EVENTS[state.era][state.round];
+    renderEvent();
+  }
+};
+
+window.nextRound = function() {
+  state.round += 1;
+  state.year += 1;
+  state.age += 1;
+  state._currentProject = null;
+  state.pendingEvent = null;
+  state._mainDone = false;
+  state.phase = "event";
+
+  if (state.round >= 4) {
+    state.era += 1;
+    state.round = 0;
+    if (state.era > 5) { finishGame(); return; }
+    addLog(`🚪 <strong>时代切换 → ${ERAS[state.era-1].name}</strong>`, "l-gold");
+    const era = ERAS[state.era - 1];
+    if (era.gate) {
+      const stat = state[era.gate.stat];
+      const isLowGood = (era.gate.stat === 'mouseRisk' || era.gate.stat === 'rank');
+      const fail = isLowGood ? stat > era.gate.min : stat < era.gate.min;
+      if (fail) {
+        addLog(`⚠ 门控失败:${era.gate.fail}`, "l-bad");
+        state.phase = "ending";
+        renderEnding({
+          title: "🚪 时代门控失败",
+          desc: era.gate.fail + "。你的 30 年技术路被锁死在旧赛道。",
+          custom: true
+        });
+        return;
+      } else {
+        addLog(`✅ 门控通过:${era.gate.stat}=${stat} ≥ ${era.gate.min}`, "l-good");
+      }
+    }
+  }
+
+  if (state.health <= 30) { finishGame(); return; }
+  if (state.family <= 30) { finishGame(); return; }
+  if (state.coding <= 10 && state.reputation <= 10) { finishGame(); return; }
+
+  checkSideQuest();
+  if (state.phase === "sidequest") {
+    renderSideQuest();
+  } else {
+    state.pendingEvent = EVENTS[state.era][state.round];
+    renderEvent();
+  }
+};
+
+function finishGame() {
+  let ending;
+  if (state.reputation >= 90 && state.coding >= 90) {
+    ending = { title: "🔒 隐藏结局:开源先驱", desc: "你成为顶级开源 maintainer,你的代码被全球开发者使用,被写进技术史。" };
+  } else if (state.health <= 30) {
+    ending = { title: "💔 过劳病退结局", desc: "你的 Health 撑不到 2025。40 岁那年,你被诊断出重度焦虑 + 失眠,提前退休了。" };
+  } else if (state.projectResults.filter(r => r.outcome.includes("failure")).length >= 5) {
+    ending = { title: "🔒 隐藏结局:创业失败", desc: "5 次失败项目,52 岁还在打零工,同学们聚会时你总是提前离开。" };
+  } else if (state.family <= 30) {
+    ending = { title: "💔 家人决裂结局", desc: "你错过了孩子的成长,错过了父母的最后时光。52 岁那年,你和家人形同陌路。" };
+  } else if (state.reputation >= 80 && state.networth >= 5000) {
+    ending = { title: "🏆 科技大佬结局", desc: "你是上市公司的 CTO,写了一本《我的 30 年技术人生》,被业内称为传奇。" };
+  } else if (state.reputation >= 70 && state.coding >= 80) {
+    ending = { title: "🌟 高级专家结局", desc: "你是阿里 P9 / Google L8,业内有名的技术专家,你的演讲场场爆满。" };
+  } else if (state.networth >= 500 && state.health >= 60) {
+    ending = { title: "🏠 稳定中产结局", desc: "你在大厂混到 P8,买房买车,孩子上国际学校,52 岁开始考虑提前退休。" };
+  } else if (state.reputation >= 50 && state.networth >= 200) {
+    ending = { title: "🛋 自由职业结局", desc: "你 40 岁那年离开大厂,做独立顾问,远程工作,周游世界。" };
+  } else if (state.coding < 40 && state.reputation < 40) {
+    ending = { title: "😢 35 岁被裁结局", desc: "2023 年互联网大裁员,你被优化。52 岁还在投简历,感叹时代抛弃你连招呼都不打。" };
+  } else {
+    ending = { title: "😐 平平无奇结局", desc: "30 年就这样过去了。你没有大富大贵,也没有跌入谷底,只是……普通。" };
+  }
+  state.phase = "ending";
+  renderEnding(ending);
+}
+
 function renderEnding(ending) {
+  state.phase = "ending";
   document.getElementById("game-area").innerHTML = `
     <div class="ending-screen">
       <div class="ending-title">${ending.title}</div>
@@ -778,169 +966,8 @@ function renderEnding(ending) {
   `;
 }
 
-// ==================== 玩家选择处理 ====================
-window.startGame = function() {
-  document.getElementById("log").style.display = "block";
-  addLog("📜 <strong>1995 年</strong> · 你 22 岁,刚毕业,加入浪潮软件(Borland 映射)实习");
-  // 检查支线任务(1997 在 era 1 round 1)
-  checkSideQuest();
-  if (state.phase === "sidequest") {
-    renderSideQuest();
-  } else {
-    state.pendingEvent = EVENTS[1][0];
-    renderEvent();
-  }
-};
-
-window.chooseEvent = function(key) {
-  const ev = state.pendingEvent;
-  const choice = ev[key];
-  updateState({ coding: choice.coding, insight: choice.insight, reputation: choice.reputation, networth: choice.networth, health: choice.health, family: choice.family, social: choice.social });
-  addLog(`📰 时代事件 → <strong>${choice.text}</strong> (${choice.eff})`);
-  state.pendingProject = pick3(PROJECTS[state.era]);
-  renderProject();
-};
-
-window.chooseProject = function(idx) {
-  const project = state.pendingProject[idx];
-  state._currentProject = project;
-  addLog(`💼 选择了 <strong>${project.name}</strong> (${project.real})`);
-  renderIntensity();
-};
-
-window.chooseIntensity = function(key) {
-  let changes = {};
-  if (key === 'a') changes = { coding: 8, health: -8, family: -3, social: -3 };
-  if (key === 'b') changes = { coding: 3, health: -2 };
-  if (key === 'c') changes = { coding: 1, health: 5, family: 3, reputation: -2 };
-  updateState(changes);
-  addLog(`⚙️ 投入度: ${key === 'a' ? '996 极限' : key === 'b' ? '8h 平衡' : '摆烂'}`);
-  const project = state._currentProject;
-  const outcome = rollOutcome(project);
-  const effStr = applyOutcome(outcome, project);
-  addLog(`📊 <strong>${project.name}</strong> → ${outcome.label} · ${effStr}`);
-  renderResult(outcome, project);
-};
-
-window.chooseSideQuest = function(idx) {
-  const sq = state.pendingSideQuest;
-  const choice = sq.choices[idx];
-  // 处理赌博选项
-  if (choice.gamble) {
-    const won = Math.random() < 0.5;
-    if (won) {
-      addLog(`🌟 支线:${choice.text} <strong style="color:#64ffda;">【赌赢了!】</strong>`, "sidequest");
-      // 翻倍
-      const winChanges = {};
-      Object.keys(choice.changes).forEach(k => { winChanges[k] = choice.changes[k] * 2; });
-      updateState(winChanges);
-    } else {
-      addLog(`🌟 支线:${choice.text} <strong style="color:#ff5252;">【赌输了,血本无归】</strong>`, "sidequest");
-      // 损失翻倍
-      const loseChanges = {};
-      Object.keys(choice.changes).forEach(k => { loseChanges[k] = choice.changes[k] * 2; });
-      updateState(loseChanges);
-    }
-  } else {
-    updateState(choice.changes);
-    addLog(`🌟 支线:${choice.text} (${choice.eff})`, "sidequest");
-  }
-  state.sideQuestsDone.push({ year: state.year, title: sq.title });
-  state.pendingSideQuest = null;
-  // 支线完成后,进入当前时代事件(如果还没做)
-  if (state.pendingEvent) {
-    renderEvent();
-  } else {
-    nextRound();
-  }
-};
-
-function checkSideQuest() {
-  // 找到当前 year 对应的支线
-  const sq = SIDE_QUESTS.find(s => s.year === state.year && !state.sideQuestsDone.find(d => d.year === s.year));
-  if (sq) {
-    state.pendingSideQuest = sq;
-    state.phase = "sidequest";
-  }
-}
-
-window.nextRound = function() {
-  state.round += 1;
-  state.year += 1;
-  state.age += 1;
-  state._currentProject = null;
-  state.pendingEvent = null;
-
-  // 时代切换
-  if (state.round >= 4) {
-    state.era += 1;
-    state.round = 0;
-    if (state.era > 5) {
-      finishGame();
-      return;
-    }
-    updateState({ coding: -10 });
-    addLog(`🚪 <strong>时代切换 → ${ERAS[state.era-1].name}</strong> · Coding -10`);
-    const era = ERAS[state.era - 1];
-    if (era.gate) {
-      const stat = state[era.gate.stat];
-      if (stat < era.gate.min) {
-        addLog(`⚠ 门控失败:${era.gate.fail}`);
-        updateState({ reputation: -10, networth: -20 });
-      } else {
-        addLog(`✅ 门控通过:${era.gate.stat}=${stat} ≥ ${era.gate.min}`);
-      }
-    }
-  }
-  // 健康崩盘检查
-  if (state.health <= 30) { finishGame(); return; }
-  // 检查支线
-  checkSideQuest();
-  if (state.phase === "sidequest") {
-    renderSideQuest();
-  } else {
-    state.pendingEvent = EVENTS[state.era][state.round];
-    renderEvent();
-  }
-};
-
-function finishGame() {
-  let ending;
-  if (state.reputation >= 90 && state.coding >= 90) {
-    ending = { title: "🔒 隐藏结局:开源先驱", desc: "你成为顶级开源 maintainer,你的代码被全球开发者使用,被写进技术史。" };
-  } else if (state.projectResults.filter(r => r.outcome.includes("failure")).length >= 5) {
-    ending = { title: "🔒 隐藏结局:创业失败", desc: "5 次失败项目,52 岁还在打零工,同学们聚会时你总是提前离开。" };
-  } else if (state.health <= 30) {
-    ending = { title: "💔 过劳病退结局", desc: "你的 Health 撑不到 2025。40 岁那年,你被诊断出重度焦虑 + 失眠,提前退休了。" };
-  } else if (state.family <= 30) {
-    ending = { title: "💔 家人决裂结局", desc: "你错过了孩子的成长,错过了父母的最后时光。52 岁那年,你和家人形同陌路。" };
-  } else if (state.reputation >= 80 && state.networth >= 5000) {
-    ending = { title: "🏆 科技大佬结局", desc: "你是上市公司的 CTO,写了一本《我的 30 年技术人生》,被业内称为传奇。" };
-  } else if (state.reputation >= 70 && state.coding >= 80) {
-    ending = { title: "🌟 高级专家结局", desc: "你是阿里 P9 / Google L8,业内有名的技术专家,你的演讲场场爆满。" };
-  } else if (state.networth >= 500 && state.health >= 60) {
-    ending = { title: "🏠 稳定中产结局", desc: "你在大厂混到 P8,买房买车,孩子上国际学校,52 岁开始考虑提前退休。" };
-  } else if (state.reputation >= 50 && state.networth >= 200) {
-    ending = { title: "🛋 自由职业结局", desc: "你 40 岁那年离开大厂,做独立顾问,远程工作,周游世界。" };
-  } else if (state.coding < 40 && state.reputation < 40) {
-    ending = { title: "😢 35 岁被裁结局", desc: "2023 年互联网大裁员,你被优化。52 岁还在投简历,感叹时代抛弃你连招呼都不打。" };
-  } else {
-    ending = { title: "😐 平平无奇结局", desc: "30 年就这样过去了。你没有大富大贵,也没有跌入谷底,只是……普通。" };
-  }
-  renderEnding(ending);
-}
-
 window.restart = function() {
-  state = {
-    era: 1, round: 0, year: 1995, age: 22,
-    coding: 30, insight: 20, reputation: 10, networth: 5,
-    health: 100, family: 100, social: 80,
-    log: [], projectResults: [], sideQuestsDone: [],
-    phase: "intro", pendingEvent: null, pendingProject: null, pendingSideQuest: null
-  };
-  document.getElementById("log").innerHTML = "";
-  document.getElementById("log").style.display = "none";
-  showIntro();
+  window.startGame();
 };
 
 function showIntro() {
